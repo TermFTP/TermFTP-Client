@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "sourceMap": false,
+    "outDir": "build",
+    "baseUrl": ".",
+    "paths": {
+      "*": ["node_modules/*"]
+    },
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "esModuleInterop": true
+  },
+  "include": ["src/main.ts"]
+}
