@@ -1,5 +1,12 @@
 import { join, normalize } from "path";
-import { app, BrowserWindow, Menu, MenuItem, webFrame, protocol } from "electron";
+import {
+  app,
+  BrowserWindow,
+  Menu,
+  MenuItem,
+  webFrame,
+  protocol,
+} from "electron";
 import isDev from "electron-is-dev";
 import dotenv from "dotenv";
 import { pathExists } from "fs-extra";
@@ -32,7 +39,7 @@ function createWindow(): void {
   } else {
     win.loadURL(`file://${join(__dirname, "./index.html")}`);
   }
-  win.on("closed", () => (win = null));
+  win.on("closed", (): void => (win = null));
   win.focus();
 }
 

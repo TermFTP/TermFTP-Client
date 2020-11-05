@@ -2,6 +2,7 @@
   "name": "termftp-client",
   "version": "0.1.0",
   "private": true,
+  "main": "build/main.js",
   "dependencies": {
     "@babel/core": "7.12.3",
     "@pmmmwh/react-refresh-webpack-plugin": "0.4.2",
@@ -26,6 +27,7 @@
     "css-loader": "4.3.0",
     "dotenv": "8.2.0",
     "dotenv-expand": "5.1.0",
+    "electron-is-dev": "^1.2.0",
     "eslint": "^7.11.0",
     "eslint-config-react-app": "^6.0.0",
     "eslint-plugin-flowtype": "^5.2.0",
@@ -45,6 +47,7 @@
     "jest-resolve": "26.6.0",
     "jest-watch-typeahead": "0.6.1",
     "mini-css-extract-plugin": "0.11.3",
+    "node-sass": "^4.14.1",
     "optimize-css-assets-webpack-plugin": "5.0.4",
     "pnp-webpack-plugin": "1.6.4",
     "postcss-flexbugs-fixes": "4.2.1",
@@ -172,5 +175,12 @@
     "presets": [
       "react-app"
     ]
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.3",
+    "concurrently": "^5.3.0",
+    "cross-env": "^7.0.2",
+    "electron": "^10.1.5",
+    "wait-on": "^5.2.0"
   }
 }
