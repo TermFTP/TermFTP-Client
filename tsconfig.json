@@ -18,7 +18,17 @@
     "baseUrl": "./",
     "strictNullChecks": false,
     "noImplicitAny": true,
-    "paths": {}
+    "paths": {
+      "@components": ["src/components"],
+      "@pages": ["src/pages"],
+      "@store": ["src/store"],
+      "@models": ["src/models"],
+      "@components/*": ["src/components/*"],
+      "@models/*": ["src/models/*"],
+      "@pages/*": ["src/pages/*"],
+      "@images/*": ["src/images/*"],
+      "@store/*": ["src/store/*"]
+    }
   },
   "include": ["src", "util/preload.js"]
 }
