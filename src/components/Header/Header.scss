@@ -1,0 +1,169 @@
+/************************************************
+* Header                                         *
+*************************************************/
+
+/*Header Bar*/
+#headerBar {
+  // position: relative;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 1s ease;
+  // -webkit-user-select: none;
+  background-color: rgb(37, 37, 37);
+  color: white;
+  // position: fixed;
+  width: 100%;
+
+  .navBtn {
+    cursor: pointer;
+    background: transparent;
+    outline: none;
+    border: none;
+    color: white;
+    transition: color 200ms ease-in-out;
+
+    &:hover {
+      color: rgb(24, 190, 231);
+    }
+  }
+}
+
+/*Header Main*/
+#headerMain {
+  display: flex;
+  height: 22px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Undraggable region on the left and right of the header. --> so that you can resize window */
+.headerResizableVert {
+  width: 2px;
+  -webkit-app-region: no-drag;
+}
+/* Undraggable region on the top of the header. --> so that you can resize window */
+#headerResizableTop {
+  height: 2px;
+  width: 100%;
+  -webkit-app-region: no-drag;
+}
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  -webkit-app-region: drag;
+
+  #headerTitle {
+    padding: 0px 10px;
+    -webkit-app-region: no-drag;
+  }
+
+  #headerTitleText {
+    font-size: 14px;
+    letter-spacing: 1px;
+    margin-right: 10px;
+    cursor: default;
+  }
+
+  .headerDock {
+    -webkit-app-region: no-drag;
+    position: relative;
+    height: 22px;
+    top: -2px;
+    right: -2px;
+  }
+
+  /*Header button styles*/
+  .headerButton {
+    background: none;
+    border: none;
+    height: 22px;
+    width: 39px;
+    cursor: pointer;
+    transition: background-color 200ms ease-in-out;
+    outline: 0;
+    color: white;
+
+    &:hover,
+    &:focus {
+      background: rgba(180, 180, 180, 0.5);
+    }
+
+    &:active {
+      background: rgba(150, 150, 150, 0.4);
+    }
+
+    &#fb_close:hover,
+    &#fb_close:focus {
+      background: rgba(255, 50, 50, 0.6) !important;
+    }
+
+    &#fb_close:active {
+      background: rgba(255, 0, 0, 0.6) !important;
+    }
+  }
+}
+
+.headerContent#darwin {
+  justify-content: flex-end;
+  align-items: flex-end;
+  flex-direction: row-reverse;
+
+  .headerDock {
+    top: -1px;
+    right: -1px;
+    // width: 100%;
+
+    & > .headerButton:not(:first-child) {
+      margin-left: 0;
+    }
+  }
+
+  .headerButton {
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    margin-left: 5px;
+    -webkit-app-region: no-drag;
+    margin: 0 5px;
+
+    &#close {
+      background-color: #e74c32;
+      &:hover,
+      &:focus {
+        background-color: #ff9a8a;
+      }
+      &:active {
+        background-color: #ff8d7b;
+      }
+    }
+
+    &#minimize {
+      background-color: #fed045;
+
+      &:hover,
+      &:focus {
+        background-color: #ffe9a9;
+      }
+
+      &:active {
+        background-color: #ffde7b;
+      }
+    }
+
+    &#resize {
+      background-color: #96e734;
+
+      &:hover,
+      &:focus {
+        background-color: #d6ffa6;
+      }
+
+      &:active {
+        background-color: #bfff76;
+      }
+    }
+  }
+}

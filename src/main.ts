@@ -26,7 +26,7 @@ function createWindow(): void {
       preload: join(app.getAppPath(), "util", "preload.js"),
       enableRemoteModule: true,
     },
-    title: "Youtube Client",
+    title: "TermFTP",
     center: true,
     frame: false,
     autoHideMenuBar: true,

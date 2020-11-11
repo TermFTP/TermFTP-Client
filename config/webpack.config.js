@@ -725,7 +725,7 @@ module.exports = function (webpackEnv) {
       module: "empty",
       dgram: "empty",
       dns: "mock",
-      fs: "empty",
+      fs: true,
       http2: "empty",
       net: "empty",
       tls: "empty",
@@ -734,5 +734,6 @@ module.exports = function (webpackEnv) {
     // Turn off performance processing because we utilize
     // our own hints via the FileSizeReporter
     performance: false,
+    target: "electron-renderer",
   };
 };
