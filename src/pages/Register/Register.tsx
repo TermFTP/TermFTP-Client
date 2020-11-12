@@ -23,6 +23,8 @@ type Props = PropsFromState;
 function RegisterUI({ putError }: Props) {
   return (
     <div id="register-wrapper">
+      <h1>Register</h1>
+      <div id="register-box"></div>
       <div id="register-ticks">
         <p>
           I have read and agree to the <a href="..">Terms of Service</a>{" "}

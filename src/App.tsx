@@ -1,5 +1,5 @@
 import { Header, Loading, Overlay } from "@components";
-// import { Register } from "@pages";
+import { Register } from "@pages";
 import { DefaultDispatch } from "@store";
 import { ConnectedRouter, push } from "connected-react-router";
 import React, { useEffect } from "react";
@@ -7,6 +7,7 @@ import { connect, ConnectedProps } from "react-redux";
 import { Route, Switch } from "react-router";
 import "./App.scss";
 import { history } from "./configureStore";
+import "./variables.scss";
 
 const mapDispatch = (dispatch: DefaultDispatch) => {
   return {};
@@ -22,7 +23,7 @@ export function App(): JSX.Element {
     push("/register");
   });
   return (
-    <div className="App">
+    <div id="app">
       <Header></Header>
 
       <div id="app-wrapper">
@@ -30,7 +31,7 @@ export function App(): JSX.Element {
           <Switch>
             {/* <Route exact path="/" component={Main}></Route> */}
             {/* <Route path="/login" component={Welcome}></Route> */}
-            {/* <Route path="/" component={Register}></Route> */}
+            <Route path="/" component={Register}></Route>
           </Switch>
         </ConnectedRouter>
       </div>
