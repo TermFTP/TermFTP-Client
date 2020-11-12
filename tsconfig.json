@@ -23,11 +23,13 @@
       "@pages": ["src/pages"],
       "@store": ["src/store"],
       "@models": ["src/models"],
+      "@lib": ["src/lib"],
       "@components/*": ["src/components/*"],
       "@models/*": ["src/models/*"],
       "@pages/*": ["src/pages/*"],
       "@images/*": ["src/images/*"],
-      "@store/*": ["src/store/*"]
+      "@store/*": ["src/store/*"],
+      "@lib/*": ["src/lib/*"]
     }
   },
   "include": ["src", "util/preload.js"]

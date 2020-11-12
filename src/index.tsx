@@ -3,10 +3,20 @@ import ReactDOM from "react-dom";
 import "./index.scss";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import { Endpoints } from "@lib";
+import { Provider } from "react-redux";
+import configureStore from "./configureStore";
 
+// create an endpoints instance
+Endpoints.getInstance();
+
+const initialState: any = {};
+export const store = configureStore(initialState);
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      <App />
+    </Provider>
   </React.StrictMode>,
   document.getElementById("root")
 );
