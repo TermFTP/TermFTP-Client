@@ -32,7 +32,7 @@
 /*Header Main*/
 #headerMain {
   display: flex;
-  height: 22px;
+  height: 24px;
   justify-content: center;
   align-items: center;
 }
@@ -70,7 +70,7 @@
   .headerDock {
     -webkit-app-region: no-drag;
     position: relative;
-    height: 22px;
+    height: 26px;
     top: -2px;
     right: -2px;
   }
@@ -79,12 +79,15 @@
   .headerButton {
     background: none;
     border: none;
-    height: 22px;
+    height: 26px;
     width: 39px;
     cursor: pointer;
     transition: background-color 200ms ease-in-out;
     outline: 0;
     color: white;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
 
     &:hover,
     &:focus {
