@@ -10,11 +10,14 @@ import { remote } from "electron";
 import { Endpoints, validateEmail } from "@lib";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
+import { register } from "@store/user";
 
 const mapState = () => ({});
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   putError: (error: OwnError) => dispatch(putError(error)),
+  register: (email: string, username: string, password: string) =>
+    dispatch(register(email, username, password)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -53,6 +56,7 @@ class RegisterUI extends React.Component<Props, State> {
     };
 
     this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   handleChange(event: React.ChangeEvent<HTMLInputElement>, type: Change): void {
@@ -93,6 +97,16 @@ class RegisterUI extends React.Component<Props, State> {
     this.setState(upd);
   }
 
+  handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const {
+      state: { email, username, password },
+      props: { register },
+    } = this;
+    console.log("asdhjkasdhjkkhjasd");
+    register(email, username, password);
+  }
+
   openInBrowser() {
     // TODO implement this
     return;
@@ -108,59 +122,61 @@ class RegisterUI extends React.Component<Props, State> {
       canRegister,
     } = this.state;
 
-    const { handleChange } = this;
+    const { handleChange, handleSubmit } = this;
 
     return (
       <div id="register-wrapper">
         <h1>Register</h1>
         <div id="register-box">
-          <label>
-            E-Mail:
-            <input
-              type="email"
-              placeholder="bob@example.com"
-              onChange={(e) => handleChange(e, Change.EMAIL)}
-              value={email}
-            />
-          </label>
-          <label>
-            Username:
-            <input
-              type="text"
-              placeholder="bob"
-              onChange={(e) => handleChange(e, Change.USERNAME)}
-              value={username}
-            />
-          </label>
-          <label>
-            Password:
-            <input
-              type="password"
-              onChange={(e) => handleChange(e, Change.PASSWORD)}
-              value={password}
-            />
-          </label>
-          <label>
-            Confirm Password:
-            <input
-              type="password"
-              onChange={(e) => handleChange(e, Change.CONFIRMPASS)}
-              value={confirmPassword}
-            />
-          </label>
-          <label id="register-ticks">
-            <input
-              id="register-terms-tick"
-              type="checkbox"
-              checked={tos}
-              onChange={(e) => handleChange(e, Change.TOS)}
-            />
-            <p>
-              {/* TODO make terms of service */}I have read and agree to the{" "}
-              <a href="..">Terms of Service</a> agreement.
-            </p>
-          </label>
-          <input type="button" value="Register" disabled={!canRegister} />
+          <form onSubmit={handleSubmit}>
+            <label>
+              E-Mail:
+              <input
+                type="email"
+                placeholder="bob@example.com"
+                onChange={(e) => handleChange(e, Change.EMAIL)}
+                value={email}
+              />
+            </label>
+            <label>
+              Username:
+              <input
+                type="text"
+                placeholder="bob"
+                onChange={(e) => handleChange(e, Change.USERNAME)}
+                value={username}
+              />
+            </label>
+            <label>
+              Password:
+              <input
+                type="password"
+                onChange={(e) => handleChange(e, Change.PASSWORD)}
+                value={password}
+              />
+            </label>
+            <label>
+              Confirm Password:
+              <input
+                type="password"
+                onChange={(e) => handleChange(e, Change.CONFIRMPASS)}
+                value={confirmPassword}
+              />
+            </label>
+            <label id="register-ticks">
+              <input
+                id="register-terms-tick"
+                type="checkbox"
+                checked={tos}
+                onChange={(e) => handleChange(e, Change.TOS)}
+              />
+              <p>
+                {/* TODO make terms of service */}I have read and agree to the{" "}
+                <a href="..">Terms of Service</a> agreement.
+              </p>
+            </label>
+            <input type="submit" value="Register" disabled={!canRegister} />
+          </form>
         </div>
         <div className="login">
           Already have an account? <a>Login</a>
