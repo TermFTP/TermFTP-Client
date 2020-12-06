@@ -1,0 +1,21 @@
+.welcome-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.welcome-paths button {
+  margin: 0 20px;
+}
+
+.welcome-guest {
+  background-color: inherit;
+  margin-top: 20px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
