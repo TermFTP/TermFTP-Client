@@ -13,9 +13,9 @@ export const userReducer: Reducer<UserState> = (
 ) => {
   switch (action.type) {
     case Type.REGISTER:
-      break;
+      return { ...state, user: action.payload };
     case Type.LOGIN:
-      break;
+      return { ...state, user: action.payload };
     default:
       return state;
   }

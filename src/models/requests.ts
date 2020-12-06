@@ -7,6 +7,7 @@ export interface RegisterReq {
 export interface LoginReq {
   username: string;
   password: string;
+  pc_name: string;
 }
 
 export interface AuthHeaders {

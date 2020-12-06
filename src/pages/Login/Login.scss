@@ -1,4 +1,4 @@
-#register-wrapper {
+#login-wrapper {
   width: 100%;
   height: 100%;
   display: flex;
@@ -7,7 +7,7 @@
   flex-direction: column;
 }
 
-#register-box {
+#login-box {
   display: flex;
   flex-direction: column;
   padding: 30px;
@@ -15,6 +15,7 @@
   align-items: flex-end;
   background: var(--dark-bg-1);
   margin: 20px 0;
+  min-width: 500px;
 
   form {
     display: flex;
@@ -41,21 +42,6 @@
     // TODO change outline color etc.
   }
 
-  #register-ticks {
-    align-items: center;
-    flex-direction: row;
-    font-style: normal;
-
-    input {
-      width: auto;
-    }
-
-    p {
-      flex-grow: 1;
-      padding-left: 10px;
-    }
-  }
-
   input[type="submit"] {
     width: fit-content;
     flex-grow: 0;
@@ -69,7 +55,7 @@
   }
 }
 
-#login-hint button {
+#register-hint button {
   background-color: inherit;
 
   &:hover {
@@ -77,9 +63,10 @@
   }
 }
 
-#register-browser {
+#login-browser {
   background: var(--background);
   margin-top: 10px;
+  transition: background var(--transition);
   border-radius: 5px;
 
   svg {

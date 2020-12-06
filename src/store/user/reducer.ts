@@ -5,6 +5,7 @@ import { OwnError } from "@models";
 import { AppActionTypes, disableLoading, enableLoading } from "@store/app";
 import { Endpoints } from "@lib";
 import { push } from "connected-react-router";
+import { hostname } from "os";
 
 export type UserThunk<ReturnType = void> = ActionCreator<
   ThunkAction<ReturnType, UserState, unknown, Action<string>>
@@ -24,7 +25,7 @@ export const register: UserThunk = (
         username,
         password,
       });
-      dispatch(push("/"));
+      dispatch(push("/login"));
       dispatch(disableLoading());
 
       return dispatch({
@@ -33,7 +34,6 @@ export const register: UserThunk = (
       });
     } catch (err) {
       const e = await err;
-      console.log(e);
       return dispatch({
         type: AppActionTypes.PUT_ERROR,
         payload: { title: "Could not register", msg: e.msg },
@@ -50,8 +50,9 @@ export const login: UserThunk = (username: string, password: string) => {
       const json = await Endpoints.getInstance().login({
         username,
         password,
+        pc_name: hostname(),
       });
-      dispatch(push("/"));
+      dispatch(push("/main"));
       dispatch(disableLoading());
 
       return dispatch({

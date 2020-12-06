@@ -99,11 +99,12 @@ class RegisterUI extends React.Component<Props, State> {
 
   handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!this.state.canRegister) return;
+
     const {
       state: { email, username, password },
       props: { register },
     } = this;
-    console.log("asdhjkasdhjkkhjasd");
     register(email, username, password);
   }
 
@@ -178,10 +179,10 @@ class RegisterUI extends React.Component<Props, State> {
             <input type="submit" value="Register" disabled={!canRegister} />
           </form>
         </div>
-        <div className="login">
-          Already have an account? <a>Login</a>
+        <div id="login-hint">
+          Already have an account? <button>Login</button>
         </div>
-        <button id="browser">
+        <button id="register-browser">
           <FontAwesomeIcon icon={faExternalLinkAlt} />
           Open in Browser
         </button>
