@@ -45,7 +45,6 @@ export class Endpoints {
         if (!resWasOk(res, url, body)) {
           console.error(res);
           console.error(`response was bad for ${url}`);
-          return false;
         }
         return res.json();
       })
@@ -59,7 +58,7 @@ export class Endpoints {
     return new Promise((resolve, reject) => {
       this.fetchFromAPI(`${this.baseURL}/register`, "POST", req)
         .then((data) => {
-          if (data && !data.error) {
+          if (data) {
             console.log(data);
             resolve(data);
           } else {

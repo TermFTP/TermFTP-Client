@@ -5,10 +5,13 @@ import { login } from "@store/user";
 import React from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./Login.scss";
+import { push } from "connected-react-router";
+
 const mapState = () => ({});
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   login: (username: string, password: string) =>
     dispatch(login(username, password)),
+  register: () => dispatch(push("/register")),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -103,7 +106,8 @@ class LoginUI extends React.Component<Props, State> {
           </form>
         </div>
         <div id="register-hint">
-          Don&apos;t have an account? <button>Register</button>
+          Don&apos;t have an account?{" "}
+          <button onClick={this.props.register}>Register</button>
         </div>
         <button id="login-browser">
           <FontAwesomeIcon icon={faExternalLinkAlt} />

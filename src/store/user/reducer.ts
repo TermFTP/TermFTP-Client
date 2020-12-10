@@ -1,7 +1,6 @@
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { UserState, UserActionTypes } from "./types";
-import { OwnError } from "@models";
 import { AppActionTypes, disableLoading, enableLoading } from "@store/app";
 import { Endpoints } from "@lib";
 import { push } from "connected-react-router";
@@ -50,7 +49,7 @@ export const login: UserThunk = (username: string, password: string) => {
       const json = await Endpoints.getInstance().login({
         username,
         password,
-        pc_name: hostname(),
+        pcName: hostname(),
       });
       dispatch(push("/main"));
       dispatch(disableLoading());

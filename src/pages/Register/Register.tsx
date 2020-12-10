@@ -1,16 +1,16 @@
 import React from "react";
 
 import "./Register.scss";
-import { RootState, DefaultDispatch } from "@store";
+import { DefaultDispatch } from "@store";
 import { ConnectedProps, connect } from "react-redux";
 import { OwnError } from "@models";
 import { putError } from "@store/app";
 
-import { remote } from "electron";
-import { Endpoints, validateEmail } from "@lib";
+import { validateEmail } from "@lib";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { register } from "@store/user";
+import { push } from "connected-react-router";
 
 const mapState = () => ({});
 
@@ -18,6 +18,7 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   putError: (error: OwnError) => dispatch(putError(error)),
   register: (email: string, username: string, password: string) =>
     dispatch(register(email, username, password)),
+  login: () => dispatch(push("login")),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -180,7 +181,8 @@ class RegisterUI extends React.Component<Props, State> {
           </form>
         </div>
         <div id="login-hint">
-          Already have an account? <button>Login</button>
+          Already have an account?{" "}
+          <button onClick={this.props.login}>Login</button>
         </div>
         <button id="register-browser">
           <FontAwesomeIcon icon={faExternalLinkAlt} />
