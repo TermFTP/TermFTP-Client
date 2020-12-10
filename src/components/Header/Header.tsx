@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "./Header.scss";
 import { remote } from "electron";
 import {
@@ -6,13 +6,41 @@ import {
   faHome,
   faTimes,
   faWindowMinimize,
-  faDownload,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWindowMaximize } from "@fortawesome/free-regular-svg-icons";
 import isDev from "electron-is-dev";
+import { DefaultDispatch, RootState } from "@store";
+import { connect, ConnectedProps } from "react-redux";
+import { goBack, push } from "connected-react-router";
 
-export function Header() {
+const mapState = ({ router }: RootState) => ({
+  router,
+});
+
+const mapDispatch = (dispatch: DefaultDispatch) => ({
+  goBack: () => dispatch(goBack()),
+  push: (route: string) => dispatch(push(route)),
+});
+
+const connector = connect(mapState, mapDispatch);
+
+type PropsFromState = ConnectedProps<typeof connector>;
+type Props = PropsFromState;
+
+function HeaderUI({ goBack, push, router }: Props) {
+  const [prevPath, setPrevPath] = useState("");
+
+  function back() {
+    if (prevPath === "/welcome") {
+      return;
+    }
+    goBack();
+  }
+
+  if (router.location.pathname !== prevPath)
+    setPrevPath(router.location.pathname);
+
   const id = process.platform === "darwin" ? "darwin" : "";
 
   return (
@@ -24,7 +52,7 @@ export function Header() {
         <div className="headerContent" id={id}>
           <div id="headerTitle">
             {id === "" && <span id="headerTitleText">TermFTP</span>}
-            {/* {(isDev || user) && (
+            {isDev && (
               <button
                 onClick={() => {
                   back();
@@ -33,9 +61,8 @@ export function Header() {
               >
                 <FontAwesomeIcon icon={faArrowLeft}></FontAwesomeIcon>
               </button>
-            )} */}
-            {/* {(isDev || user) && (
-              <>
+            )}
+            {isDev && (
               <button
                 onClick={() => {
                   push("/");
@@ -44,16 +71,7 @@ export function Header() {
               >
                 <FontAwesomeIcon icon={faHome}></FontAwesomeIcon>
               </button>
-              <button
-                onClick={() =>{
-                  push("/downloads");
-                }}
-                className="navBtn"
-              >
-                <FontAwesomeIcon icon={faDownload}></FontAwesomeIcon>
-              </button>
-              </>
-            )} */}
+            )}
           </div>
           <div className="headerDock">
             <GetWindowControls id={id}></GetWindowControls>
@@ -140,6 +158,6 @@ const GetWindowControls = ({ id }: { id: "darwin" | "" }) => {
   );
 };
 
-// export const Header = connector(HeaderUI);
+export const Header = connector(HeaderUI);
 
 export default Header;

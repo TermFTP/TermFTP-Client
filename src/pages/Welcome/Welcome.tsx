@@ -3,6 +3,7 @@ import { push } from "connected-react-router";
 import React from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./Welcome.scss";
+import logo from "@images/logo.png";
 
 const mapState = () => ({});
 const mapDispatch = (dispatch: DefaultDispatch) => ({
@@ -17,6 +18,7 @@ type Props = PropsFromState;
 function WelcomeUI({ pushPath }: Props) {
   return (
     <div className="welcome-wrapper">
+      <img id="welcome-logo" src={logo} alt="TermFTP Logo" />
       <div className="welcome-paths">
         <button onClick={() => pushPath("/login")}>Login</button>
         <button onClick={() => pushPath("/register")}>Register</button>
