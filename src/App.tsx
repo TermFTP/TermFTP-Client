@@ -1,5 +1,5 @@
 import { Header, Loading, Overlay } from "@components";
-import { Login, Main, Register, Welcome } from "@pages";
+import { Login, Main, Register, ToS, Welcome } from "@pages";
 import { DefaultDispatch } from "@store";
 import { ConnectedRouter } from "connected-react-router";
 import React from "react";
@@ -28,6 +28,7 @@ export function App(props: Props): JSX.Element {
             <Route path="/login" component={Login}></Route>
             <Route path="/register" component={Register}></Route>
             <Route path="/main" component={Main}></Route>
+            <Route path="/tos" component={ToS}></Route>
           </Switch>
         </ConnectedRouter>
       </div>
