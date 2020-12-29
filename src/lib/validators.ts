@@ -1,4 +1,4 @@
-export function validateEmail(email: string) {
+export function validateEmail(email: string): boolean {
   const mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-  return email.match(mailformat);
+  return Boolean(email.match(mailformat));
 }

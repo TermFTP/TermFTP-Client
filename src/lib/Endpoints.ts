@@ -1,5 +1,11 @@
 import isDev from "electron-is-dev";
-import { LoginRes, LoginReq, AuthHeaders, RegisterReq } from "@models";
+import {
+  LoginRes,
+  LoginReq,
+  AuthHeaders,
+  RegisterReq,
+  DefaultResponse,
+} from "@models";
 
 /**
  * the class for communication with the backend API
@@ -24,6 +30,15 @@ export class Endpoints {
 
   private constructor() {
     console.log("Created Endpoints object");
+    if (window.process.env.NODE_ENV === "development")
+      // so that you can you can recreate the instance when hot reloading
+      (window as any).reCreateEndpoints = this.reCreateInstance;
+  }
+
+  reCreateInstance(): void {
+    if (window.process.env.NODE_ENV === "development") {
+      Endpoints._instance = new Endpoints();
+    }
   }
 
   fetchFromAPI = async (
@@ -31,7 +46,7 @@ export class Endpoints {
     method: "GET" | "POST" | "PUT" = "GET",
     body = {}
   ): Promise<any> => {
-    let options: any = {
+    let options: RequestInit = {
       method,
       headers: {
         "Content-Type": "application/json",
@@ -40,33 +55,48 @@ export class Endpoints {
     if (method !== "GET") {
       options = { ...options, body: JSON.stringify(body) };
     }
-    return fetch(url, options)
-      .then((res) => {
-        if (!resWasOk(res, url, body)) {
-          console.error(res);
-          console.error(`response was bad for ${url}`);
-        }
-        return res.json();
-      })
-      .catch((e) => {
-        console.error("fetch error for: " + url);
-        console.error("exception:" + e);
-      });
+    return new Promise((resolve, reject) => {
+      fetch(url, options)
+        .then((res) => {
+          if (!resWasOk(res, url, body)) {
+            // console.error(res);
+            // console.error(`response was bad for ${url}`);
+            // maybe add some other error handling here
+          }
+          return res.json();
+        })
+        .then((json) => {
+          const ok = isJsonOk(json);
+          if (!ok) {
+            reject(json);
+          }
+          resolve(json);
+        })
+        .catch((e) => {
+          console.error("fetch error for: " + url);
+          console.error("exception: " + e);
+          reject({
+            ...e,
+            title: "Connection fail",
+            message: "could not connect to server",
+          });
+        });
+    });
   };
 
   register = async (req: RegisterReq): Promise<any> => {
     return new Promise((resolve, reject) => {
       this.fetchFromAPI(`${this.baseURL}/register`, "POST", req)
         .then((data) => {
-          if (data) {
-            console.log(data);
+          if (data && !data.error) {
+            // console.log(data);
             resolve(data);
           } else {
-            reject({ msg: data.message });
+            reject(data);
           }
         })
         .catch((err) => {
-          reject({ msg: err.message });
+          reject(err);
         });
     });
   };
@@ -80,24 +110,15 @@ export class Endpoints {
       this.fetchFromAPI(`${this.baseURL}/login`, "POST", req)
         .then((data) => {
           if (data && !data.error) {
-            console.log(data);
             resolve(data);
           } else {
-            reject({ msg: data.message });
+            reject(data);
           }
         })
         .catch((err) => {
-          reject({ msg: err.message });
+          reject(err);
         });
     });
-  };
-
-  private evaluateRes = (res: Response): Promise<any> => {
-    try {
-      return res.json();
-    } catch (err) {
-      return new Promise((resolve) => resolve({ msg: "Unknown Error" }));
-    }
   };
 }
 
@@ -115,4 +136,10 @@ export function resWasOk(res: Response, url: string, body = {}): boolean {
     console.error("request body", JSON.stringify(body));
   }
   return res.ok;
+}
+
+export function isJsonOk(json: DefaultResponse): boolean {
+  return !(
+    Math.floor(json.status / 100) === 4 || Math.floor(json.status / 100) === 5
+  );
 }

@@ -23,8 +23,9 @@ function OverlayUI({ error, reset }: Props) {
     msg = "";
   if (error) {
     title = error.title;
-    msg = error.msg;
+    msg = error.message;
   }
+  console.log(error);
   return (
     <div className={`overlay-wrapper ${error ? "shown" : ""}`} onClick={reset}>
       <h2 className="overlay-title">{title}</h2>

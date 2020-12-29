@@ -35,7 +35,7 @@ export const register: UserThunk = (
       const e = await err;
       return dispatch({
         type: AppActionTypes.PUT_ERROR,
-        payload: { title: "Could not register", msg: e.msg },
+        payload: { title: "Could not register", message: e.message },
       });
     }
   };
@@ -62,7 +62,7 @@ export const login: UserThunk = (username: string, password: string) => {
       const e = await err;
       return dispatch({
         type: AppActionTypes.PUT_ERROR,
-        payload: { title: "Could not login", msg: e.msg },
+        payload: { title: "Could not login", message: e.message },
       });
     }
   };

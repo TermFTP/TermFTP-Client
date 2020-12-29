@@ -1,6 +1,6 @@
 export interface DefaultResponse {
   status: number;
-  msg: string;
+  message: string;
   data: unknown;
 }
 
@@ -14,4 +14,8 @@ export interface LoginTokenData {
 
 export interface LoginRes extends Def {
   data: LoginTokenData;
+}
+
+export interface ErrorRes extends Def {
+  title: string;
 }

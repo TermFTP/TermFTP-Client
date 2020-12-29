@@ -97,7 +97,7 @@
     "electron": "electron .",
     "preelectron-pack": "npm run build && npm run build:electron",
     "electron-pack": "electron-builder -c.extraMetadata.main=build/main.js --publish=never",
-    "dev": "cross-env BROWSER=none npm run devScript",
+    "dev": "cross-env BROWSER=none NODE_ENV=development npm run devScript",
     "devScript": "concurrently \"npm run start\" \"wait-on http://localhost:3000 && npm run build:electron && npm run electron\""
   },
   "eslintConfig": {

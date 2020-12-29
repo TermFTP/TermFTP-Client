@@ -18,7 +18,7 @@ export const appReducer: Reducer<AppState> = (state = initialState, action) => {
         },
         error: {
           title: action.payload.title,
-          msg: JSON.stringify(action.payload.msg),
+          message: action.payload.message,
         },
       };
     case AppActionTypes.ENABLE_LOADING: {
