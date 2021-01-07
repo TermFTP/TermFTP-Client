@@ -35,8 +35,8 @@ input {
   padding: 10px;
   color: var(--color);
   background-color: var(--dark-bg-2);
-  border-radius: var(--border-radius);
-  transition: background var(--transition);
+  border-radius: var(--radius);
+  transition: background var(--dur);
 }
 
 button,

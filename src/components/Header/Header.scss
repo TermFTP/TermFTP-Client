@@ -12,7 +12,7 @@ $resizeSize: 2px;
   flex-direction: column;
   transition: background-color 1s ease;
   // -webkit-user-select: none;
-  background-color: rgb(37, 37, 37);
+  background-color: var(--dark-bg-2);
   color: white;
   // position: fixed;
   width: 100%;

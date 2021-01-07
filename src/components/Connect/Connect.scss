@@ -1,0 +1,118 @@
+#connect {
+  --connect-padding: 20px;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+
+  .connect-settings {
+    --height: 2.5em;
+    height: var(--height);
+    position: absolute;
+    top: var(--connect-padding);
+    right: var(--connect-padding);
+    display: flex;
+
+    .connect-switch {
+      height: var(--height);
+      border-radius: calc(var(--height) / 2);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      width: calc(var(--height) * 3);
+      position: relative;
+      overflow: hidden;
+      padding: 0;
+
+      &::before {
+        height: var(--height);
+        width: calc(var(--height) * 1.5);
+        background: green;
+        position: absolute;
+        left: 0;
+        content: "";
+        z-index: 1;
+        transform: translateX(0);
+        transition: var(--dur) transform ease;
+      }
+
+      & > span {
+        z-index: 2;
+        text-align: center;
+      }
+
+      &.switched::before {
+        transform: translateX(calc(var(--height) * 1.5));
+      }
+    }
+
+    .connect-settings-btn {
+      border-radius: calc(var(--height) / 2);
+      margin-left: 1em;
+      height: var(--height);
+      width: var(--height);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: transparent;
+
+      svg {
+        font-size: 1.1em;
+      }
+
+      &:hover {
+        background: var(--dark-bg-2);
+      }
+    }
+  }
+}
+
+.connect-gui {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  gap: 30px;
+
+  .connect-list,
+  .connect-form {
+    background: var(--dark-bg-1);
+    border-radius: var(--box-radius);
+    background: var(--dark-bg-1);
+    overflow: hidden;
+  }
+
+  .connect-form {
+    padding: var(--box-radius);
+    width: 30em;
+    display: grid;
+    grid-template: "ip ip . port" "user user pw pw" "btn btn btn btn" / 1fr 0.6fr 0.6fr 0.6fr;
+    gap: 20px;
+
+    .connect-ip {
+      grid-area: ip;
+    }
+
+    .connect-port {
+      grid-area: port;
+      width: 100%;
+    }
+
+    .connect-user {
+      grid-area: user;
+    }
+
+    .connect-pw {
+      grid-area: pw;
+    }
+
+    .connect-form-btn {
+      margin-top: 10px;
+      grid-area: btn;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+  }
+}
