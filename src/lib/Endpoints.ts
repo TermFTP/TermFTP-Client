@@ -5,6 +5,7 @@ import {
   AuthHeaders,
   RegisterReq,
   DefaultResponse,
+  RegisterRes,
 } from "@models";
 
 /**
@@ -84,7 +85,7 @@ export class Endpoints {
     });
   };
 
-  register = async (req: RegisterReq): Promise<any> => {
+  register = async (req: RegisterReq): Promise<RegisterRes> => {
     return new Promise((resolve, reject) => {
       this.fetchFromAPI(`${this.baseURL}/register`, "POST", req)
         .then((data) => {

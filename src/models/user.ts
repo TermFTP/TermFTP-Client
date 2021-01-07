@@ -4,4 +4,5 @@ export interface User {
   email: string;
   verified: boolean;
   pcName: string;
+  validUntil: string;
 }

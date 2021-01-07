@@ -12,8 +12,18 @@ export interface LoginTokenData {
   username: string;
 }
 
+export interface RegisterRes extends Def {
+  userID: string;
+  email: string;
+  username: string;
+  verified: boolean;
+}
+
 export interface LoginRes extends Def {
-  data: LoginTokenData;
+  token: string;
+  validUntil: string;
+  pcName: string;
+  userID: string;
 }
 
 export interface ErrorRes extends Def {

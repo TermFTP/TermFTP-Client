@@ -26,6 +26,7 @@ export const register: UserThunk = (
       });
       dispatch(push("/login"));
       dispatch(disableLoading());
+      console.log("register", json);
 
       return dispatch({
         type: UserActionTypes.REGISTER,
@@ -53,6 +54,7 @@ export const login: UserThunk = (username: string, password: string) => {
       });
       dispatch(push("/main"));
       dispatch(disableLoading());
+      console.log("login", json);
 
       return dispatch({
         type: UserActionTypes.LOGIN,
