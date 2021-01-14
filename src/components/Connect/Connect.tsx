@@ -4,6 +4,7 @@ import { connect, ConnectedProps } from "react-redux";
 import "./Connect.scss";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Lists } from "@components";
 
 const mapState = () => ({});
 
@@ -46,7 +47,9 @@ export class ConnectUI extends Component<Props, State> {
           </button>
         </div>
         <div className="connect-gui">
-          <div className="connect-list">List</div>
+          <div className="connect-list-wrapper">
+            <Lists></Lists>
+          </div>
           <form className="connect-form">
             <input type="text" placeholder="IP" className="connect-ip" />
             <input type="number" placeholder="Port" className="connect-port" />

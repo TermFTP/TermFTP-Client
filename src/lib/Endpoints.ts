@@ -13,7 +13,7 @@ import {
  */
 export class Endpoints {
   baseURL = isDev ? "http://localhost:8080/api/v1" : "TO BE DETERMINED";
-  headers: AuthHeaders;
+  headers: AuthHeaders = {};
   private static _instance: Endpoints;
 
   /**
@@ -51,6 +51,7 @@ export class Endpoints {
       method,
       headers: {
         "Content-Type": "application/json",
+        ...this.headers,
       },
     };
     if (method !== "GET") {
@@ -103,8 +104,8 @@ export class Endpoints {
   };
 
   /**
-   * logs you in with a specific id token
-   * @param idToken the id token to be used for logging in
+   * logs you in with the request body
+   * @param req the request body
    */
   login = async (req: LoginReq): Promise<LoginRes> => {
     return new Promise((resolve, reject) => {
@@ -120,6 +121,10 @@ export class Endpoints {
           reject(err);
         });
     });
+  };
+
+  setAuthHeaders = (headers: AuthHeaders): void => {
+    this.headers = headers;
   };
 }
 

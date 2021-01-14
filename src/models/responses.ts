@@ -7,23 +7,29 @@ export interface DefaultResponse {
 type Def = DefaultResponse;
 
 export interface LoginTokenData {
-  userID: string;
-  email: string;
-  username: string;
+  data: {
+    userID: string;
+    email: string;
+    username: string;
+  };
 }
 
 export interface RegisterRes extends Def {
-  userID: string;
-  email: string;
-  username: string;
-  verified: boolean;
+  data: {
+    userID: string;
+    email: string;
+    username: string;
+    verified: boolean;
+  };
 }
 
 export interface LoginRes extends Def {
-  token: string;
-  validUntil: string;
-  pcName: string;
-  userID: string;
+  data: {
+    token: string;
+    validUntil: string;
+    pcName: string;
+    userID: string;
+  };
 }
 
 export interface ErrorRes extends Def {

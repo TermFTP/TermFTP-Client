@@ -2,4 +2,4 @@ export * from "./Header/Header";
 export * from "./Loading/Loading";
 export * from "./Overlay/Overlay";
 export * from "./Connect/Connect";
-export * from "./List/List";
+export * from "./Lists/Lists";

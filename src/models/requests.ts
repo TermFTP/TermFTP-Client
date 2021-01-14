@@ -11,6 +11,6 @@ export interface LoginReq {
 }
 
 export interface AuthHeaders {
-  "User-ID"?: string;
-  "Session-Token"?: string;
+  "Access-Token"?: string;
+  "PC-Name"?: string;
 }

@@ -1,0 +1,51 @@
+.connect-list {
+  --item-height: 1.6em;
+  --list-item-padding: 3px;
+  font-size: 0.9em;
+  text-align: left;
+  overflow: hidden;
+  height: calc(var(--item-height) * (var(--items) + 1));
+  transition: var(--dur) height ease;
+
+  & > * {
+    padding: var(--list-item-padding) 10px;
+    height: var(--item-height);
+  }
+
+  &.toggled {
+    height: var(--item-height);
+
+    .connect-list-toggle svg {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+.connect-list-toggle {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  background: var(--dark-bg-2);
+  text-transform: uppercase;
+  font-variant: small-caps;
+  transition: var(--dur) filter ease;
+  cursor: pointer;
+
+  div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100% !important;
+    width: calc(var(--item-height) - var(--list-item-padding) * 2) !important;
+
+    svg {
+      font-size: 0.9em;
+      transition: var(--dur) transform ease;
+      transform: rotate(0);
+    }
+  }
+
+  &:hover {
+    filter: brightness(0.9);
+  }
+}

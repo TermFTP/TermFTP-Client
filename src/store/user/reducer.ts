@@ -30,7 +30,7 @@ export const register: UserThunk = (
 
       return dispatch({
         type: UserActionTypes.REGISTER,
-        payload: json,
+        payload: json.data,
       });
     } catch (err) {
       const e = await err;
@@ -54,11 +54,15 @@ export const login: UserThunk = (username: string, password: string) => {
       });
       dispatch(push("/main"));
       dispatch(disableLoading());
-      console.log("login", json);
+
+      Endpoints.getInstance().setAuthHeaders({
+        "Access-Token": json.data.token,
+        "PC-Name": json.data.pcName,
+      });
 
       return dispatch({
         type: UserActionTypes.LOGIN,
-        payload: json,
+        payload: json.data,
       });
     } catch (err) {
       const e = await err;
