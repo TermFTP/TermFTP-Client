@@ -6,6 +6,7 @@ export const initialState: AppState = {
     isLoading: false,
   },
   error: undefined,
+  settingsOpen: false,
 };
 
 export const appReducer: Reducer<AppState> = (state = initialState, action) => {
@@ -49,6 +50,18 @@ export const appReducer: Reducer<AppState> = (state = initialState, action) => {
       return {
         ...state,
         error: undefined,
+      };
+    }
+    case AppActionTypes.OPEN_SETTINGS: {
+      return {
+        ...state,
+        settingsOpen: true,
+      };
+    }
+    case AppActionTypes.CLOSE_SETTINGS: {
+      return {
+        ...state,
+        settingsOpen: false,
       };
     }
     default:

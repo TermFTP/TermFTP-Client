@@ -6,6 +6,8 @@ export const initialState: ListState = {
   history: [],
 };
 
+// TODO implement all cases
+
 export const listReducer: Reducer<ListState> = (
   state = initialState,
   action

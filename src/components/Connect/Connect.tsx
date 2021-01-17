@@ -5,10 +5,13 @@ import "./Connect.scss";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Lists } from "@components";
+import { openSettings } from "@store/app";
 
 const mapState = () => ({});
 
-const mapDispatch = (dispatch: DefaultDispatch) => ({});
+const mapDispatch = (dispatch: DefaultDispatch) => ({
+  openSettings: () => dispatch(openSettings()),
+});
 
 const connector = connect(mapState, mapDispatch);
 
@@ -42,7 +45,10 @@ export class ConnectUI extends Component<Props, State> {
             <span>GUI</span>
             <span>CLI</span>
           </button>
-          <button className="connect-settings-btn">
+          <button
+            className="connect-settings-btn"
+            onClick={this.props.openSettings}
+          >
             <FontAwesomeIcon icon={faCog}></FontAwesomeIcon>
           </button>
         </div>

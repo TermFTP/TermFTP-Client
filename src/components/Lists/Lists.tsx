@@ -39,8 +39,22 @@ function ToggleBtn({ title }: { title: string }): JSX.Element {
 function ListsUI({ groups, history }: Props) {
   // this is how height will be automatically transitioned
   const historyStyle = { "--items": 2 } as React.CSSProperties;
+  const five = { "--items": 5 } as React.CSSProperties;
   return (
     <div id="connect-lists">
+      <div className="connect-list" id="connect-fav" style={historyStyle}>
+        <ToggleBtn title="Favourites"></ToggleBtn>
+        <div>Fav 1</div>
+        <div>Fav 2</div>
+      </div>
+      <div className="connect-list" id="connect-groups" style={five}>
+        <ToggleBtn title="Groups"></ToggleBtn>
+        <div>Item 1</div>
+        <div>Item 2</div>
+        <div>Item 2</div>
+        <div>Item 2</div>
+        <div>Item 2</div>
+      </div>
       {/* {history.length > 0 && ( */}
       <div className="connect-list" id="connect-history" style={historyStyle}>
         <ToggleBtn title="History"></ToggleBtn>

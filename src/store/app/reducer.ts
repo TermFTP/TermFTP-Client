@@ -37,3 +37,15 @@ export const resetError = () => {
     type: AppActionTypes.RESET_ERROR,
   };
 };
+
+export const openSettings = () => {
+  return {
+    type: AppActionTypes.OPEN_SETTINGS,
+  };
+};
+
+export const closeSettings = () => {
+  return {
+    type: AppActionTypes.CLOSE_SETTINGS,
+  };
+};

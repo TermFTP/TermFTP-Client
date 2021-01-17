@@ -1,22 +1,20 @@
-import { Header, Loading, Overlay } from "@components";
+import { Header, Loading, Overlay, Settings } from "@components";
 import { Login, Main, Register, ToS, Welcome } from "@pages";
-import { DefaultDispatch } from "@store";
 import { ConnectedRouter } from "connected-react-router";
 import React from "react";
-import { connect, ConnectedProps } from "react-redux";
 import { Route, Switch } from "react-router";
 import "./App.scss";
 import { history } from "./configureStore";
 import "./variables.scss";
 
-const mapDispatch = (dispatch: DefaultDispatch) => ({});
+// const mapDispatch = (dispatch: DefaultDispatch) => ({});
 
-const connector = connect(() => ({}), mapDispatch);
+// const connector = connect(() => ({}), mapDispatch);
 
-type PropsFromState = ConnectedProps<typeof connector>;
-type Props = PropsFromState;
+// type PropsFromState = ConnectedProps<typeof connector>;
+// type Props = PropsFromState;
 
-export function App(props: Props): JSX.Element {
+export function App(): JSX.Element {
   return (
     <div id="app">
       <Header></Header>
@@ -33,6 +31,7 @@ export function App(props: Props): JSX.Element {
         </ConnectedRouter>
       </div>
       <Overlay></Overlay>
+      <Settings></Settings>
       <Loading></Loading>
     </div>
   );

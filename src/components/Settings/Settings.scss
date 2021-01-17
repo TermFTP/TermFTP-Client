@@ -1,7 +1,7 @@
-.overlay-wrapper {
+.settings-wrapper {
   position: fixed;
-  width: 100%;
-  height: 100%;
+  width: 80%;
+  height: 80%;
   background-color: rgba(0, 0, 0, 0.5);
   color: white;
   display: flex;
@@ -10,10 +10,13 @@
   align-items: center;
   text-align: center;
   transition: all 400ms ease-in-out;
-  transform: translateX(100%);
-  z-index: 10000000;
+  z-index: 100000;
+  top: 50%;
+  left: 50%;
+  transform: translate(-200%, -50%);
+  border-radius: 10px;
 }
 
 .shown {
-  transform: translateX(0);
+  transform: translate(-50%, -50%);
 }

@@ -17,35 +17,45 @@
     display: flex;
 
     .connect-switch {
+      --connect-radius: calc(var(--height) / 2);
       height: var(--height);
-      border-radius: calc(var(--height) / 2);
+      border-radius: var(--connect-radius);
       display: grid;
       grid-template-columns: 1fr 1fr;
       align-items: center;
       width: calc(var(--height) * 3);
       position: relative;
-      overflow: hidden;
+      // overflow: hidden;
       padding: 0;
+      background: var(--dark-bg-1);
 
       &::before {
         height: var(--height);
-        width: calc(var(--height) * 1.5);
-        background: green;
+        width: calc(var(--height) * 1.5 - 2px);
+        background: var(--dark-bg-2);
         position: absolute;
         left: 0;
         content: "";
         z-index: 1;
-        transform: translateX(0);
-        transition: var(--dur) transform ease;
+        transform: translateX(1px);
+        transition: var(--dur) all ease;
+        border-radius: var(--connect-radius) 0 0 var(--connect-radius);
+        border: 1px solid var(--color);
       }
 
       & > span {
         z-index: 2;
         text-align: center;
+        padding-right: 2px;
+
+        &:first-child {
+          padding: 0 0 0 2px;
+        }
       }
 
       &.switched::before {
         transform: translateX(calc(var(--height) * 1.5));
+        border-radius: 0 var(--connect-radius) var(--connect-radius) 0;
       }
     }
 
@@ -74,6 +84,7 @@
   display: grid;
   grid-template-columns: 1fr 3fr;
   gap: 30px;
+  align-items: center;
 
   .connect-list-wrapper,
   .connect-form {
@@ -83,12 +94,21 @@
     overflow: hidden;
   }
 
+  .connect-list-wrapper {
+    height: 100%;
+    width: 16em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
   .connect-form {
     padding: var(--box-radius);
     width: 30em;
     display: grid;
     grid-template: "ip ip . port" "user user pw pw" "btn btn btn btn" / 1fr 0.6fr 0.6fr 0.6fr;
     gap: 20px;
+    height: min-content;
 
     .connect-ip {
       grid-area: ip;
