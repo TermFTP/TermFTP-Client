@@ -35,3 +35,9 @@ export interface LoginRes extends Def {
 export interface ErrorRes extends Def {
   title: string;
 }
+
+export interface SaveRes extends Def {
+  data: {
+    IP: string;
+  };
+}

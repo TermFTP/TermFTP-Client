@@ -1,9 +1,10 @@
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DefaultDispatch, RootState } from "@store";
-import React from "react";
+import React, { MouseEvent } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./Lists.scss";
+import ServerItem, { ConnectDetails } from "./ServerItem/ServerItem";
 
 const mapState = ({ listReducer }: RootState) => ({
   ...listReducer,
@@ -14,10 +15,12 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({});
 const connector = connect(mapState, mapDispatch);
 
 type PropsFromState = ConnectedProps<typeof connector>;
-type Props = PropsFromState;
+type Props = PropsFromState & {
+  connect: (e: MouseEvent<any>, details: ConnectDetails) => void;
+};
 
 function ToggleBtn({ title }: { title: string }): JSX.Element {
-  function onClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+  function onClick(event: React.MouseEvent<HTMLDivElement>) {
     const parent = event.currentTarget.parentElement;
     if (parent.classList.contains("toggled")) {
       parent.classList.remove("toggled");
@@ -36,32 +39,50 @@ function ToggleBtn({ title }: { title: string }): JSX.Element {
   );
 }
 
-function ListsUI({ groups, history }: Props) {
-  // this is how height will be automatically transitioned
-  const historyStyle = { "--items": 2 } as React.CSSProperties;
-  const five = { "--items": 5 } as React.CSSProperties;
+function ListsUI({ groups, history, saved, favourites, connect }: Props) {
+  // this is how it transitions between heights
+  const items = (amount: number) =>
+    ({ "--items": amount } as React.CSSProperties);
   return (
     <div id="connect-lists">
-      <div className="connect-list" id="connect-fav" style={historyStyle}>
+      <div
+        className="connect-list"
+        id="connect-fav"
+        style={items(favourites?.server.length)}
+      >
         <ToggleBtn title="Favourites"></ToggleBtn>
-        <div>Fav 1</div>
-        <div>Fav 2</div>
+        {favourites.server.map((s) => (
+          <ServerItem
+            connect={connect}
+            key={s.serverID}
+            server={s}
+          ></ServerItem>
+        ))}
+        asd
       </div>
-      <div className="connect-list" id="connect-groups" style={five}>
+      <div
+        className="connect-list"
+        id="connect-groups"
+        style={items(groups?.length)}
+      >
         <ToggleBtn title="Groups"></ToggleBtn>
-        <div>Item 1</div>
+        {/* <div>Item 1</div>
         <div>Item 2</div>
         <div>Item 2</div>
         <div>Item 2</div>
-        <div>Item 2</div>
+        <div>Item 2</div> */}
       </div>
-      {/* {history.length > 0 && ( */}
-      <div className="connect-list" id="connect-history" style={historyStyle}>
-        <ToggleBtn title="History"></ToggleBtn>
-        <div>Item 1</div>
-        <div>Item 2</div>
-      </div>
-      {/* )} */}
+      {history && history?.length > 0 && (
+        <div
+          className="connect-list"
+          id="connect-history"
+          style={items(history?.length)}
+        >
+          <ToggleBtn title="History"></ToggleBtn>
+          {/* <div>Item 1</div>
+        <div>Item 2</div> */}
+        </div>
+      )}
     </div>
   );
 }

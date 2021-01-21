@@ -10,6 +10,10 @@ export interface LoginReq {
   pcName: string;
 }
 
+export interface SaveReq {
+  IP: string;
+}
+
 export interface AuthHeaders {
   "Access-Token"?: string;
   "PC-Name"?: string;

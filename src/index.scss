@@ -44,6 +44,10 @@ input[type="button"],
 input[type="checkbox"],
 input[type="submit"] {
   cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
 }
 
 #root {

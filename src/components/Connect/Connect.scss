@@ -28,6 +28,7 @@
       // overflow: hidden;
       padding: 0;
       background: var(--dark-bg-1);
+      outline: none;
 
       &::before {
         height: var(--height);
@@ -81,8 +82,10 @@
 }
 
 .connect-gui {
-  display: grid;
-  grid-template-columns: 1fr 3fr;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
   gap: 30px;
   align-items: center;
 
@@ -109,6 +112,7 @@
     grid-template: "ip ip . port" "user user pw pw" "btn btn btn btn" / 1fr 0.6fr 0.6fr 0.6fr;
     gap: 20px;
     height: min-content;
+    margin: auto;
 
     .connect-ip {
       grid-area: ip;

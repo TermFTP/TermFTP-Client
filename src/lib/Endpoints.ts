@@ -8,12 +8,15 @@ import {
   RegisterRes,
   SaveReq,
   SaveRes,
+  IRawParams,
 } from "@models";
 
 /**
  * the class for communication with the backend API
  */
-export class Endpoints {
+export class Endpoints implements IRawParams {
+  [k: string]: any;
+
   baseURL = isDev ? "http://localhost:8080/api/v1" : "TO BE DETERMINED";
   headers: AuthHeaders = {};
   private static _instance: Endpoints;

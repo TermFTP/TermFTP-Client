@@ -180,6 +180,7 @@
   "devDependencies": {
     "@types/electron": "^1.6.10",
     "@types/fs-extra": "^9.0.3",
+    "@types/ftp": "^0.3.31",
     "@types/history": "^4.7.7",
     "@types/react-redux": "^7.1.11",
     "@types/react-router": "^5.1.8",

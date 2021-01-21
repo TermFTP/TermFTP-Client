@@ -31,6 +31,8 @@ function createWindow(): void {
     frame: false,
     autoHideMenuBar: true,
     resizable: true,
+    minHeight: 400,
+    minWidth: 400,
   });
 
   if (isDev) {

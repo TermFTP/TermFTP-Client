@@ -1,4 +1,4 @@
-import { Group, HistoryServer } from "@models";
+import { Group, HistoryServer, Server } from "@models";
 
 export enum ListActionTypes {
   FETCH_GROUPS = "lists/fetch-groups",
@@ -10,9 +10,12 @@ export enum ListActionTypes {
   DEL_GROUP = "lists/del-group",
   DEL_HISTORY = "lists/del-history",
   DEL_FAV = "lists/del-fav",
+  SAVE_SERVER = "lists/save-server",
 }
 
 export interface ListState {
   groups: Group[];
   history: HistoryServer[];
+  saved: Server[];
+  favourites: Group;
 }

@@ -1,0 +1,9 @@
+.connect-server {
+  transition: 500ms all ease;
+  background: inherit;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--dark-bg-2);
+  }
+}
