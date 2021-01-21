@@ -6,6 +6,8 @@ import {
   RegisterReq,
   DefaultResponse,
   RegisterRes,
+  SaveReq,
+  SaveRes,
 } from "@models";
 
 /**
@@ -71,8 +73,17 @@ export class Endpoints {
           const ok = isJsonOk(json);
           if (!ok) {
             reject(json);
+            return;
           }
-          resolve(json);
+          return json;
+        })
+        .then((data) => {
+          if (data && !data.error) {
+            // console.log(data);
+            resolve(data);
+          } else {
+            reject(data);
+          }
         })
         .catch((e) => {
           console.error("fetch error for: " + url);
@@ -87,20 +98,7 @@ export class Endpoints {
   };
 
   register = async (req: RegisterReq): Promise<RegisterRes> => {
-    return new Promise((resolve, reject) => {
-      this.fetchFromAPI(`${this.baseURL}/register`, "POST", req)
-        .then((data) => {
-          if (data && !data.error) {
-            // console.log(data);
-            resolve(data);
-          } else {
-            reject(data);
-          }
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
+    return this.fetchFromAPI(`${this.baseURL}/register`, "POST", req);
   };
 
   /**
@@ -108,19 +106,11 @@ export class Endpoints {
    * @param req the request body
    */
   login = async (req: LoginReq): Promise<LoginRes> => {
-    return new Promise((resolve, reject) => {
-      this.fetchFromAPI(`${this.baseURL}/login`, "POST", req)
-        .then((data) => {
-          if (data && !data.error) {
-            resolve(data);
-          } else {
-            reject(data);
-          }
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
+    return this.fetchFromAPI(`${this.baseURL}/login`, "POST", req);
+  };
+
+  save = async (req: SaveReq): Promise<SaveRes> => {
+    return this.fetchFromAPI(`${this.baseURL}/server`, "POST", req);
   };
 
   setAuthHeaders = (headers: AuthHeaders): void => {
