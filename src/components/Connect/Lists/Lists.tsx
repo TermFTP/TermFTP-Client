@@ -58,7 +58,6 @@ function ListsUI({ groups, history, saved, favourites, connect }: Props) {
             server={s}
           ></ServerItem>
         ))}
-        asd
       </div>
       <div
         className="connect-list"

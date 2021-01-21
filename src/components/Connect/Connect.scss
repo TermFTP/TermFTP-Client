@@ -25,7 +25,6 @@
       align-items: center;
       width: calc(var(--height) * 3);
       position: relative;
-      // overflow: hidden;
       padding: 0;
       background: var(--dark-bg-1);
       outline: none;
@@ -94,7 +93,6 @@
     background: var(--dark-bg-1);
     border-radius: var(--box-radius);
     background: var(--dark-bg-1);
-    overflow: hidden;
   }
 
   .connect-list-wrapper {

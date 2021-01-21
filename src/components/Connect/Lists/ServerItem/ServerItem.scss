@@ -1,9 +1,85 @@
 .connect-server {
-  transition: 500ms all ease;
+  transition: var(--dur) all ease;
   background: inherit;
-  cursor: pointer;
+  position: relative;
 
-  &:hover {
+  .connect-server-details {
+    opacity: 0;
+    border-radius: var(--radius);
+    transform: translateX(calc(var(--radius) * 1.5));
+    position: absolute;
+    top: 0;
+    left: 100%;
+    margin-left: var(--radius);
+    z-index: 1000;
+    transition: var(--dur) all ease;
     background: var(--dark-bg-2);
+    padding: 1.5em var(--radius) var(--radius) 0.75em;
+    display: grid;
+    grid-template:
+      "ip ftp" 2em
+      "user ssh" 2em
+      "lc lc" 2em
+      / 2fr 0.8fr;
+    gap: 10px;
+    width: 15em;
   }
+
+  .connect-hover {
+    padding: var(--list-item-padding) 10px;
+  }
+
+  .connect-hover:hover {
+    cursor: pointer;
+    background: var(--dark-bg-2);
+
+    & ~ .connect-server-details,
+    & ~ .connect-server-details:hover {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+.ip,
+.ftp-port,
+.ssh-port,
+.username,
+.last-connection {
+  position: relative;
+}
+
+.ip {
+  grid-area: ip;
+}
+
+.ftp-port {
+  grid-area: ftp;
+}
+
+.ssh-port {
+  grid-area: ssh;
+}
+
+.username {
+  grid-area: user;
+}
+
+.last-connection {
+  grid-area: lc;
+}
+
+.ip::before,
+.ftp-port::before,
+.ssh-port::before,
+.username::before,
+.last-connection::before {
+  position: absolute;
+  top: -1.05em;
+  left: var(--padding);
+  content: attr(class);
+  font-size: 0.75em;
+  font-variant: small-caps;
+  transition: var(--dur) opacity ease;
+  opacity: var(--hint-opacity);
 }

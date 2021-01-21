@@ -17,14 +17,24 @@ interface Props {
 
 export function ServerItem({ server, connect }: Props) {
   return (
-    <div
-      className="connect-server"
-      onClick={(e) =>
-        connect(e, { ...server, port: server.ftpPort } as ConnectDetails)
-      }
-    >
-      {server.ip} {server.name}
-      <div className="connect-server-hover"></div>
+    <div className="connect-server">
+      <div
+        className="connect-hover"
+        onClick={(e) =>
+          connect(e, { ...server, port: server.ftpPort } as ConnectDetails)
+        }
+      >
+        {server.name}
+      </div>
+      <div className="connect-server-details">
+        <div className="ip">{server.ip}</div>
+        <div className="ftp-port">{server.ftpPort}</div>
+        <div className="ssh-port">{server.sshPort}</div>
+        <div className="username">{server.username}</div>
+        <div className="last-connection">
+          {server.lastConnection.toDateString()}
+        </div>
+      </div>
     </div>
   );
 }
