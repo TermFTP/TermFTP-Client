@@ -5,17 +5,21 @@ import "./Connect.scss";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Lists } from "@components";
-import { openSettings } from "@store/app";
+import { openSettings, setPrompt } from "@store/app";
 import { FTP, validateIP } from "@lib";
-import { save } from "@store/lists";
-import { SaveReq } from "@models";
+import { historyItem, saveServer } from "@store/lists";
+import { HistoryReq, SaveReq } from "@models";
 import { ConnectDetails } from "./Lists/ServerItem/ServerItem";
+import { PromptProps } from "@components/Prompt/Prompt";
+import { hostname } from "os";
 
 const mapState = () => ({});
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   openSettings: () => dispatch(openSettings()),
-  save: (req: SaveReq) => dispatch(save(req)),
+  historyItem: (req: HistoryReq) => dispatch(historyItem(req)),
+  setPrompt: (prompt: PromptProps) => dispatch(setPrompt(prompt)),
+  save: (req: SaveReq) => dispatch(saveServer(req)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -26,7 +30,8 @@ type Props = PropsFromState;
 interface State {
   mode: boolean;
   ip: string;
-  port: number;
+  ftpPort: number;
+  sshPort: number;
   username: string;
   password: string;
   canConnect: boolean;
@@ -35,9 +40,10 @@ interface State {
 
 enum Change {
   IP,
-  PORT,
+  FTPPORT,
   USERNAME,
   PASSWORD,
+  SSHPORT,
 }
 
 export class ConnectUI extends Component<Props, State> {
@@ -46,11 +52,12 @@ export class ConnectUI extends Component<Props, State> {
     this.state = {
       mode: false,
       ip: "",
-      port: 21,
+      ftpPort: 21,
       password: "",
       username: "",
       canConnect: false,
       ftp: undefined,
+      sshPort: 22,
     };
   }
 
@@ -69,14 +76,20 @@ export class ConnectUI extends Component<Props, State> {
       case Change.IP:
         upd = { ...upd, ip: event.target.value };
         break;
-      case Change.PORT:
-        upd = { ...upd, port: Number(event.target.value) };
+      case Change.FTPPORT:
+        upd = { ...upd, ftpPort: Number(event.target.value) };
+        break;
+      case Change.SSHPORT:
+        upd = { ...upd, sshPort: Number(event.target.value) };
         break;
       default:
         break;
     }
 
-    upd = { ...upd, canConnect: validateIP(upd.ip) };
+    upd = {
+      ...upd,
+      canConnect: validateIP(upd.ip) && upd.ftpPort != upd.sshPort,
+    };
 
     this.setState(upd);
   };
@@ -89,25 +102,40 @@ export class ConnectUI extends Component<Props, State> {
     e: MouseEvent<HTMLInputElement>,
     details: ConnectDetails = undefined
   ): void => {
-    const { username, ip, password, port } = details || this.state;
+    const { username, ip, password, ftpPort, sshPort } = details || this.state;
     this.setState({
       ftp: new FTP({
         user: username,
         password: password,
         debug: console.log,
         host: ip,
-        port: port || 21,
+        port: ftpPort || 21,
       }),
+    });
+    this.props.historyItem({
+      ip,
+      device: hostname(),
+      ftpPort: ftpPort || 21,
+      username,
+      sshPort: sshPort || 22,
     });
   };
 
   onSave = (): void => {
-    this.props.save({
-      IP: "asdhjashjkd",
-      serverID: "asdas",
-      name: "asdhjkashjk",
-    } as SaveReq);
-    console.log("ashjdkhjas");
+    const { ip, username, ftpPort, password, sshPort } = this.state;
+    this.props.setPrompt({
+      fieldName: "Server Name",
+      callback: (value: string) => {
+        this.props.save({
+          ip,
+          username,
+          password,
+          ftpPort,
+          sshPort,
+          name: value,
+        });
+      },
+    });
   };
 
   onFavourite = (): void => {
@@ -122,7 +150,7 @@ export class ConnectUI extends Component<Props, State> {
       onSave,
       onFavourite,
       props: { openSettings },
-      state: { ip: IP, canConnect, password, mode, port, username },
+      state: { ip, canConnect, password, mode, ftpPort, sshPort, username },
     } = this;
     return (
       <div id="connect">
@@ -147,15 +175,21 @@ export class ConnectUI extends Component<Props, State> {
               type="text"
               placeholder="IP"
               className="connect-ip"
-              value={IP}
+              value={ip}
               onChange={(e) => handleChange(e, Change.IP)}
             />
             <input
               type="number"
               placeholder="Port"
-              className="connect-port"
-              value={port}
-              onChange={(e) => handleChange(e, Change.PORT)}
+              className="connect-ftp-port"
+              value={ftpPort}
+              onChange={(e) => handleChange(e, Change.FTPPORT)}
+            />
+            <input
+              type="number"
+              className="connect-ssh-port"
+              value={sshPort}
+              onChange={(e) => handleChange(e, Change.SSHPORT)}
             />
             <input
               type="text"

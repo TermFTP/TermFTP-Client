@@ -6,8 +6,9 @@ import "./ServerItem.scss";
 export interface ConnectDetails {
   username: string;
   ip: string;
-  port: number;
+  ftpPort: number;
   password: string;
+  sshPort: number;
 }
 
 interface Props {
@@ -21,10 +22,10 @@ export function ServerItem({ server, connect }: Props) {
       <div
         className="connect-hover"
         onClick={(e) =>
-          connect(e, { ...server, port: server.ftpPort } as ConnectDetails)
+          connect(e, { ...server, ftpPort: server.ftpPort } as ConnectDetails)
         }
       >
-        {server.name}
+        {server.name || server.ip}
       </div>
       <div className="connect-server-details">
         <div className="ip">{server.ip}</div>
@@ -32,7 +33,7 @@ export function ServerItem({ server, connect }: Props) {
         <div className="ssh-port">{server.sshPort}</div>
         <div className="username">{server.username}</div>
         <div className="last-connection">
-          {server.lastConnection.toDateString()}
+          {server.lastConnection?.toDateString() || server.when?.toDateString()}
         </div>
       </div>
     </div>

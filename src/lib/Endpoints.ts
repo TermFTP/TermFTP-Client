@@ -6,10 +6,13 @@ import {
   RegisterReq,
   DefaultResponse,
   RegisterRes,
-  SaveReq,
+  HistoryReq,
   SaveRes,
   IRawParams,
+  SaveReq,
+  HistoryItemRes,
 } from "@models";
+import { hostname } from "os";
 
 /**
  * the class for communication with the backend API
@@ -57,6 +60,7 @@ export class Endpoints implements IRawParams {
       headers: {
         "Content-Type": "application/json",
         ...this.headers,
+        "PC-Name": hostname(),
       },
     };
     if (method !== "GET") {
@@ -112,8 +116,12 @@ export class Endpoints implements IRawParams {
     return this.fetchFromAPI(`${this.baseURL}/login`, "POST", req);
   };
 
+  historyItem = async (req: HistoryReq): Promise<HistoryItemRes> => {
+    return this.fetchFromAPI(`${this.baseURL}/connection`, "POST", req);
+  };
+
   save = async (req: SaveReq): Promise<SaveRes> => {
-    return this.fetchFromAPI(`${this.baseURL}/server`, "POST", req);
+    return this.fetchFromAPI(`${this.baseURL}/createServer`, "POST", req);
   };
 
   setAuthHeaders = (headers: AuthHeaders): void => {

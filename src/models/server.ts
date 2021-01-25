@@ -12,10 +12,10 @@ export interface Server {
   username: string;
   password: string;
   name: string;
+  when?: Date;
 }
 
 export interface HistoryServer extends Server {
-  when: Date;
   device: string;
   password: never;
 }

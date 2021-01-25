@@ -2,6 +2,7 @@ import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { AppState, AppActionTypes } from "./types";
 import { OwnError } from "@models";
+import { PromptProps } from "@components";
 
 export type AppThunk<ReturnType = void> = ActionCreator<
   ThunkAction<ReturnType, AppState, unknown, Action<string>>
@@ -47,5 +48,12 @@ export const openSettings = () => {
 export const closeSettings = () => {
   return {
     type: AppActionTypes.CLOSE_SETTINGS,
+  };
+};
+
+export const setPrompt = (prompt: PromptProps) => {
+  return {
+    type: AppActionTypes.SET_PROMPT,
+    payload: prompt,
   };
 };

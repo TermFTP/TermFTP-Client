@@ -1,4 +1,4 @@
-import { Header, Loading, Overlay, Settings } from "@components";
+import { Header, Loading, Overlay, Settings, Prompt } from "@components";
 import { Login, Main, Register, ToS, Welcome } from "@pages";
 import { ConnectedRouter } from "connected-react-router";
 import React from "react";
@@ -33,6 +33,7 @@ export function App(): JSX.Element {
       <Overlay></Overlay>
       <Settings></Settings>
       <Loading></Loading>
+      <Prompt></Prompt>
     </div>
   );
 }

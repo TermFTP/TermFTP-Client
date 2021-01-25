@@ -107,7 +107,7 @@
     padding: var(--box-radius);
     width: 30em;
     display: grid;
-    grid-template: "ip ip . port" "user user pw pw" "btn btn btn btn" / 1fr 0.6fr 0.6fr 0.6fr;
+    grid-template: "ip ip ftp ssh" "user user pw pw" "btn btn btn btn" / 1fr 0.6fr 0.6fr 0.6fr;
     gap: 20px;
     height: min-content;
     margin: auto;
@@ -116,8 +116,13 @@
       grid-area: ip;
     }
 
-    .connect-port {
-      grid-area: port;
+    .connect-ftp-port {
+      grid-area: ftp;
+      width: 100%;
+    }
+
+    .connect-ssh-port {
+      grid-area: ssh;
       width: 100%;
     }
 

@@ -49,8 +49,8 @@ export const listReducer: Reducer<ListState> = (
   action
 ) => {
   switch (action.type) {
-    case ListActionTypes.SAVE_SERVER:
-      return { ...state, saved: [...state.saved, action.payload] };
+    case ListActionTypes.ADD_HISTORY:
+      return { ...state, history: [...state.history, action.payload] };
     case ListActionTypes.ADD_FAV:
       return {
         ...state,
@@ -58,6 +58,12 @@ export const listReducer: Reducer<ListState> = (
           ...state.favourites,
           server: [...state.favourites.server, action.payload],
         },
+      };
+
+    case ListActionTypes.SAVE_SERVER:
+      return {
+        ...state,
+        saved: [...state.saved, action.payload],
       };
     default:
       return state;

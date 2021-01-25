@@ -43,10 +43,15 @@ function ListsUI({ groups, history, saved, favourites, connect }: Props) {
   // this is how it transitions between heights
   const items = (amount: number) =>
     ({ "--items": amount } as React.CSSProperties);
+  console.log(favourites);
   return (
     <div id="connect-lists">
       <div
-        className="connect-list"
+        className={`connect-list ${
+          favourites && favourites?.server?.length > 0
+            ? "connect-list-shown"
+            : ""
+        }`}
         id="connect-fav"
         style={items(favourites?.server.length)}
       >
@@ -60,28 +65,37 @@ function ListsUI({ groups, history, saved, favourites, connect }: Props) {
         ))}
       </div>
       <div
-        className="connect-list"
+        className={`connect-list ${
+          saved && saved?.length > 0 ? "connect-list-shown" : ""
+        }`}
         id="connect-groups"
-        style={items(groups?.length)}
+        style={items(saved?.length)}
       >
         <ToggleBtn title="Groups"></ToggleBtn>
-        {/* <div>Item 1</div>
-        <div>Item 2</div>
-        <div>Item 2</div>
-        <div>Item 2</div>
-        <div>Item 2</div> */}
+        {saved.map((s) => (
+          <ServerItem
+            connect={connect}
+            key={s.serverID}
+            server={s}
+          ></ServerItem>
+        ))}
       </div>
-      {history && history?.length > 0 && (
-        <div
-          className="connect-list"
-          id="connect-history"
-          style={items(history?.length)}
-        >
-          <ToggleBtn title="History"></ToggleBtn>
-          {/* <div>Item 1</div>
-        <div>Item 2</div> */}
-        </div>
-      )}
+      <div
+        className={`connect-list ${
+          history && history?.length > 0 ? "connect-list-shown" : ""
+        }`}
+        id="connect-history"
+        style={items(history?.length)}
+      >
+        <ToggleBtn title="History"></ToggleBtn>
+        {history.map((s) => (
+          <ServerItem
+            connect={connect}
+            key={s.serverID}
+            server={s}
+          ></ServerItem>
+        ))}
+      </div>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { PromptProps } from "@components";
 import { OwnError } from "@models";
 
 export enum AppActionTypes {
@@ -8,6 +9,7 @@ export enum AppActionTypes {
   RESET_ERROR = "app/reset-error",
   OPEN_SETTINGS = "app/open-settings",
   CLOSE_SETTINGS = "app/close-settings",
+  SET_PROMPT = "app/set-prompt",
 }
 
 export interface AppState {
@@ -16,4 +18,5 @@ export interface AppState {
   };
   error?: OwnError;
   settingsOpen: boolean;
+  prompt: PromptProps;
 }

@@ -12,8 +12,8 @@
   transition: all 400ms ease-in-out;
   transform: translateX(100%);
   z-index: 10000000;
-}
 
-.shown {
-  transform: translateX(0);
+  &.shown {
+    transform: translateX(0);
+  }
 }

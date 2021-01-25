@@ -7,6 +7,7 @@ export const initialState: AppState = {
   },
   error: undefined,
   settingsOpen: false,
+  prompt: undefined,
 };
 
 export const appReducer: Reducer<AppState> = (state = initialState, action) => {
@@ -62,6 +63,12 @@ export const appReducer: Reducer<AppState> = (state = initialState, action) => {
       return {
         ...state,
         settingsOpen: false,
+      };
+    }
+    case AppActionTypes.SET_PROMPT: {
+      return {
+        ...state,
+        prompt: action.payload,
       };
     }
     default:

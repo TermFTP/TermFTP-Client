@@ -1,6 +1,11 @@
 import { Endpoints } from "@lib";
-import { SaveReq } from "@models";
-import { AppActionTypes, disableLoading, enableLoading } from "@store/app";
+import { HistoryReq, SaveReq } from "@models";
+import {
+  AppActionTypes,
+  disableLoading,
+  enableLoading,
+  setPrompt,
+} from "@store/app";
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { ListState, ListActionTypes } from "./types";
@@ -23,6 +28,7 @@ const basic: ListsThunk = (
     try {
       const json = await Endpoints.getInstance()[method](req);
       dispatch(disableLoading());
+      console.log(json);
 
       return dispatch({
         type: type,
@@ -54,32 +60,33 @@ export const fetchGroups: ListsThunk = () => {
   };
 };
 
-export const save: ListsThunk = (req: SaveReq) => {
+export const historyItem: ListsThunk = (req: HistoryReq) => {
   return basic(
     req,
-    "save",
+    "historyItem",
     "Could not save server!",
-    ListActionTypes.SAVE_SERVER
+    ListActionTypes.ADD_HISTORY
   );
-  // return async (dispatch) => {
-  //   dispatch(enableLoading());
-
-  //   try {
-  //     const json = await Endpoints.getInstance().save(req);
-  //     dispatch(disableLoading());
-
-  //     return dispatch({
-  //       type: ListActionTypes.SAVE_SERVER,
-  //       payload: req,
-  //     });
-  //   } catch (err) {
-  //     const e = await err;
-  //     return dispatch({
-  //       type: AppActionTypes.PUT_ERROR,
-  //       payload: { title: "Could not save server!", message: e.message },
-  //     });
-  //   }
-  // };
 };
 
-// export const addFavourite = (req: SaveReq) => {};
+export const saveServer: ListsThunk = (req: SaveReq) => {
+  return async (dispatch) => {
+    dispatch(enableLoading());
+    try {
+      const json = await Endpoints.getInstance().save(req);
+      console.log(json);
+      dispatch(disableLoading());
+      dispatch(setPrompt(undefined));
+      return dispatch({
+        type: ListActionTypes.SAVE_SERVER,
+        payload: json.data,
+      });
+    } catch (err) {
+      const e = await err;
+      return dispatch({
+        type: AppActionTypes.PUT_ERROR,
+        payload: { title: "Could not save Server", message: e.message },
+      });
+    }
+  };
+};

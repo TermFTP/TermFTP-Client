@@ -10,11 +10,26 @@ export interface LoginReq {
   pcName: string;
 }
 
+export interface HistoryReq {
+  device: string;
+  ip: string;
+  deleted?: string;
+  username?: string;
+  sshPort?: number;
+  ftpPort?: number;
+}
+
 export interface SaveReq {
-  IP: string;
+  ip: string;
+  name?: string;
+  sshPort?: number;
+  ftpPort?: number;
+  username?: string;
+  password?: string;
+  lastConnection?: string;
 }
 
 export interface AuthHeaders {
   "Access-Token"?: string;
-  "PC-Name"?: string;
+  // "PC-Name"?: string;
 }

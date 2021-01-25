@@ -15,8 +15,7 @@
   left: 50%;
   transform: translate(-200%, -50%);
   border-radius: 10px;
-}
-
-.shown {
-  transform: translate(-50%, -50%);
+  &.shown {
+    transform: translate(-50%, -50%);
+  }
 }

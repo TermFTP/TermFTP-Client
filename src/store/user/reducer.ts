@@ -56,8 +56,8 @@ export const login: UserThunk = (username: string, password: string) => {
       dispatch(disableLoading());
 
       Endpoints.getInstance().setAuthHeaders({
-        "Access-Token": json.data.token,
-        "PC-Name": json.data.pcName,
+        "Access-Token": json.data.accessTokenID.token,
+        // "PC-Name": json.data.pcName,
       });
 
       return dispatch({
