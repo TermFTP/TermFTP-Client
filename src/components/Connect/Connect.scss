@@ -104,11 +104,11 @@
   }
 
   .connect-form {
-    padding: var(--box-radius);
+    padding: calc(var(--box-radius) * 1.5) var(--box-radius);
     width: 30em;
     display: grid;
     grid-template: "ip ip ftp ssh" "user user pw pw" "btn btn btn btn" / 1fr 0.6fr 0.6fr 0.6fr;
-    gap: 20px;
+    gap: 25px 20px;
     height: min-content;
     margin: auto;
 
@@ -118,12 +118,10 @@
 
     .connect-ftp-port {
       grid-area: ftp;
-      width: 100%;
     }
 
     .connect-ssh-port {
       grid-area: ssh;
-      width: 100%;
     }
 
     .connect-user {
@@ -135,11 +133,28 @@
     }
 
     .connect-form-btn {
-      margin-top: 10px;
       grid-area: btn;
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 10px;
+    }
+
+    & > * {
+      position: relative;
+
+      &:not(.connect-form-btn) > input {
+        width: 100%;
+      }
+
+      &::before {
+        position: absolute;
+        top: -1.3em;
+        font-size: 0.6em;
+        font-variant: small-caps;
+        left: 0;
+        content: attr(data-info);
+        text-transform: uppercase;
+      }
     }
   }
 }

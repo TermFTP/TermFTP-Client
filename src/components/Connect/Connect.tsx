@@ -171,40 +171,46 @@ export class ConnectUI extends Component<Props, State> {
             <Lists connect={onConnect}></Lists>
           </div>
           <form className="connect-form" onSubmit={(e) => e.preventDefault()}>
-            <input
-              type="text"
-              placeholder="IP"
-              className="connect-ip"
-              value={ip}
-              onChange={(e) => handleChange(e, Change.IP)}
-            />
-            <input
-              type="number"
-              placeholder="Port"
-              className="connect-ftp-port"
-              value={ftpPort}
-              onChange={(e) => handleChange(e, Change.FTPPORT)}
-            />
-            <input
-              type="number"
-              className="connect-ssh-port"
-              value={sshPort}
-              onChange={(e) => handleChange(e, Change.SSHPORT)}
-            />
-            <input
-              type="text"
-              placeholder="anonymous"
-              className="connect-user"
-              value={username}
-              onChange={(e) => handleChange(e, Change.USERNAME)}
-            />
-            <input
-              type="text"
-              placeholder="anonymous"
-              className="connect-pw"
-              value={password}
-              onChange={(e) => handleChange(e, Change.PASSWORD)}
-            />
+            <span className="connect-ip" data-info="ip">
+              <input
+                type="text"
+                placeholder="IP"
+                value={ip}
+                onChange={(e) => handleChange(e, Change.IP)}
+              />
+            </span>
+            <div className="connect-ftp-port" data-info="FTP Port">
+              <input
+                type="number"
+                placeholder="FTP Port"
+                value={ftpPort}
+                onChange={(e) => handleChange(e, Change.FTPPORT)}
+              />
+            </div>
+            <div className="connect-ssh-port" data-info="SSH Port">
+              <input
+                type="number"
+                value={sshPort}
+                onChange={(e) => handleChange(e, Change.SSHPORT)}
+                placeholder="SSH Port"
+              />
+            </div>
+            <div className="connect-user" data-info="Username">
+              <input
+                type="text"
+                placeholder="anonymous"
+                value={username}
+                onChange={(e) => handleChange(e, Change.USERNAME)}
+              />
+            </div>
+            <div className="connect-pw" data-info="Password">
+              <input
+                type="text"
+                placeholder="anonymous"
+                value={password}
+                onChange={(e) => handleChange(e, Change.PASSWORD)}
+              />
+            </div>
             <div className="connect-form-btn">
               <input
                 type="submit"
