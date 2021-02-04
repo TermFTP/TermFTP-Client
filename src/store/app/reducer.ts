@@ -1,59 +1,67 @@
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { AppState, AppActionTypes } from "./types";
-import { OwnError } from "@models";
+import { BubbleModel, DefaultReturn, OwnError } from "@models";
 import { PromptProps } from "@components";
 
 export type AppThunk<ReturnType = void> = ActionCreator<
   ThunkAction<ReturnType, AppState, unknown, Action<string>>
 >;
 
-export const putError = (error: OwnError) => {
+interface Ret extends DefaultReturn {
+  type: AppActionTypes;
+}
+
+export const putError = (error: OwnError): Ret => {
   return {
     type: AppActionTypes.PUT_ERROR,
     payload: error,
   };
 };
 
-export const enableLoading = () => {
+export const setLoading = (loading: boolean): Ret => {
   return {
-    type: AppActionTypes.ENABLE_LOADING,
+    type: AppActionTypes.SET_LOADING,
+    payload: loading,
   };
 };
 
-export const disableLoading = () => {
-  return {
-    type: AppActionTypes.DISABLE_LOADING,
-  };
-};
-
-export const toggleLoading = () => {
-  return {
-    type: AppActionTypes.TOGGLE_LOADING,
-  };
-};
-
-export const resetError = () => {
+export const resetError = (): Ret => {
   return {
     type: AppActionTypes.RESET_ERROR,
   };
 };
 
-export const openSettings = () => {
+export const setSettings = (open: boolean): Ret => {
   return {
-    type: AppActionTypes.OPEN_SETTINGS,
+    type: AppActionTypes.SET_SETTINGS,
+    payload: open,
   };
 };
 
-export const closeSettings = () => {
-  return {
-    type: AppActionTypes.CLOSE_SETTINGS,
-  };
-};
-
-export const setPrompt = (prompt: PromptProps) => {
+export const setPrompt = (prompt: PromptProps): Ret => {
   return {
     type: AppActionTypes.SET_PROMPT,
     payload: prompt,
+  };
+};
+
+export const addBubble = (key: string, bubble: BubbleModel): Ret => {
+  bubble.when = new Date();
+  return {
+    type: AppActionTypes.ADD_BUBBLE,
+    payload: {
+      key,
+      bubble,
+    },
+  };
+};
+
+export const removeBubble = (key: string): Ret => {
+  return {
+    type: AppActionTypes.REMOVE_BUBBLE,
+    payload: {
+      key,
+    },
   };
 };

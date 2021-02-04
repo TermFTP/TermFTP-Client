@@ -1,0 +1,148 @@
+.bubble-wrapper {
+  --actual-height: var(--bubble-height);
+  width: 100%;
+  height: var(--actual-height);
+  // very cool trick to have a "dynamic" background with opacity (look below at classes)
+  --b: rgba(var(--bg), 0.8);
+  border-radius: var(--radius);
+  // --multiplier: calc(var(--bubble-items) - var(--index) - 1);
+  // --bottom: calc(
+  //   var(--multiplier) * var(--bubble-height) + var(--multiplier) *
+  //     var(--bubble-padding)
+  // );
+  margin-top: var(--bubble-padding);
+  animation: bubble-fade var(--fade) ease;
+  z-index: var(--index);
+  // display: flex;
+  transition: var(--dur) height ease;
+  flex-direction: column;
+
+  &.bubble-fading {
+    animation: bubble-fade-reverse var(--fade) ease both;
+  }
+
+  .bubble-content {
+    --content: calc(var(--bubble-height) - 2px);
+    height: var(--bubble-height);
+    display: flex;
+    flex-direction: row;
+    background: var(--b);
+    border-radius: var(--radius);
+    justify-content: center;
+    border: 1px white solid;
+    transition: var(--dur) border-radius ease;
+    width: 100%;
+
+    .bubble-icon {
+      height: var(--content);
+      width: var(--content);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: inherit;
+      font-size: inherit;
+      border-radius: calc(var(--radius) * 1.1);
+      padding: 0;
+      pointer-events: all;
+    }
+
+    .bubble-title {
+      vertical-align: middle;
+      flex-grow: 1;
+      flex-shrink: 0;
+      text-align: left;
+      font-size: 0.9em;
+      padding: 5px;
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .bubble-expand svg {
+      transform: rotate(0);
+      transition: var(--dur) transform ease;
+      will-change: transform;
+    }
+  }
+
+  // https://flatuicolors.com/palette/defo
+  &.bubble-error {
+    --bg: 231, 76, 60;
+  }
+
+  &.bubble-warning {
+    --bg: 241, 196, 15;
+  }
+
+  &.bubble-information {
+    --bg: 127, 140, 141;
+  }
+
+  &.bubble-success {
+    --bg: 46, 204, 113;
+  }
+
+  .bubble-message {
+    padding: 3px;
+    height: 0;
+    background: var(--b);
+    border-radius: 0 0 var(--radius) var(--radius);
+    width: 100%;
+    transition: var(--dur) height ease, var(--dur) border-width ease;
+    border: 0 white solid;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  &.bubble-expanded {
+    --actual-height: var(--expanded-height);
+
+    .bubble-content {
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+
+    .bubble-expand svg {
+      transform: rotate(-180deg);
+    }
+
+    .bubble-message {
+      height: calc(var(--expanded-height) - var(--bubble-height));
+      border-width: 1px;
+      border-top-width: 0;
+    }
+  }
+}
+
+@keyframes bubble-fade {
+  0% {
+    transform: translateY(100%);
+    opacity: 0.2;
+    height: 0;
+    margin-top: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+    height: var(--actual-height);
+    margin-top: var(--bubble-padding);
+  }
+}
+
+// this has to be done, otherwise the animation either does not work or it is very laggy
+@keyframes bubble-fade-reverse {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+    height: var(--actual-height);
+    margin-top: var(--bubble-padding);
+  }
+
+  100% {
+    transform: translateY(100%);
+    opacity: 0.2;
+    height: 0;
+    margin-top: 0;
+  }
+}

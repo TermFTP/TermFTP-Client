@@ -1,11 +1,6 @@
 import { Endpoints } from "@lib";
 import { HistoryReq, SaveReq } from "@models";
-import {
-  AppActionTypes,
-  disableLoading,
-  enableLoading,
-  setPrompt,
-} from "@store/app";
+import { AppActionTypes, setLoading, setPrompt } from "@store/app";
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { ListState, ListActionTypes } from "./types";
@@ -23,11 +18,11 @@ const basic: ListsThunk = (
   type: ListActionTypes
 ) => {
   return async (dispatch) => {
-    dispatch(enableLoading());
+    dispatch(setLoading(true));
 
     try {
       const json = await Endpoints.getInstance()[method](req);
-      dispatch(disableLoading());
+      dispatch(setLoading(false));
       console.log(json);
 
       return dispatch({
@@ -46,7 +41,7 @@ const basic: ListsThunk = (
 
 export const fetchGroups: ListsThunk = () => {
   return async (dispatch) => {
-    dispatch(enableLoading());
+    dispatch(setLoading(true));
     try {
       // TODO implement endpoint function
       const json = await Endpoints.getInstance();
@@ -71,11 +66,11 @@ export const historyItem: ListsThunk = (req: HistoryReq) => {
 
 export const saveServer: ListsThunk = (req: SaveReq) => {
   return async (dispatch) => {
-    dispatch(enableLoading());
+    dispatch(setLoading(true));
     try {
       const json = await Endpoints.getInstance().save(req);
       console.log(json);
-      dispatch(disableLoading());
+      dispatch(setLoading(false));
       dispatch(setPrompt(undefined));
       return dispatch({
         type: ListActionTypes.SAVE_SERVER,

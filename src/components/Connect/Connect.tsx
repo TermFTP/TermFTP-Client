@@ -5,7 +5,7 @@ import "./Connect.scss";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Lists } from "@components";
-import { openSettings, setPrompt } from "@store/app";
+import { setPrompt, setSettings } from "@store/app";
 import { FTP, validateIP } from "@lib";
 import { historyItem, saveServer } from "@store/lists";
 import { HistoryReq, SaveReq } from "@models";
@@ -16,7 +16,7 @@ import { hostname } from "os";
 const mapState = () => ({});
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
-  openSettings: () => dispatch(openSettings()),
+  openSettings: () => dispatch(setSettings(true)),
   historyItem: (req: HistoryReq) => dispatch(historyItem(req)),
   setPrompt: (prompt: PromptProps) => dispatch(setPrompt(prompt)),
   save: (req: SaveReq) => dispatch(saveServer(req)),

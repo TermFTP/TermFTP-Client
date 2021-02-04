@@ -1,20 +1,20 @@
 import { PromptProps } from "@components";
-import { OwnError } from "@models";
+import { BubbleModel, OwnError } from "@models";
 
 export enum AppActionTypes {
-  ENABLE_LOADING = "app/enable-loading",
-  DISABLE_LOADING = "app/disable-loading",
-  TOGGLE_LOADING = "app/toggle-loading",
+  SET_LOADING = "app/set-loading",
   PUT_ERROR = "app/put-error",
   RESET_ERROR = "app/reset-error",
-  OPEN_SETTINGS = "app/open-settings",
-  CLOSE_SETTINGS = "app/close-settings",
   SET_PROMPT = "app/set-prompt",
+  SET_SETTINGS = "app/set-settings",
+  ADD_BUBBLE = "app/add-bubble",
+  REMOVE_BUBBLE = "app/remove-bubble",
 }
 
 export interface AppState {
   data: {
-    isLoading: boolean;
+    isLoading?: boolean;
+    bubbles?: Map<string, BubbleModel>;
   };
   error?: OwnError;
   settingsOpen: boolean;

@@ -1,0 +1,20 @@
+#bubbles {
+  --bubble-width: 15em;
+  --bubble-height: 2.5em;
+  --bubble-padding: 10px;
+  --expanded-height: 8em;
+  position: fixed;
+  width: var(--bubble-width);
+  right: 2em;
+  bottom: 2em;
+  transition: var(--dur) height ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  & > button {
+    position: fixed;
+    left: 100px;
+    bottom: 100px;
+  }
+}

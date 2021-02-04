@@ -2,15 +2,15 @@ import React from "react";
 import "./Settings.scss";
 
 import { RootState, DefaultDispatch } from "@store";
-import { closeSettings, resetError } from "@store/app";
 import { connect, ConnectedProps } from "react-redux";
+import { setSettings } from "@store/app";
 
 const mapState = ({ appReducer: { settingsOpen } }: RootState) => ({
   settingsOpen,
 });
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
-  close: () => dispatch(closeSettings()),
+  close: () => dispatch(setSettings(false)),
 });
 
 const connector = connect(mapState, mapDispatch);

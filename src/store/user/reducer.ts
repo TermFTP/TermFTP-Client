@@ -1,7 +1,7 @@
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { UserState, UserActionTypes } from "./types";
-import { AppActionTypes, disableLoading, enableLoading } from "@store/app";
+import { AppActionTypes, setLoading } from "@store/app";
 import { Endpoints } from "@lib";
 import { push } from "connected-react-router";
 import { hostname } from "os";
@@ -16,7 +16,7 @@ export const register: UserThunk = (
   password: string
 ) => {
   return async (dispatch) => {
-    dispatch(enableLoading());
+    dispatch(setLoading(true));
 
     try {
       const json = await Endpoints.getInstance().register({
@@ -25,7 +25,7 @@ export const register: UserThunk = (
         password,
       });
       dispatch(push("/login"));
-      dispatch(disableLoading());
+      dispatch(setLoading(false));
       console.log("register", json);
 
       return dispatch({
@@ -44,7 +44,7 @@ export const register: UserThunk = (
 
 export const login: UserThunk = (username: string, password: string) => {
   return async (dispatch) => {
-    dispatch(enableLoading());
+    dispatch(setLoading(true));
 
     try {
       const json = await Endpoints.getInstance().login({
@@ -53,7 +53,7 @@ export const login: UserThunk = (username: string, password: string) => {
         pcName: hostname(),
       });
       dispatch(push("/main"));
-      dispatch(disableLoading());
+      dispatch(setLoading(false));
 
       Endpoints.getInstance().setAuthHeaders({
         "Access-Token": json.data.accessTokenID.token,
