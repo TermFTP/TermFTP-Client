@@ -1,11 +1,4 @@
-import {
-  Bubbles,
-  Header,
-  Loading,
-  Overlay,
-  Prompt,
-  Settings,
-} from "@components";
+import { Bubbles, Header, Loading, Prompt, Settings } from "@components";
 import { Login, Main, Register, ToS, Welcome } from "@pages";
 import { ConnectedRouter } from "connected-react-router";
 import React from "react";
@@ -37,7 +30,6 @@ export function App(): JSX.Element {
           </Switch>
         </ConnectedRouter>
       </div>
-      <Overlay></Overlay>
       <Settings></Settings>
       <Loading></Loading>
       <Prompt></Prompt>

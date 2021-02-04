@@ -11,10 +11,4 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-
-  & > button {
-    position: fixed;
-    left: 100px;
-    bottom: 100px;
-  }
 }

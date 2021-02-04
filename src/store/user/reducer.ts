@@ -1,7 +1,7 @@
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { UserState, UserActionTypes } from "./types";
-import { AppActionTypes, setLoading } from "@store/app";
+import { addBubble, AppActionTypes, setLoading } from "@store/app";
 import { Endpoints } from "@lib";
 import { push } from "connected-react-router";
 import { hostname } from "os";
@@ -26,7 +26,12 @@ export const register: UserThunk = (
       });
       dispatch(push("/login"));
       dispatch(setLoading(false));
-      console.log("register", json);
+      dispatch(
+        addBubble(`register-success`, {
+          title: `Registered successfully`,
+          type: "SUCCESS",
+        })
+      );
 
       return dispatch({
         type: UserActionTypes.REGISTER,
@@ -34,10 +39,13 @@ export const register: UserThunk = (
       });
     } catch (err) {
       const e = await err;
-      return dispatch({
-        type: AppActionTypes.PUT_ERROR,
-        payload: { title: "Could not register", message: e.message },
-      });
+      return dispatch(
+        addBubble(`register-error`, {
+          title: "Registering failed",
+          message: e.message,
+          type: "ERROR",
+        })
+      );
     }
   };
 };
@@ -54,6 +62,12 @@ export const login: UserThunk = (username: string, password: string) => {
       });
       dispatch(push("/main"));
       dispatch(setLoading(false));
+      dispatch(
+        addBubble(`login-success`, {
+          title: `Logged in successfully`,
+          type: "SUCCESS",
+        })
+      );
 
       Endpoints.getInstance().setAuthHeaders({
         "Access-Token": json.data.accessTokenID.token,
@@ -66,10 +80,13 @@ export const login: UserThunk = (username: string, password: string) => {
       });
     } catch (err) {
       const e = await err;
-      return dispatch({
-        type: AppActionTypes.PUT_ERROR,
-        payload: { title: "Could not login", message: e.message },
-      });
+      return dispatch(
+        addBubble(`login-error`, {
+          title: "Login failed",
+          message: e.message,
+          type: "ERROR",
+        })
+      );
     }
   };
 };

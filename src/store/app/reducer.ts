@@ -1,7 +1,7 @@
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { AppState, AppActionTypes } from "./types";
-import { BubbleModel, DefaultReturn, OwnError } from "@models";
+import { BubbleModel, DefaultReturn } from "@models";
 import { PromptProps } from "@components";
 
 export type AppThunk<ReturnType = void> = ActionCreator<
@@ -12,23 +12,10 @@ interface Ret extends DefaultReturn {
   type: AppActionTypes;
 }
 
-export const putError = (error: OwnError): Ret => {
-  return {
-    type: AppActionTypes.PUT_ERROR,
-    payload: error,
-  };
-};
-
 export const setLoading = (loading: boolean): Ret => {
   return {
     type: AppActionTypes.SET_LOADING,
     payload: loading,
-  };
-};
-
-export const resetError = (): Ret => {
-  return {
-    type: AppActionTypes.RESET_ERROR,
   };
 };
 

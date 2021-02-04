@@ -3,22 +3,23 @@ import React from "react";
 import "./Register.scss";
 import { DefaultDispatch } from "@store";
 import { ConnectedProps, connect } from "react-redux";
-import { OwnError } from "@models";
-import { putError } from "@store/app";
 
 import { validateEmail } from "@lib";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { register } from "@store/user";
 import { push } from "connected-react-router";
+import { BubbleModel } from "@models";
+import { addBubble } from "@store/app";
 
 const mapState = () => ({});
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
-  putError: (error: OwnError) => dispatch(putError(error)),
   register: (email: string, username: string, password: string) =>
     dispatch(register(email, username, password)),
   login: () => dispatch(push("login")),
+  addBubble: (key: string, bubble: BubbleModel) =>
+    dispatch(addBubble(key, bubble)),
 });
 
 const connector = connect(mapState, mapDispatch);

@@ -1,6 +1,6 @@
 import { Endpoints } from "@lib";
 import { HistoryReq, SaveReq } from "@models";
-import { AppActionTypes, setLoading, setPrompt } from "@store/app";
+import { addBubble, AppActionTypes, setLoading, setPrompt } from "@store/app";
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { ListState, ListActionTypes } from "./types";
@@ -15,7 +15,8 @@ const basic: ListsThunk = (
   req: any,
   method: string,
   errorTitle: string,
-  type: ListActionTypes
+  type: ListActionTypes,
+  success: string
 ) => {
   return async (dispatch) => {
     dispatch(setLoading(true));
@@ -23,7 +24,12 @@ const basic: ListsThunk = (
     try {
       const json = await Endpoints.getInstance()[method](req);
       dispatch(setLoading(false));
-      console.log(json);
+      dispatch(
+        addBubble(`${method}-success`, {
+          title: `${success} was successful`,
+          type: "SUCCESS",
+        })
+      );
 
       return dispatch({
         type: type,
@@ -31,10 +37,13 @@ const basic: ListsThunk = (
       });
     } catch (err) {
       const e = await err;
-      return dispatch({
-        type: AppActionTypes.PUT_ERROR,
-        payload: { title: errorTitle, message: e.message },
-      });
+      return dispatch(
+        addBubble(`${method}-${errorTitle}`, {
+          title: errorTitle,
+          message: e.message,
+          type: "ERROR",
+        })
+      );
     }
   };
 };
@@ -45,12 +54,22 @@ export const fetchGroups: ListsThunk = () => {
     try {
       // TODO implement endpoint function
       const json = await Endpoints.getInstance();
+      dispatch(setLoading(false));
+      dispatch(
+        addBubble(`fetchGroups-success`, {
+          title: `Fetching Groups was successful`,
+          type: "SUCCESS",
+        })
+      );
     } catch (err) {
       const e = await err;
-      return dispatch({
-        type: AppActionTypes.PUT_ERROR,
-        payload: { title: "Could not register", message: e.message },
-      });
+      return dispatch(
+        addBubble(`fetchGroups-error`, {
+          title: "Fetching Groups failed",
+          message: e.message,
+          type: "ERROR",
+        })
+      );
     }
   };
 };
@@ -60,7 +79,8 @@ export const historyItem: ListsThunk = (req: HistoryReq) => {
     req,
     "historyItem",
     "Could not save server!",
-    ListActionTypes.ADD_HISTORY
+    ListActionTypes.ADD_HISTORY,
+    "Registering"
   );
 };
 
@@ -69,8 +89,13 @@ export const saveServer: ListsThunk = (req: SaveReq) => {
     dispatch(setLoading(true));
     try {
       const json = await Endpoints.getInstance().save(req);
-      console.log(json);
       dispatch(setLoading(false));
+      dispatch(
+        addBubble(`saveServer-success`, {
+          title: `Saving a server was successful`,
+          type: "SUCCESS",
+        })
+      );
       dispatch(setPrompt(undefined));
       return dispatch({
         type: ListActionTypes.SAVE_SERVER,
@@ -78,10 +103,13 @@ export const saveServer: ListsThunk = (req: SaveReq) => {
       });
     } catch (err) {
       const e = await err;
-      return dispatch({
-        type: AppActionTypes.PUT_ERROR,
-        payload: { title: "Could not save Server", message: e.message },
-      });
+      return dispatch(
+        addBubble(`saveServer-error`, {
+          title: "Saving a server failed",
+          message: e.message,
+          type: "ERROR",
+        })
+      );
     }
   };
 };

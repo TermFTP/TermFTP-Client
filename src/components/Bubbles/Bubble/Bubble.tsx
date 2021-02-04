@@ -127,7 +127,7 @@ class BubbleUI extends Component<Props, State> {
             )}
           </div>
           <div className="bubble-title">{title}</div>
-          {message.trim() && (
+          {message?.trim() && (
             <button className="bubble-icon bubble-expand">
               <FontAwesomeIcon
                 icon={faChevronDown}
@@ -136,7 +136,7 @@ class BubbleUI extends Component<Props, State> {
             </button>
           )}
         </div>
-        {message.trim() && <div className="bubble-message">{message}</div>}
+        {message?.trim() && <div className="bubble-message">{message}</div>}
       </div>
     );
   }

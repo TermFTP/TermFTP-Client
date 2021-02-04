@@ -1,12 +1,7 @@
-export interface OwnError {
-  title: string;
-  message: string;
-}
-
 export interface BubbleModel {
   type: "WARNING" | "ERROR" | "INFORMATION" | "SUCCESS";
   title: string;
-  message: string;
+  message?: string;
   when?: Date;
 }
 

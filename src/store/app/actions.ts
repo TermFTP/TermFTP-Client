@@ -7,7 +7,6 @@ export const initialState: AppState = {
     isLoading: false,
     bubbles: new Map<string, BubbleModel>(),
   },
-  error: undefined,
   settingsOpen: false,
   prompt: undefined,
 };
@@ -18,25 +17,9 @@ export const appReducer: Reducer<AppState> = (state = initialState, action) => {
       return {
         ...state,
         data: {
+          ...state.data,
           isLoading: action.payload,
         },
-      };
-    }
-    case AppActionTypes.PUT_ERROR:
-      return {
-        ...state,
-        data: {
-          isLoading: false,
-        },
-        error: {
-          title: action.payload.title,
-          message: action.payload.message,
-        },
-      };
-    case AppActionTypes.RESET_ERROR: {
-      return {
-        ...state,
-        error: undefined,
       };
     }
     case AppActionTypes.SET_PROMPT: {
@@ -62,6 +45,7 @@ export const appReducer: Reducer<AppState> = (state = initialState, action) => {
       return {
         ...state,
         data: {
+          ...state.data,
           bubbles: nMap,
         },
       };

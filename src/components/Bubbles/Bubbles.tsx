@@ -43,17 +43,6 @@ export const BubblesUI = ({ bubbles, addBubble }: Props): JSX.Element => {
           timeout={8000}
         ></Bubble>
       ))}
-      <button
-        onClick={() => {
-          addBubble(`b${Date.now().toString()}`, {
-            message: "hi",
-            title: "asd",
-            type: "ERROR",
-          });
-        }}
-      >
-        aaaaaaaa
-      </button>
     </div>
   );
 };
