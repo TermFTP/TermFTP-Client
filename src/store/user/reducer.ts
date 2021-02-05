@@ -39,6 +39,7 @@ export const register: UserThunk = (
       });
     } catch (err) {
       const e = await err;
+      dispatch(setLoading(false));
       return dispatch(
         addBubble(`register-error`, {
           title: "Registering failed",
@@ -80,6 +81,7 @@ export const login: UserThunk = (username: string, password: string) => {
       });
     } catch (err) {
       const e = await err;
+      dispatch(setLoading(false));
       return dispatch(
         addBubble(`login-error`, {
           title: "Login failed",

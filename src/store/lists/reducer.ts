@@ -37,6 +37,7 @@ const basic: ListsThunk = (
       });
     } catch (err) {
       const e = await err;
+      dispatch(setLoading(false));
       return dispatch(
         addBubble(`${method}-${errorTitle}`, {
           title: errorTitle,
@@ -63,6 +64,7 @@ export const fetchGroups: ListsThunk = () => {
       );
     } catch (err) {
       const e = await err;
+      dispatch(setLoading(false));
       return dispatch(
         addBubble(`fetchGroups-error`, {
           title: "Fetching Groups failed",
@@ -103,6 +105,7 @@ export const saveServer: ListsThunk = (req: SaveReq) => {
       });
     } catch (err) {
       const e = await err;
+      dispatch(setLoading(false));
       return dispatch(
         addBubble(`saveServer-error`, {
           title: "Saving a server failed",

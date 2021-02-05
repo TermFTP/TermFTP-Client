@@ -27,7 +27,7 @@ function LoadingUI({ isLoading }: Props) {
         <div></div>
         <div></div>
       </div>
-      <h3>Did you know..</h3>
+      {/* <h3>Did you know..</h3> */}
       {/* <p>{rf.randomFact()}</p> */}
     </div>
   );
