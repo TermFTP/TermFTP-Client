@@ -1,3 +1,5 @@
+import { Group } from "./server";
+
 export interface DefaultResponse {
   status: number;
   message: string;
@@ -66,4 +68,8 @@ export interface SaveRes extends Def {
     sshPort: number;
     username: string;
   };
+}
+
+export interface GroupsRes extends Def {
+  data: Group[];
 }

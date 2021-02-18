@@ -97,7 +97,7 @@
 
   .connect-list-wrapper {
     height: 100%;
-    width: 16em;
+    width: min-content;
     display: flex;
     flex-direction: column;
     justify-content: center;

@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Lists } from "@components";
 import { setPrompt, setSettings } from "@store/app";
 import { FTP, validateIP } from "@lib";
-import { historyItem, saveServer } from "@store/lists";
+import { fetchGroups, historyItem, saveServer } from "@store/lists";
 import { HistoryReq, SaveReq } from "@models";
 import { ConnectDetails } from "./Lists/ServerItem/ServerItem";
 import { PromptProps } from "@components/Prompt/Prompt";
@@ -20,6 +20,7 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   historyItem: (req: HistoryReq) => dispatch(historyItem(req)),
   setPrompt: (prompt: PromptProps) => dispatch(setPrompt(prompt)),
   save: (req: SaveReq) => dispatch(saveServer(req)),
+  fetchGroups: () => dispatch(fetchGroups()),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -59,6 +60,9 @@ export class ConnectUI extends Component<Props, State> {
       ftp: undefined,
       sshPort: 22,
     };
+  }
+  componentDidMount(): void {
+    this.props.fetchGroups();
   }
 
   handleChange = (
@@ -126,6 +130,7 @@ export class ConnectUI extends Component<Props, State> {
     this.props.setPrompt({
       fieldName: "Server Name",
       callback: (value: string) => {
+        this.props.setPrompt(undefined);
         this.props.save({
           ip,
           username,

@@ -1,3 +1,12 @@
+#connect-lists {
+  width: 16em;
+  transition: var(--dur) width ease;
+
+  &.connect-lists-hidden {
+    width: 0;
+  }
+}
+
 .connect-list {
   --item-height: 2em;
   --list-item-padding: 5px;

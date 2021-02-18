@@ -11,6 +11,7 @@ import {
   IRawParams,
   SaveReq,
   HistoryItemRes,
+  GroupsRes,
 } from "@models";
 import { hostname } from "os";
 
@@ -120,12 +121,16 @@ export class Endpoints implements IRawParams {
     return this.fetchFromAPI(`${this.baseURL}/connection`, "POST", req);
   };
 
-  save = async (req: SaveReq): Promise<SaveRes> => {
+  saveServer = async (req: SaveReq): Promise<SaveRes> => {
     return this.fetchFromAPI(`${this.baseURL}/createServer`, "POST", req);
   };
 
   setAuthHeaders = (headers: AuthHeaders): void => {
     this.headers = headers;
+  };
+
+  fetchGroups = (): Promise<GroupsRes> => {
+    return this.fetchFromAPI(`${this.baseURL}/serverGroups`);
   };
 }
 

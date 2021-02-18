@@ -5,6 +5,7 @@ import { addBubble, AppActionTypes, setLoading } from "@store/app";
 import { Endpoints } from "@lib";
 import { push } from "connected-react-router";
 import { hostname } from "os";
+import { fetchGroups } from "@store/lists";
 
 export type UserThunk<ReturnType = void> = ActionCreator<
   ThunkAction<ReturnType, UserState, unknown, Action<string>>
@@ -61,6 +62,10 @@ export const login: UserThunk = (username: string, password: string) => {
         password,
         pcName: hostname(),
       });
+      Endpoints.getInstance().setAuthHeaders({
+        "Access-Token": json.data.accessTokenID.token,
+      });
+
       dispatch(push("/main"));
       dispatch(setLoading(false));
       dispatch(
@@ -69,11 +74,6 @@ export const login: UserThunk = (username: string, password: string) => {
           type: "SUCCESS",
         })
       );
-
-      Endpoints.getInstance().setAuthHeaders({
-        "Access-Token": json.data.accessTokenID.token,
-        // "PC-Name": json.data.pcName,
-      });
 
       return dispatch({
         type: UserActionTypes.LOGIN,

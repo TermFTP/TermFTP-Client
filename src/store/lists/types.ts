@@ -18,5 +18,5 @@ export interface ListState {
   groups: Group[];
   history: HistoryServer[];
   saved: Server[];
-  favourites: Group;
+  favourites?: Group;
 }

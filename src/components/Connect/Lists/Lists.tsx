@@ -43,9 +43,17 @@ function ListsUI({ groups, history, saved, favourites, connect }: Props) {
   // this is how it transitions between heights
   const items = (amount: number) =>
     ({ "--items": amount } as React.CSSProperties);
-  console.log(favourites);
   return (
-    <div id="connect-lists">
+    <div
+      id="connect-lists"
+      className={`${
+        favourites?.server?.length > 0 ||
+        saved?.length > 0 ||
+        history?.length > length
+          ? ""
+          : "connect-lists-hidden"
+      }`}
+    >
       <div
         className={`connect-list ${
           favourites && favourites?.server?.length > 0
@@ -53,10 +61,10 @@ function ListsUI({ groups, history, saved, favourites, connect }: Props) {
             : ""
         }`}
         id="connect-fav"
-        style={items(favourites?.server.length)}
+        style={items(favourites?.server?.length)}
       >
         <ToggleBtn title="Favourites"></ToggleBtn>
-        {favourites.server.map((s) => (
+        {favourites?.server.map((s) => (
           <ServerItem
             connect={connect}
             key={s.serverID}
@@ -71,8 +79,8 @@ function ListsUI({ groups, history, saved, favourites, connect }: Props) {
         id="connect-groups"
         style={items(saved?.length)}
       >
-        <ToggleBtn title="Groups"></ToggleBtn>
-        {saved.map((s) => (
+        <ToggleBtn title="Saved"></ToggleBtn>
+        {saved?.map((s) => (
           <ServerItem
             connect={connect}
             key={s.serverID}
@@ -88,7 +96,7 @@ function ListsUI({ groups, history, saved, favourites, connect }: Props) {
         style={items(history?.length)}
       >
         <ToggleBtn title="History"></ToggleBtn>
-        {history.map((s) => (
+        {history?.map((s) => (
           <ServerItem
             connect={connect}
             key={s.serverID}

@@ -1,6 +1,8 @@
 export interface Group {
+  groupID: string;
   name: string;
   server: Server[];
+  serverGroups: Group[];
 }
 
 export interface Server {
