@@ -7,20 +7,20 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Lists } from "@components";
 import { setPrompt, setSettings } from "@store/app";
 import { FTP, validateIP } from "@lib";
-import { fetchGroups, historyItem, saveServer } from "@store/lists";
-import { HistoryReq, SaveReq } from "@models";
+import { fetchGroups, saveServer } from "@store/lists";
+import { SaveReq } from "@models";
 import { ConnectDetails } from "./Lists/ServerItem/ServerItem";
 import { PromptProps } from "@components/Prompt/Prompt";
-import { hostname } from "os";
+import { goToFTPClient } from "@store/ftp";
 
 const mapState = () => ({});
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   openSettings: () => dispatch(setSettings(true)),
-  historyItem: (req: HistoryReq) => dispatch(historyItem(req)),
   setPrompt: (prompt: PromptProps) => dispatch(setPrompt(prompt)),
   save: (req: SaveReq) => dispatch(saveServer(req)),
   fetchGroups: () => dispatch(fetchGroups()),
+  goToFTP: (client: FTP) => dispatch(goToFTPClient(client)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -107,22 +107,16 @@ export class ConnectUI extends Component<Props, State> {
     details: ConnectDetails = undefined
   ): void => {
     const { username, ip, password, ftpPort, sshPort } = details || this.state;
-    this.setState({
-      ftp: new FTP({
+    this.props.goToFTP(
+      new FTP({
         user: username,
-        password: password,
+        password,
         debug: console.log,
         host: ip,
         port: ftpPort || 21,
-      }),
-    });
-    this.props.historyItem({
-      ip,
-      device: hostname(),
-      ftpPort: ftpPort || 21,
-      username,
-      sshPort: sshPort || 22,
-    });
+        sshPort: sshPort || 22,
+      })
+    );
   };
 
   onSave = (): void => {

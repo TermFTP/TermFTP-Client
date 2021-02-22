@@ -80,7 +80,6 @@ export const fetchGroups: ListsThunk = () => {
     ListActionTypes.FETCH_GROUPS,
     undefined,
     (dispatch: TDispatch, json: GroupsRes) => {
-      console.log("fired", json.data);
       const favI = json.data.findIndex((g) => {
           return g.name === "favourites"; // get the list of favourites
         }),

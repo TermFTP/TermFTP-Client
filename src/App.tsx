@@ -1,5 +1,5 @@
 import { Bubbles, Header, Loading, Prompt, Settings } from "@components";
-import { Login, Main, Register, ToS, Welcome } from "@pages";
+import { FileManager, Login, Main, Register, ToS, Welcome } from "@pages";
 import { ConnectedRouter } from "connected-react-router";
 import React from "react";
 import { Route, Switch } from "react-router";
@@ -27,6 +27,7 @@ export function App(): JSX.Element {
             <Route path="/register" component={Register}></Route>
             <Route path="/main" component={Main}></Route>
             <Route path="/tos" component={ToS}></Route>
+            <Route path="/file-manager" component={FileManager}></Route>
           </Switch>
         </ConnectedRouter>
       </div>

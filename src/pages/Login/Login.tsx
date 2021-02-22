@@ -8,6 +8,7 @@ import "./Login.scss";
 import { push } from "connected-react-router";
 
 const mapState = () => ({});
+
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   login: (username: string, password: string) =>
     dispatch(login(username, password)),
