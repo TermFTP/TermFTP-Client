@@ -1,11 +1,10 @@
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { UserState, UserActionTypes } from "./types";
-import { addBubble, AppActionTypes, setLoading } from "@store/app";
+import { addBubble, setLoading } from "@store/app";
 import { Endpoints } from "@lib";
 import { push } from "connected-react-router";
 import { hostname } from "os";
-import { fetchGroups } from "@store/lists";
 
 export type UserThunk<ReturnType = void> = ActionCreator<
   ThunkAction<ReturnType, UserState, unknown, Action<string>>

@@ -1,5 +1,5 @@
 import React, { Component, MouseEvent } from "react";
-import { DefaultDispatch } from "@store";
+import { DefaultDispatch, RootState } from "@store";
 import { connect, ConnectedProps } from "react-redux";
 import "./Connect.scss";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
@@ -7,13 +7,20 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Lists } from "@components";
 import { setPrompt, setSettings } from "@store/app";
 import { FTP, validateIP } from "@lib";
-import { fetchGroups, saveServer } from "@store/lists";
-import { SaveReq } from "@models";
+import {
+  editServer,
+  fetchGroups,
+  saveServer,
+  changeEditServer,
+} from "@store/lists";
+import { EditReq, SaveReq, Server } from "@models";
 import { ConnectDetails } from "./Lists/ServerItem/ServerItem";
 import { PromptProps } from "@components/Prompt/Prompt";
 import { goToFTPClient } from "@store/ftp";
 
-const mapState = () => ({});
+const mapState = ({ listReducer: { currentlyEdited } }: RootState) => ({
+  currentlyEdited,
+});
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   openSettings: () => dispatch(setSettings(true)),
@@ -21,6 +28,8 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   save: (req: SaveReq) => dispatch(saveServer(req)),
   fetchGroups: () => dispatch(fetchGroups()),
   goToFTP: (client: FTP) => dispatch(goToFTPClient(client)),
+  edit: (server: EditReq) => dispatch(editServer(server)),
+  changeEditServer: (server: Server) => dispatch(changeEditServer(server)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -36,7 +45,7 @@ interface State {
   username: string;
   password: string;
   canConnect: boolean;
-  ftp: FTP;
+  serverID: string;
 }
 
 enum Change {
@@ -57,8 +66,8 @@ export class ConnectUI extends Component<Props, State> {
       password: "",
       username: "",
       canConnect: false,
-      ftp: undefined,
       sshPort: 22,
+      serverID: undefined,
     };
   }
   componentDidMount(): void {
@@ -141,6 +150,59 @@ export class ConnectUI extends Component<Props, State> {
     console.log("favourite");
   };
 
+  onEdit = (): void => {
+    this.props.setPrompt({
+      fieldName: "Server Name",
+      initial: this.props.currentlyEdited.name,
+      callback: (value: string) => {
+        this.props.setPrompt(undefined);
+
+        this.props.edit({
+          ...this.state,
+          name: value,
+        });
+      },
+    });
+  };
+
+  onCancelEdit = (): void => {
+    this.props.changeEditServer(undefined);
+    this.setState({
+      ip: "",
+      ftpPort: 21,
+      password: "",
+      username: "",
+      canConnect: false,
+      sshPort: 22,
+      serverID: undefined,
+    });
+  };
+
+  componentDidUpdate() {
+    const { currentlyEdited } = this.props;
+    if (currentlyEdited && currentlyEdited.serverID !== this.state.serverID) {
+      const {
+        ftpPort,
+        ip,
+        password,
+        sshPort,
+        username,
+        serverID,
+      } = currentlyEdited;
+      this.setState({
+        canConnect: true,
+        ftpPort,
+        ip,
+        password,
+        sshPort,
+        username,
+        serverID,
+      });
+    } else if (!currentlyEdited && this.state.serverID) {
+      this.setState({ serverID: undefined });
+    }
+  }
+
   render(): JSX.Element {
     const {
       changeMode,
@@ -148,9 +210,10 @@ export class ConnectUI extends Component<Props, State> {
       onConnect,
       onSave,
       onFavourite,
-      props: { openSettings },
+      props: { openSettings, currentlyEdited },
       state: { ip, canConnect, password, mode, ftpPort, sshPort, username },
     } = this;
+    const isEdited = Boolean(currentlyEdited);
     return (
       <div id="connect">
         <div className="connect-settings">
@@ -211,24 +274,44 @@ export class ConnectUI extends Component<Props, State> {
               />
             </div>
             <div className="connect-form-btn">
-              <input
-                type="submit"
-                value="Connect"
-                onClick={onConnect}
-                disabled={!canConnect}
-              />
-              <input
-                type="submit"
-                value="Save"
-                onClick={onSave}
-                disabled={!canConnect}
-              />
-              <input
-                type="submit"
-                value="Favourite"
-                onClick={onFavourite}
-                disabled={!canConnect}
-              />
+              {!isEdited && (
+                <>
+                  <input
+                    type="submit"
+                    value="Connect"
+                    onClick={onConnect}
+                    disabled={!canConnect}
+                  />
+                  <input
+                    type="submit"
+                    value="Save"
+                    onClick={onSave}
+                    disabled={!canConnect}
+                  />
+                  <input
+                    type="submit"
+                    value="Favourite"
+                    onClick={onFavourite}
+                    disabled={!canConnect}
+                  />
+                </>
+              )}
+              {isEdited && (
+                <>
+                  <input
+                    type="submit"
+                    value="Edit"
+                    onClick={this.onEdit}
+                    disabled={!canConnect}
+                  />
+                  <input
+                    type="submit"
+                    value="Cancel"
+                    onClick={this.onCancelEdit}
+                    disabled={!canConnect}
+                  />
+                </>
+              )}
             </div>
           </form>
         </div>

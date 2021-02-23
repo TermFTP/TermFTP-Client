@@ -29,6 +29,22 @@ export interface SaveReq {
   lastConnection?: string;
 }
 
+export interface EditReq {
+  serverID: string;
+  ip: string;
+  name?: string;
+  sshPort?: number;
+  ftpPort?: number;
+  username?: string;
+  password?: string;
+}
+
+export interface GroupReq {
+  groupID?: string;
+  name?: string;
+  servers?: string[];
+}
+
 export interface AuthHeaders {
   "Access-Token"?: string;
   // "PC-Name"?: string;

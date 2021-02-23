@@ -10,6 +10,7 @@ import {
   SaveRes,
   IRawParams,
   SaveReq,
+  EditReq,
   HistoryItemRes,
   GroupsRes,
 } from "@models";
@@ -123,6 +124,10 @@ export class Endpoints implements IRawParams {
 
   saveServer = async (req: SaveReq): Promise<SaveRes> => {
     return this.fetchFromAPI(`${this.baseURL}/createServer`, "POST", req);
+  };
+
+  editServer = async (req: EditReq): Promise<SaveRes> => {
+    return this.fetchFromAPI(`${this.baseURL}/updateServer`, "PUT", req);
   };
 
   setAuthHeaders = (headers: AuthHeaders): void => {

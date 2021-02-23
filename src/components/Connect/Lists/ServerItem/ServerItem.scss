@@ -28,6 +28,8 @@
 
   .connect-hover {
     padding: var(--list-item-padding) 10px;
+    position: relative;
+    overflow: hidden;
   }
 
   .connect-hover:hover {
@@ -38,6 +40,11 @@
     & ~ .connect-server-details:hover {
       opacity: 1;
       transform: translateX(0);
+    }
+
+    .connect-server-edit {
+      transform: translateX(0);
+      filter: opacity(100%);
     }
   }
 }
@@ -83,4 +90,19 @@
   font-variant: small-caps;
   transition: var(--dur) opacity ease;
   opacity: var(--hint-opacity);
+}
+
+.connect-server-edit {
+  height: var(--item-height);
+  width: var(--item-height);
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: grid;
+  place-items: center center;
+  transform: translateX(100%);
+  transition: var(--dur) transform ease, var(--dur) filter ease;
+  filter: opacity(0);
+  padding: 0;
+  border-radius: 0;
 }

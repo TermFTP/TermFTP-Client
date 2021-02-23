@@ -15,7 +15,7 @@ export const userReducer: Reducer<UserState> = (
     case Type.REGISTER:
       return { ...state, user: action.payload };
     case Type.LOGIN:
-      localStorage.setItem("token", action.payload.token);
+      localStorage.setItem("token", action.payload.accessTokenID.token);
       localStorage.setItem("pcName", action.payload.pcName);
       localStorage.setItem("validUntil", action.payload.validUntil);
       return { ...state, user: action.payload };

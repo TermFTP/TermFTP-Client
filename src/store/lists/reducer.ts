@@ -1,5 +1,13 @@
 import { Endpoints } from "@lib";
-import { GroupsRes, HistoryReq, SaveReq } from "@models";
+import {
+  GroupsRes,
+  HistoryReq,
+  SaveReq,
+  EditReq,
+  DefaultReturn,
+  Server,
+  GroupReq,
+} from "@models";
 import { addBubble, setLoading, setPrompt } from "@store/app";
 import { Action, ActionCreator } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
@@ -10,6 +18,10 @@ export type ListsThunk<ReturnType = void> = ActionCreator<
 >;
 
 type TDispatch = ThunkDispatch<ListState, unknown, Action<string>>;
+
+interface Ret extends DefaultReturn {
+  type: ListActionTypes;
+}
 
 /**
  *
@@ -113,10 +125,56 @@ export const saveServer: ListsThunk = (req: SaveReq) => {
     "saveServer",
     "Could not save server",
     ListActionTypes.SAVE_SERVER,
-    "Saving a Server was successful",
+    "Saving a server was successful",
     (dispatch: TDispatch) => {
       dispatch(setPrompt(undefined));
       return;
     }
+  );
+};
+
+export const changeEditServer = (server: Server): Ret => {
+  return {
+    type: ListActionTypes.CHANGE_EDIT_SERVER,
+    payload: server,
+  };
+};
+
+export const editServer: ListsThunk = (req: EditReq) => {
+  return basic(
+    req,
+    "editServer",
+    "Could not update server",
+    ListActionTypes.EDIT_SERVER,
+    "Updated server successfully"
+  );
+};
+
+export const addGroup: ListsThunk = (req: GroupReq) => {
+  req.groupID = null;
+  return basic(
+    req,
+    "group",
+    "Could not create group",
+    ListActionTypes.ADD_GROUP,
+    "Create group successfully"
+  );
+};
+
+export const changeGroup: ListsThunk = (req: GroupReq) => {
+  if (req.name) {
+    return basic(
+      req,
+      "group",
+      "Could not change name of group",
+      ListActionTypes.CHANGE_GROUP
+    );
+  }
+  return basic(
+    req,
+    "group",
+    "Could not add server(s) to group",
+    ListActionTypes.ADD_TO_GROUP,
+    "Added servers to group"
   );
 };

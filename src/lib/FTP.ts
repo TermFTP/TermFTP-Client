@@ -16,25 +16,12 @@ export class FTP {
   connect(): Promise<any> {
     this.client = new Client();
     const c = this.client;
-    console.log("before");
-    return new Promise((resolve, reject) => {
-      console.log("inner");
+    return new Promise((resolve) => {
       c.on(
         "ready",
         (() => {
           this.connected = true;
-          console.log("hhuh", this);
           resolve("connected");
-          c.list(function (err, list) {
-            if (err) {
-              reject(err);
-              console.groupEnd();
-              return;
-            }
-            console.log("list", list);
-            // c.end();
-            console.groupEnd();
-          });
         }).bind(this)
       );
 
@@ -54,13 +41,57 @@ export class FTP {
     });
   }
 
+  pwd(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!this.client) {
+        reject("no client");
+      }
+      this.client.pwd((err, path) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        resolve(path);
+      });
+    });
+  }
+
+  list(dir: string): Promise<Client.ListingElement[]> {
+    return new Promise((resolve, reject) => {
+      if (!this.client) {
+        reject("no client");
+      }
+      if (dir) {
+        this.client.list(dir, (err, list) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(list);
+        });
+      } else {
+        this.client.list((err, list) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(list);
+        });
+      }
+    });
+  }
+
   disconnect(): void {
     if (!this.client) {
       throw new Error("no client");
     }
-    this.client.end();
-    this.connected = false;
-    this.client = undefined;
+    if (this.connected) {
+      this.client.end();
+      this.connected = false;
+      this.client = undefined;
+      console.groupEnd();
+    }
   }
 }
 

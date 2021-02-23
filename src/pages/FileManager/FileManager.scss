@@ -1,0 +1,75 @@
+#file-manager {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  #file-manager-settings {
+    position: absolute;
+    height: max-content;
+    width: max-content;
+    top: 10px;
+    right: 10px;
+  }
+}
+
+#file-manager-ui {
+  flex-grow: 1;
+  display: flex;
+  position: relative;
+  flex-direction: column;
+}
+
+#file-manager-bottom {
+  --bottom-height: 2em;
+  height: var(--bottom-height);
+  width: 100%;
+  background: var(--dark-bg-1);
+  display: flex;
+  place-items: center flex-start;
+  flex-direction: row;
+
+  #file-manager-status {
+    --color: 255, 255, 255;
+    display: flex;
+    place-items: center flex-start;
+    flex-direction: row;
+    padding: 0 5px;
+
+    .file-manager-connect-icon {
+      --icon-height: calc(var(--bottom-height) - 2 * 8px);
+      margin-right: 4px;
+      height: var(--icon-height);
+      width: var(--icon-height);
+      display: flex;
+      place-items: center center;
+
+      svg {
+        border-radius: 50%;
+        color: rgba(var(--color), 1);
+        background-color: rgba(var(--color), 0.8);
+        height: 100%;
+        width: 100%;
+      }
+    }
+
+    &.file-manager-connected {
+      --color: 124, 252, 0;
+    }
+
+    &.file-manager-disconnected {
+      --color: 220, 20, 60;
+    }
+  }
+}
+
+#file-manager-pwd {
+  font-size: 3em;
+  color: lightgrey;
+}
+
+#file-manager-files {
+  padding: 1em;
+  flex-grow: 1;
+}

@@ -1,0 +1,19 @@
+.file {
+  --file-height: 2.5em;
+  display: flex;
+  flex-direction: row;
+  place-items: center flex-start;
+  background: var(--dark-bg-1);
+  border-radius: 10px;
+  height: var(--file-height);
+  margin-bottom: 1em;
+  color: white;
+  padding: 0 10px;
+
+  .file-icon {
+    height: var(--file-height);
+    width: var(--file-height);
+    padding: 10px;
+    display: grid;
+  }
+}
