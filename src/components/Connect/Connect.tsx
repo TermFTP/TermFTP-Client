@@ -308,7 +308,6 @@ export class ConnectUI extends Component<Props, State> {
                     type="submit"
                     value="Cancel"
                     onClick={this.onCancelEdit}
-                    disabled={!canConnect}
                   />
                 </>
               )}

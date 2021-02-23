@@ -1,6 +1,6 @@
 import File from "@components/File/File";
 import { faCircle } from "@fortawesome/free-regular-svg-icons";
-import { faCog } from "@fortawesome/free-solid-svg-icons";
+import { faCog, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { HistoryReq } from "@models";
 import { DefaultDispatch, RootState } from "@store";
@@ -26,6 +26,7 @@ type Props = PropsFromState;
 interface State {
   pwd: string;
   list: Client.ListingElement[];
+  plusOpen: boolean;
 }
 
 export class FileManagerUI extends Component<Props, State> {
@@ -34,6 +35,7 @@ export class FileManagerUI extends Component<Props, State> {
     this.state = {
       pwd: "",
       list: [],
+      plusOpen: false,
     };
     (window as any).refreshFTP = this.onConnected;
   }
@@ -58,7 +60,6 @@ export class FileManagerUI extends Component<Props, State> {
       this.setState({ pwd });
     });
     this.props.client.list(undefined).then((list) => {
-      console.log("before", list);
       list = list.sort((a, b) => {
         if (a.type === b.type) {
           return a.name.localeCompare(b.name);
@@ -68,13 +69,26 @@ export class FileManagerUI extends Component<Props, State> {
         }
         return 1;
       });
-      console.log("after", list);
       this.setState({ list });
     });
   };
 
+  onPlus = (): void => {
+    if (this.state.plusOpen) {
+      this.setState({ plusOpen: false });
+    } else {
+      // document.addEventListener("click", this.handleOuterPlusClick);
+      this.setState({ plusOpen: true });
+    }
+  };
+
+  handleOuterPlusClick = (t: Document, ev: MouseEvent): any => {
+    console.log("handling");
+  };
+
   render(): JSX.Element {
     const connected = Boolean(this.props.client?.connected);
+    console.log("list", this.state.list);
     return (
       <div id="file-manager">
         <div id="file-manager-settings">
@@ -90,9 +104,30 @@ export class FileManagerUI extends Component<Props, State> {
             <>
               <div id="file-manager-pwd">{this.state.pwd}</div>
               <div id="file-manager-files">
+                <div className="file">
+                  <div className="file-type">Type</div>
+                  <div className="file-name">Name</div>
+                  <div className="file-size">Size</div>
+                  <div className="file-last">Last Modified</div>
+                </div>
                 {this.state.list.map((file) => (
                   <File file={file} key={`${file.type}-${file.name}`}></File>
                 ))}
+              </div>
+              <div
+                id="file-manager-plus"
+                className={`${
+                  this.state.plusOpen ? "file-manager-plus-opened" : ""
+                }`}
+              >
+                <button id="file-manager-plus-btn" onClick={this.onPlus}>
+                  <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
+                </button>
+                <div id="file-manager-context-menu">
+                  <button>Create folder</button>
+                  <button>Upload files</button>
+                  <button>Upload folder(s)</button>
+                </div>
               </div>
             </>
           )}

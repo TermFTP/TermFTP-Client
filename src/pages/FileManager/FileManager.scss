@@ -15,10 +15,19 @@
 }
 
 #file-manager-ui {
+  --file-height: 2.5em;
+  --file-width: 4em;
   flex-grow: 1;
   display: flex;
   position: relative;
   flex-direction: column;
+
+  #file-manager-files > * {
+    display: grid;
+    grid-template-columns: var(--file-width) auto 5em 6em;
+    align-items: center;
+    gap: 5px;
+  }
 }
 
 #file-manager-bottom {
@@ -65,11 +74,80 @@
 }
 
 #file-manager-pwd {
-  font-size: 3em;
+  font-size: 2em;
   color: lightgrey;
 }
 
 #file-manager-files {
   padding: 1em;
   flex-grow: 1;
+}
+
+#file-manager-plus {
+  --plus-height: 2.5em;
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  height: var(--plus-height);
+  width: var(--plus-height);
+
+  #file-manager-plus-btn {
+    height: var(--plus-height);
+    width: var(--plus-height);
+    border-radius: 50%;
+    display: grid;
+    place-items: center center;
+    font-size: inherit;
+    transition: var(--dur) transform ease;
+    animation: closed var(--dur) ease forwards;
+  }
+
+  &.file-manager-plus-opened {
+    #file-manager-plus-btn {
+      animation: opened var(--dur) ease forwards;
+    }
+
+    #file-manager-context-menu {
+      height: calc(3 * var(--menu-item-height));
+    }
+  }
+}
+
+#file-manager-context-menu {
+  --menu-item-height: 2em;
+  position: absolute;
+  bottom: calc(var(--plus-height) + 10px);
+  right: 0;
+  width: 10em;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 0;
+  transition: var(--dur) height ease;
+  will-change: height;
+
+  button {
+    width: 100%;
+    border-radius: 0;
+    height: var(--menu-item-height);
+    font-size: inherit;
+  }
+}
+
+@keyframes opened {
+  0% {
+    transform: rotate(0);
+  }
+
+  100% {
+    transform: rotate(225deg);
+  }
+}
+
+@keyframes closed {
+  0% {
+    transform: rotate(225deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
 }
