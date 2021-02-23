@@ -82,11 +82,11 @@ class BubbleUI extends Component<Props, State> {
   };
 
   toggleExpand = (
-    event: React.MouseEvent<SVGSVGElement, MouseEvent>
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ): boolean => {
-    console.log("sj");
-    event.stopPropagation();
+    console.log("asdd");
     event.preventDefault();
+    event.stopPropagation();
     this.setState({ expanded: !this.state.expanded });
     return true;
   };
@@ -128,11 +128,11 @@ class BubbleUI extends Component<Props, State> {
           </div>
           <div className="bubble-title">{title}</div>
           {message?.trim() && (
-            <button className="bubble-icon bubble-expand">
-              <FontAwesomeIcon
-                icon={faChevronDown}
-                onClick={this.toggleExpand}
-              ></FontAwesomeIcon>
+            <button
+              className="bubble-icon bubble-expand"
+              onClick={this.toggleExpand}
+            >
+              <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
             </button>
           )}
         </div>

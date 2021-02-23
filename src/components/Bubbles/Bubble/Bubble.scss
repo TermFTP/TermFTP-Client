@@ -62,7 +62,7 @@
     .bubble-expand svg {
       transform: rotate(0);
       transition: var(--dur) transform ease;
-      will-change: transform;
+      pointer-events: none;
     }
   }
 
