@@ -84,7 +84,6 @@ class BubbleUI extends Component<Props, State> {
   toggleExpand = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ): boolean => {
-    console.log("asdd");
     event.preventDefault();
     event.stopPropagation();
     this.setState({ expanded: !this.state.expanded });

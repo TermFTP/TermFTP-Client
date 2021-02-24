@@ -6,13 +6,9 @@ import React from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./Login.scss";
 import { push } from "connected-react-router";
-import { IPCEncryptReply } from "@shared/models";
+import { IPCEncryptReply, IPCEncryptRequest } from "@shared/models";
 
 const { ipcRenderer } = window.require("electron");
-
-ipcRenderer.on("login-encrypt-reply", (event, arg: IPCEncryptReply) => {
-  console.log("fertig");
-});
 
 const mapState = () => ({});
 
@@ -80,7 +76,16 @@ class LoginUI extends React.Component<Props, State> {
       state: { username, password },
       props: { login },
     } = this;
-    login(username, password);
+    ipcRenderer.send("encrypt", {
+      caller: "login",
+      password,
+      username,
+    } as IPCEncryptRequest);
+    ipcRenderer.on("login-encrypt-reply", (event, args: IPCEncryptReply) => {
+      const [master, key] = args;
+      // TODO save key
+      login(username, master);
+    });
   }
 
   render() {

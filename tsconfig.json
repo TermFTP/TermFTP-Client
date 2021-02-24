@@ -25,7 +25,7 @@
       "@models": ["src/models"],
       "@lib": ["src/lib"],
       "@components/*": ["src/components/*"],
-      "@models/*": ["src/models/*", "shared/models/*"],
+      "@models/*": ["src/models/*"],
       "@pages/*": ["src/pages/*"],
       "@images/*": ["src/assets/images/*"],
       "@store/*": ["src/store/*"],

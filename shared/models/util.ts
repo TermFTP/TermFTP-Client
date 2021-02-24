@@ -10,9 +10,10 @@ export enum EncryptionType {
 export interface IPCEncryptRequest {
   caller: string;
   password: string;
+  username: string;
 }
 
-export interface IPCEncryptReply {
-  master: string;
-  key: string;
-}
+/**
+ * the first element is the master key and the second element is the actual key
+ */
+export type IPCEncryptReply = [string, string];

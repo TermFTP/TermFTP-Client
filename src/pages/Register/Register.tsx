@@ -11,6 +11,9 @@ import { register } from "@store/user";
 import { push } from "connected-react-router";
 import { BubbleModel } from "@models";
 import { addBubble } from "@store/app";
+import { IPCEncryptRequest, IPCEncryptReply } from "@shared/models";
+
+const { ipcRenderer } = window.require("electron");
 
 const mapState = () => ({});
 
@@ -107,7 +110,15 @@ class RegisterUI extends React.Component<Props, State> {
       state: { email, username, password },
       props: { register },
     } = this;
-    register(email, username, password);
+    ipcRenderer.send("encrypt", {
+      caller: "register",
+      password,
+      username,
+    } as IPCEncryptRequest);
+    ipcRenderer.on("register-encrypt-reply", (event, args: IPCEncryptReply) => {
+      const [master] = args;
+      register(email, username, master);
+    });
   }
 
   openInBrowser() {

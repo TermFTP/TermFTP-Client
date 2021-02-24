@@ -1,21 +1,25 @@
 import { ipcMain } from "electron";
-import { IPCEncryptRequest, EncryptionType } from "../shared/models";
+import {
+  IPCEncryptRequest,
+  EncryptionType,
+  IPCEncryptReply,
+} from "../shared/models";
 import { randomBytes, pbkdf2Sync } from "crypto";
 
 ipcMain.on("encrypt", (event, arg: IPCEncryptRequest) => {
   //do the hot stuff
 
-  const salt = randomBytes(16);
+  const salt = Buffer.from(arg.username, "utf-8");
 
   //https://nodejs.org/api/crypto.html#crypto_crypto_pbkdf2_password_salt_iterations_keylen_digest_callback
   const key = pbkdf2Sync(arg.password, salt, EncryptionType.KEY, 64, "sha256");
 
   const master = pbkdf2Sync(key, salt, EncryptionType.MASTER, 64, "sha256");
 
-  event.reply(arg.caller + "-encrypt-reply", {
-    master: master.toString("hex"),
-    key: key.toString("hex"),
-  });
+  event.reply(arg.caller + "-encrypt-reply", [
+    master.toString("hex"),
+    key.toString("hex"),
+  ] as IPCEncryptReply);
 });
 
 /**
