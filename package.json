@@ -2,7 +2,7 @@
   "name": "termftp-client",
   "version": "0.1.0",
   "private": true,
-  "main": "build/main.js",
+  "main": "build/window/main.js",
   "dependencies": {
     "@babel/core": "7.12.3",
     "@fortawesome/fontawesome-svg-core": "^1.2.34",
@@ -30,6 +30,7 @@
     "camelcase": "^6.1.0",
     "case-sensitive-paths-webpack-plugin": "2.3.0",
     "connected-react-router": "^6.9.1",
+    "crypto": "^1.0.1",
     "css-loader": "4.3.0",
     "dotenv": "8.2.0",
     "dotenv-expand": "5.1.0",
@@ -56,6 +57,7 @@
     "jest-watch-typeahead": "0.6.1",
     "mini-css-extract-plugin": "0.11.3",
     "optimize-css-assets-webpack-plugin": "5.0.4",
+    "pbkdf2": "^3.1.1",
     "pnp-webpack-plugin": "1.6.4",
     "postcss-flexbugs-fixes": "4.2.1",
     "postcss-loader": "3.0.0",
@@ -97,9 +99,10 @@
     "test": "node scripts/test.js",
     "electron": "electron .",
     "preelectron-pack": "npm run build && npm run build:electron",
-    "electron-pack": "electron-builder -c.extraMetadata.main=build/main.js --publish=never",
+    "electron-pack": "electron-builder -c.extraMetadata.main=build/window/main.js --publish=never",
     "dev": "cross-env BROWSER=none NODE_ENV=development npm run devScript",
-    "devScript": "concurrently \"npm run start\" \"wait-on http://localhost:3000 && npm run build:electron && npm run electron\""
+    "devScript": "concurrently \"npm run start\" \"npm run devElectron\"",
+    "devElectron": "concurrently \"tsc -w -p tsconfig.electron.json\" \"nodemon --exec \"\"wait-on http://localhost:3000 && npm run electron\"\""
   },
   "eslintConfig": {
     "extends": [
@@ -189,6 +192,7 @@
     "cross-env": "^7.0.3",
     "electron": "^10.4.0",
     "electron-builder": "^22.9.1",
+    "electron-reloader": "^1.2.0",
     "node-sass": "^4.14.1",
     "ts-loader": "^8.0.17",
     "tsconfig-paths-webpack-plugin": "^3.3.0",

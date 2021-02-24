@@ -6,6 +6,13 @@ import React from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./Login.scss";
 import { push } from "connected-react-router";
+import { IPCEncryptReply } from "@shared/models";
+
+const { ipcRenderer } = window.require("electron");
+
+ipcRenderer.on("login-encrypt-reply", (event, arg: IPCEncryptReply) => {
+  console.log("fertig");
+});
 
 const mapState = () => ({});
 

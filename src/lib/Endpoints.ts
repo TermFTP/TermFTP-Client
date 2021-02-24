@@ -8,13 +8,13 @@ import {
   RegisterRes,
   HistoryReq,
   SaveRes,
-  IRawParams,
   SaveReq,
   EditReq,
   HistoryItemRes,
   GroupsRes,
 } from "@models";
 import { hostname } from "os";
+import { IRawParams } from "@shared/models";
 
 /**
  * the class for communication with the backend API

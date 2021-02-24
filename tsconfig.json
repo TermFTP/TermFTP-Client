@@ -25,12 +25,13 @@
       "@models": ["src/models"],
       "@lib": ["src/lib"],
       "@components/*": ["src/components/*"],
-      "@models/*": ["src/models/*"],
+      "@models/*": ["src/models/*", "shared/models/*"],
       "@pages/*": ["src/pages/*"],
       "@images/*": ["src/assets/images/*"],
       "@store/*": ["src/store/*"],
-      "@lib/*": ["src/lib/*"]
+      "@lib/*": ["src/lib/*"],
+      "@shared/*": ["shared/*"]
     }
   },
-  "include": ["src", "util/preload.js"]
+  "include": ["src", "shared"]
 }

@@ -18,7 +18,6 @@ export function App(): JSX.Element {
   return (
     <div id="app">
       <Header></Header>
-
       <div id="app-wrapper">
         <ConnectedRouter history={history}>
           <Switch>

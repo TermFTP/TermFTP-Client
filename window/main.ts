@@ -10,6 +10,7 @@ import {
 import isDev from "electron-is-dev";
 import dotenv from "dotenv";
 import { pathExists } from "fs-extra";
+import "./ipc";
 
 dotenv.config();
 let win: BrowserWindow;
@@ -50,7 +51,7 @@ function createMenu(): void {
 
   menu.append(
     new MenuItem({
-      label: "Open Console",
+      label: "Open console",
       accelerator: process.platform === "darwin" ? "Alt+CMD+I" : "Ctrl+Shift+I",
       click: () => {
         win.webContents.openDevTools();

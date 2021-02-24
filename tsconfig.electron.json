@@ -3,7 +3,7 @@
     "module": "commonjs",
     "sourceMap": false,
     "outDir": "build",
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
       "*": ["node_modules/*"]
     },
@@ -11,5 +11,5 @@
     "noImplicitAny": false,
     "esModuleInterop": true
   },
-  "include": ["src/main.ts"]
+  "include": ["window", "shared"]
 }
