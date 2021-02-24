@@ -101,8 +101,8 @@
     "preelectron-pack": "npm run build && npm run build:electron",
     "electron-pack": "electron-builder -c.extraMetadata.main=build/window/main.js --publish=never",
     "dev": "cross-env BROWSER=none NODE_ENV=development npm run devScript",
-    "devScript": "concurrently \"npm run start\" \"npm run devElectron\"",
-    "devElectron": "concurrently \"tsc -w -p tsconfig.electron.json\" \"nodemon --exec \"\"wait-on http://localhost:3000 && npm run electron\"\""
+    "devScript": "concurrently \"npm run start\" \"wait-on http://localhost:3000 && npm run devElectron\"",
+    "devElectron": "concurrently \"tsc -w -p tsconfig.electron.json\" \"nodemon -w build/window -w build/shared --exec 'npm run electron'\""
   },
   "eslintConfig": {
     "extends": [
@@ -194,6 +194,7 @@
     "electron-builder": "^22.9.1",
     "electron-reloader": "^1.2.0",
     "node-sass": "^4.14.1",
+    "nodemon": "^2.0.7",
     "ts-loader": "^8.0.17",
     "tsconfig-paths-webpack-plugin": "^3.3.0",
     "typescript": "^4.2.2",
