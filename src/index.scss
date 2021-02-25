@@ -37,7 +37,21 @@ input {
   background-color: var(--dark-bg-2);
   border-radius: var(--radius);
   transition: var(--dur) background ease;
+
+  &:focus{
+    outline: none;
+    box-shadow: -1px -1px 1px greenyellow,
+    -1px 0 1px greenyellow,
+    0 -1px 1px greenyellow,
+    1px 0 1px greenyellow,
+    0 1px 1px greenyellow,
+    1px 1px 1px greenyellow,
+    0 0 1px greenyellow
+    ;
+  }
+
 }
+
 
 button,
 input[type="button"],
