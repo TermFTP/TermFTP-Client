@@ -267,7 +267,7 @@ export class ConnectUI extends Component<Props, State> {
             </div>
             <div className="connect-pw" data-info="Password">
               <input
-                type="text"
+                type="password"
                 placeholder="anonymous"
                 value={password}
                 onChange={(e) => handleChange(e, Change.PASSWORD)}
