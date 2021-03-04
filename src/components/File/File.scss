@@ -4,6 +4,8 @@
   height: var(--file-height);
   margin-bottom: 1em;
   color: white;
+  cursor: pointer;
+  transition: var(--dur) background ease;
 
   .file-type {
     height: var(--file-height);
@@ -22,5 +24,9 @@
 
   .file-last {
     font-size: 0.8em;
+  }
+
+  &:hover {
+    background: var(--dark-bg-2);
   }
 }

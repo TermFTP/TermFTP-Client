@@ -2,6 +2,7 @@ import File from "@components/File/File";
 import { faCircle } from "@fortawesome/free-regular-svg-icons";
 import { faCog, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FTPEventDetails } from "@lib";
 import { HistoryReq } from "@models";
 import { DefaultDispatch, RootState } from "@store";
 import { setSettings } from "@store/app";
@@ -42,6 +43,7 @@ export class FileManagerUI extends Component<Props, State> {
   componentDidMount(): void {
     if (!this.props.client?.connected) {
       this.props.client.connect().then(this.onConnected);
+      this.props.client.on("ftp-event", this.onChange);
     }
   }
 
@@ -49,13 +51,7 @@ export class FileManagerUI extends Component<Props, State> {
     this.props.client?.disconnect();
   }
 
-  onConnected = (): void => {
-    this.forceUpdate();
-    this.props.historyItem({
-      ...this.props.client.config,
-      device: hostname(),
-      ip: this.props.client.config.host,
-    });
+  onChange = (args: FTPEventDetails): void => {
     this.props.client.pwd().then((pwd) => {
       this.setState({ pwd });
     });
@@ -71,6 +67,16 @@ export class FileManagerUI extends Component<Props, State> {
       });
       this.setState({ list });
     });
+  };
+
+  onConnected = (): void => {
+    this.forceUpdate();
+    this.props.historyItem({
+      ...this.props.client.config,
+      device: hostname(),
+      ip: this.props.client.config.host,
+    });
+    this.onChange(undefined);
   };
 
   onPlus = (): void => {
@@ -110,8 +116,13 @@ export class FileManagerUI extends Component<Props, State> {
                   <div className="file-size">Size</div>
                   <div className="file-last">Last Modified</div>
                 </div>
+				{this.state.pwd !== "/" && <File ftp={this.props.client} file={{size: 0, name: "..", type: "d", date: new Date()}}></File>}
                 {this.state.list.map((file) => (
-                  <File file={file} key={`${file.type}-${file.name}`}></File>
+                  <File
+                    ftp={this.props.client}
+                    file={file}
+                    key={`${file.type}-${file.name}`}
+                  ></File>
                 ))}
               </div>
               <div

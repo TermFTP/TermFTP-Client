@@ -1,17 +1,25 @@
 import { faFile, faFolder } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { convertFileSize } from "@lib";
+import { convertFileSize, FTP } from "@lib";
 import Client from "ftp";
 import React from "react";
 import "./File.scss";
 
 interface Props {
   file: Client.ListingElement;
+  ftp: FTP;
 }
 
-export function File({ file }: Props): JSX.Element {
+export function File({ file, ftp }: Props): JSX.Element {
   return (
-    <div className="file">
+    <div
+      className={`file file-${file.type}`}
+      onDoubleClick={() => {
+        if (file.type === "d") {
+          ftp.cd(file.name);
+        }
+      }}
+    >
       <div className="file-type">
         <FontAwesomeIcon
           icon={file.type === "d" ? faFolder : faFile}
