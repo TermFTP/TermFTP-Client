@@ -1,15 +1,25 @@
 import Client from "ftp";
+import { EventEmitter } from "events";
 
 export interface FTPConfig extends Client.Options {
   sshPort: number;
 }
 
-export class FTP {
+export interface FTPEventDetails {
+  change: "all" | "directory" | "files";
+}
+
+HTMLDivElement;
+
+export type FTPEvent = CustomEvent<FTPEventDetails>;
+
+export class FTP extends EventEmitter {
   config: FTPConfig;
   client: Client;
   connected = false;
 
   constructor(config: FTPConfig) {
+    super();
     this.config = config;
   }
 
@@ -84,13 +94,31 @@ export class FTP {
 
   disconnect(): void {
     if (!this.client) {
-      throw new Error("no client");
+      console.error("no client");
     }
     if (this.connected) {
       this.client.end();
       this.connected = false;
       this.client = undefined;
       console.groupEnd();
+    }
+  }
+
+  cd(dir: string): Promise<string> {
+    if (!this.client) {
+      console.error("no client");
+    }
+    if (this.connected) {
+      return new Promise((resolve, reject) => {
+        this.client.cwd(dir, (err, current) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(current);
+          this.emit("ftp-event", { details: "all" });
+        });
+      });
     }
   }
 }
