@@ -8,7 +8,7 @@ import "./Login.scss";
 import { push } from "connected-react-router";
 import { IPCEncryptReply, IPCEncryptRequest } from "@shared/models";
 
-const { ipcRenderer } = window.require("electron");
+import { ipcRenderer } from "electron";
 
 const mapState = () => ({});
 

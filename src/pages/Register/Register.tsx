@@ -13,7 +13,7 @@ import { BubbleModel } from "@models";
 import { addBubble } from "@store/app";
 import { IPCEncryptRequest, IPCEncryptReply } from "@shared/models";
 
-const { ipcRenderer } = window.require("electron");
+import { ipcRenderer } from "electron";
 
 const mapState = () => ({});
 
