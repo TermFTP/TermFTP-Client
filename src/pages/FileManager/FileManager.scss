@@ -1,4 +1,8 @@
 #file-manager {
+  --plus-height: 2.5em;
+  --file-height: 2.5em;
+  --file-width: 4em;
+  --bottom-height: 2em;
   height: 100%;
   width: 100%;
   position: relative;
@@ -15,8 +19,6 @@
 }
 
 #file-manager-ui {
-  --file-height: 2.5em;
-  --file-width: 4em;
   flex-grow: 1;
   display: flex;
   position: relative;
@@ -31,7 +33,6 @@
 }
 
 #file-manager-bottom {
-  --bottom-height: 2em;
   height: var(--bottom-height);
   width: 100%;
   background: var(--dark-bg-1);
@@ -79,15 +80,15 @@
 }
 
 #file-manager-files {
-  padding: 1em;
+  padding: 1em 1em var(--plus-height) 1em;
   flex-grow: 1;
+  background-color: var(--background);
 }
 
 #file-manager-plus {
-  --plus-height: 2.5em;
-  position: absolute;
+  position: fixed;
   right: 8px;
-  bottom: 8px;
+  bottom: calc(8px + var(--bottom-height));
   height: var(--plus-height);
   width: var(--plus-height);
 
@@ -98,38 +99,19 @@
     display: grid;
     place-items: center center;
     font-size: inherit;
-    transition: var(--dur) transform ease;
+    transition: var(--dur) transform ease, var(--dur) background ease;
     animation: closed var(--dur) ease forwards;
+    background: var(--dark-bg-1);
+
+    &:hover {
+      background: var(--dark-bg-2);
+    }
   }
 
   &.file-manager-plus-opened {
     #file-manager-plus-btn {
       animation: opened var(--dur) ease forwards;
     }
-
-    #file-manager-context-menu {
-      height: calc(3 * var(--menu-item-height));
-    }
-  }
-}
-
-#file-manager-context-menu {
-  --menu-item-height: 2em;
-  position: absolute;
-  bottom: calc(var(--plus-height) + 10px);
-  right: 0;
-  width: 10em;
-  border-radius: 10px;
-  overflow: hidden;
-  height: 0;
-  transition: var(--dur) height ease;
-  will-change: height;
-
-  button {
-    width: 100%;
-    border-radius: 0;
-    height: var(--menu-item-height);
-    font-size: inherit;
   }
 }
 

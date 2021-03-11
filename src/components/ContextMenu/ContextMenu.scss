@@ -1,0 +1,37 @@
+#file-manager-context-menu {
+  --menu-item-height: 2em;
+  position: absolute;
+  bottom: calc(var(--plus-height) + 10px);
+  right: 0;
+  width: 10em;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 0;
+  transition: var(--dur) height ease;
+  will-change: height;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  flex-direction: column;
+  // box-shadow: 1px 1px 10px white;
+
+  button {
+    width: 100%;
+    border-radius: 0;
+    flex-grow: 1;
+    // flex-shrink: 0;
+    // height: var(--menu-item-height);
+    font-size: inherit;
+    font-size: 0.9em;
+    padding: 0;
+    background: var(--dark-bg-1);
+
+    &:hover {
+      background: var(--dark-bg-2);
+    }
+  }
+  &.opened {
+    height: calc(var(--items) * var(--menu-item-height));
+    border: 1px solid white;
+  }
+}

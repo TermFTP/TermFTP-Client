@@ -82,7 +82,7 @@ class LoginUI extends React.Component<Props, State> {
       username,
     } as IPCEncryptRequest);
     ipcRenderer.on("login-encrypt-reply", (event, args: IPCEncryptReply) => {
-      const [master, key] = args;
+      const [master] = args;
       // TODO save key
       login(username, master);
     });

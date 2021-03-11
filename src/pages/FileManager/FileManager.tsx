@@ -1,3 +1,4 @@
+import { ContextMenu } from "@components";
 import File from "@components/File/File";
 import { faCircle } from "@fortawesome/free-regular-svg-icons";
 import { faCog, faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -6,6 +7,7 @@ import { FTPEventDetails } from "@lib";
 import { HistoryReq } from "@models";
 import { DefaultDispatch, RootState } from "@store";
 import { setSettings } from "@store/app";
+import { ContextMenuProps, setContextMenu } from "@store/filemanager";
 import { historyItem } from "@store/lists";
 import Client from "ftp";
 import { hostname } from "os";
@@ -13,10 +15,15 @@ import React, { Component } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./FileManager.scss";
 
-const mapState = ({ ftpReducer: { client } }: RootState) => ({ client });
+const mapState = ({
+  ftpReducer: { client },
+  fmReducer: { menu },
+}: RootState) => ({ client, menu });
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   historyItem: (req: HistoryReq) => dispatch(historyItem(req)),
   openSettings: () => dispatch(setSettings(true)),
+  setContextMenu: (contextMenu: ContextMenuProps) =>
+    dispatch(setContextMenu(contextMenu)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -41,9 +48,15 @@ export class FileManagerUI extends Component<Props, State> {
     (window as any).refreshFTP = this.onConnected;
   }
   componentDidMount(): void {
-    if (!this.props.client?.connected) {
+    if (this.props.client && !this.props.client?.connected) {
       this.props.client.connect().then(this.onConnected);
       this.props.client.on("ftp-event", this.onChange);
+    }
+  }
+
+  componentDidUpdate(): void {
+    if (this.state.plusOpen && !this.props.menu.isOpen) {
+      this.setState({ plusOpen: false });
     }
   }
 
@@ -82,9 +95,21 @@ export class FileManagerUI extends Component<Props, State> {
   onPlus = (): void => {
     if (this.state.plusOpen) {
       this.setState({ plusOpen: false });
+      this.props.setContextMenu({
+        file: undefined,
+        x: undefined,
+        y: undefined,
+        isOpen: false,
+      });
     } else {
       // document.addEventListener("click", this.handleOuterPlusClick);
       this.setState({ plusOpen: true });
+      this.props.setContextMenu({
+        file: undefined,
+        x: undefined,
+        y: undefined,
+        isOpen: true,
+      });
     }
   };
 
@@ -92,9 +117,19 @@ export class FileManagerUI extends Component<Props, State> {
     console.log("handling");
   };
 
+  onContextMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>): void => {
+    console.log(e);
+    this.props.setContextMenu({
+      isOpen: true,
+      x: e.clientX,
+      y: e.clientY,
+    });
+  };
+
   render(): JSX.Element {
     const connected = Boolean(this.props.client?.connected);
-    console.log("list", this.state.list);
+    // console.log("list", this.state.list);
+
     return (
       <div id="file-manager">
         <div id="file-manager-settings">
@@ -109,14 +144,22 @@ export class FileManagerUI extends Component<Props, State> {
           {connected && (
             <>
               <div id="file-manager-pwd">{this.state.pwd}</div>
-              <div id="file-manager-files">
+              <div
+                id="file-manager-files"
+                onContextMenuCapture={this.onContextMenu}
+              >
                 <div className="file">
                   <div className="file-type">Type</div>
                   <div className="file-name">Name</div>
                   <div className="file-size">Size</div>
                   <div className="file-last">Last Modified</div>
                 </div>
-				{this.state.pwd !== "/" && <File ftp={this.props.client} file={{size: 0, name: "..", type: "d", date: new Date()}}></File>}
+                {this.state.pwd !== "/" && (
+                  <File
+                    ftp={this.props.client}
+                    file={{ size: 0, name: "..", type: "d", date: new Date() }}
+                  ></File>
+                )}
                 {this.state.list.map((file) => (
                   <File
                     ftp={this.props.client}
@@ -134,11 +177,7 @@ export class FileManagerUI extends Component<Props, State> {
                 <button id="file-manager-plus-btn" onClick={this.onPlus}>
                   <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
                 </button>
-                <div id="file-manager-context-menu">
-                  <button>Create folder</button>
-                  <button>Upload files</button>
-                  <button>Upload folder(s)</button>
-                </div>
+                <ContextMenu></ContextMenu>
               </div>
             </>
           )}

@@ -6,6 +6,7 @@ import { History } from "history";
 import { userReducer } from "./user";
 import { listReducer } from "./lists";
 import { ftpReducer } from "./ftp";
+import { fmReducer } from "./filemanager";
 
 export const createRootReducer = (history: History) =>
   combineReducers({
@@ -14,6 +15,7 @@ export const createRootReducer = (history: History) =>
     userReducer,
     listReducer,
     ftpReducer,
+    fmReducer,
   });
 
 export type RootState = ReturnType<ReturnType<typeof createRootReducer>>;
