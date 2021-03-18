@@ -12,6 +12,7 @@ import {
   EditReq,
   HistoryItemRes,
   GroupsRes,
+  GroupReq,
 } from "@models";
 import { hostname } from "os";
 import { IRawParams } from "@shared/models";
@@ -136,6 +137,10 @@ export class Endpoints implements IRawParams {
 
   fetchGroups = (): Promise<GroupsRes> => {
     return this.fetchFromAPI(`${this.baseURL}/serverGroups`);
+  };
+
+  group = (req: GroupReq): Promise<GroupReq> => {
+    return this.fetchFromAPI(`${this.baseURL}/group`, "POST", req);
   };
 }
 

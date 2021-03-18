@@ -4,7 +4,7 @@ import { Group, Server } from "@models";
 
 export const initialState: ListState = {
   groups: [],
-  saved: [],
+  saved: undefined,
   history: [],
   favourites: undefined,
   currentlyEdited: undefined,
@@ -29,7 +29,10 @@ export const listReducer: Reducer<ListState> = (
     case ListActionTypes.SAVE_SERVER:
       return {
         ...state,
-        saved: [...state.saved, action.payload],
+        saved: {
+          ...state.saved,
+          server: [...state.saved.server, action.payload],
+        },
       };
 
     case ListActionTypes.FETCH_GROUPS:
@@ -41,11 +44,12 @@ export const listReducer: Reducer<ListState> = (
     case ListActionTypes.CHANGE_EDIT_SERVER:
       return { ...state, currentlyEdited: action.payload };
     case ListActionTypes.EDIT_SERVER: {
-      const saved = [...state.saved];
-      for (const i in saved) {
-        if (saved[i].serverID === action.payload.serverID) {
-          saved[i] = action.payload;
-          return { ...state, saved };
+      let saved = undefined;
+      if (state.saved) saved = { ...state.saved };
+      if (saved) {
+        const result = recursiveSearch(saved, action.payload);
+        if (result) {
+          return { ...state, saved: { ...state.favourites } };
         }
       }
 
@@ -62,7 +66,7 @@ export const listReducer: Reducer<ListState> = (
       if (favourites) {
         const result = recursiveSearch(favourites, action.payload);
         if (result) {
-          return { ...state, favourites: { ...state.favourites } };
+          return { ...state, favourites: { ...favourites } };
         }
       }
       return { ...state };

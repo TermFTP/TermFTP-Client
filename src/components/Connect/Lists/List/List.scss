@@ -1,0 +1,128 @@
+.connect-list {
+  --item-height: 2em;
+  --list-item-padding: 5px;
+  --toggle-height: calc(var(--item-height) * 1.5);
+  font-size: 0.85em;
+  text-align: left;
+  height: calc(
+    var(--item-height) * var(--items) + var(--toggle-height) +
+      var(--toggle-height) * var(--groups)
+  );
+  min-height: var(--toggle-height);
+  transition: var(--dur) all ease;
+  // margin-bottom: 15px;
+  background: var(--dark-bg-1);
+  border-radius: var(--box-radius);
+
+  & > * {
+    // padding: var(--list-item-padding) 10px;
+    height: var(--item-height);
+
+    &:not(:first-child):not(button) {
+      transition: var(--dur) all ease;
+      opacity: 1;
+    }
+
+    &:last-child {
+      // height: calc(var(--item-height) + var(--box-radius));
+      // border-radius: 0 0 var(--box-radius) var(--box-radius);
+      & > * {
+        // border-radius: 0 0 var(--box-radius) var(--box-radius);
+      }
+    }
+  }
+
+  &.toggled {
+    height: var(--toggle-height);
+    margin-bottom: 0;
+    overflow: hidden;
+
+    &:last-child .connect-list-toggle {
+      border-radius: var(--box-radius);
+    }
+
+    & > *:not(:first-child) {
+      opacity: 0;
+    }
+
+    .connect-list-toggle svg {
+      transform: rotate(180deg);
+    }
+  }
+
+  &:not(.connect-list-shown) {
+    height: 0;
+    overflow: hidden;
+    border-top: none;
+    margin: 0;
+  }
+}
+
+.connect-list-indented {
+  background: inherit;
+  padding-left: calc(var(--level) * 1em);
+
+  .connect-list-toggle {
+    background: inherit;
+  }
+}
+
+.list-sortable {
+  height: calc(
+    var(--item-height) * var(--items) + var(--toggle-height) * var(--groups)
+  );
+  min-height: var(--item-height);
+}
+
+.connect-newGroup {
+  background: var(--dark-bg-1);
+  // width: 100%;
+  margin: 2px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  gap: 5px;
+
+  &:hover {
+    background: var(--dark-bg-2);
+  }
+}
+
+.connect-list-toggle {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  background: var(--dark-bg-2);
+  text-transform: uppercase;
+  font-variant: small-caps;
+  transition: var(--dur) all ease;
+  cursor: pointer;
+  padding: calc(var(--list-item-padding) * 1.5) 10px;
+  height: var(--toggle-height);
+  border-radius: var(--box-radius) var(--box-radius) 0 0;
+  overflow: hidden;
+
+  .connect-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100% !important;
+    width: calc(var(--item-height) - var(--list-item-padding) * 2) !important;
+
+    svg {
+      font-size: 0.9em;
+      transition: var(--dur) transform ease;
+      transform: rotate(0);
+    }
+  }
+
+  .text {
+    flex-grow: 1;
+  }
+
+  &:hover {
+    filter: brightness(0.9);
+  }
+}

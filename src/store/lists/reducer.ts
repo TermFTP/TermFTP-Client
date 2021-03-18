@@ -73,6 +73,7 @@ const basic: ListsThunk = (
     } catch (err) {
       const e = await err;
       dispatch(setLoading(false));
+      console.error(method, err);
       return dispatch(
         addBubble(`${method}-${errorTitle}`, {
           title: errorTitle,
@@ -103,7 +104,7 @@ export const fetchGroups: ListsThunk = () => {
       const def = defI !== -1 ? json.data.splice(defI, 1)[0] : undefined;
       let payload = { groups: json.data } as Record<string, unknown>;
       if (fav) payload = { ...payload, favourites: fav };
-      if (def) payload = { ...payload, saved: def.server };
+      if (def) payload = { ...payload, saved: def };
 
       return payload;
     }
@@ -157,7 +158,11 @@ export const addGroup: ListsThunk = (req: GroupReq) => {
     "group",
     "Could not create group",
     ListActionTypes.ADD_GROUP,
-    "Create group successfully"
+    "Created group successfully",
+    (dispatch: TDispatch) => {
+      dispatch(fetchGroups());
+      dispatch(setPrompt(undefined));
+    }
   );
 };
 

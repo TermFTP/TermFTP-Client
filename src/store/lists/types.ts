@@ -22,7 +22,7 @@ export enum ListActionTypes {
 export interface ListState {
   groups: Group[];
   history: HistoryServer[];
-  saved: Server[];
+  saved: Group;
   favourites?: Group;
   currentlyEdited: Server;
 }

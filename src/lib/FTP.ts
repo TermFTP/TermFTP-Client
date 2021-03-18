@@ -121,6 +121,42 @@ export class FTP extends EventEmitter {
       });
     }
   }
+
+  get(file: string): Promise<NodeJS.ReadableStream> {
+    if (!this.client) {
+      console.error("no client");
+    }
+    if (this.connected) {
+      return new Promise((resolve, reject) => {
+        this.client.get(file, (err, fileStream) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(fileStream);
+        });
+      });
+    }
+  }
+
+  put(input: NodeJS.ReadableStream | Buffer, destPath: string): void {
+    this.client.put(input, destPath, () => {
+      this.emit("ftp-event", { details: "dasd" });
+    });
+  }
+
+  createFolder(path: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.mkdir(path, false, (error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve();
+        this.emit("ftp-event", { details: "all" });
+      });
+    });
+  }
 }
 
 export function convertFileSize(size: number, decimals = 1): string {

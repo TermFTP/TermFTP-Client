@@ -147,7 +147,21 @@ export class ConnectUI extends Component<Props, State> {
   };
 
   onFavourite = (): void => {
-    console.log("favourite");
+    const { ip, username, ftpPort, password, sshPort } = this.state;
+    this.props.setPrompt({
+      fieldName: "Server Name",
+      callback: (value: string) => {
+        this.props.setPrompt(undefined);
+        this.props.save({
+          ip,
+          username,
+          password,
+          ftpPort,
+          sshPort,
+          name: value,
+        });
+      },
+    });
   };
 
   onEdit = (): void => {

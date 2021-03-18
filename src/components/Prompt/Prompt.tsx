@@ -42,7 +42,7 @@ class PromptUI extends React.Component<Props, State> {
         initial: prompt.initial,
         value: prompt.initial,
       });
-    } else if (!prompt && this.state.initial) {
+    } else if (!prompt && this.state.initial && this.state.value) {
       this.setState({
         initial: undefined,
         value: "",
@@ -59,49 +59,49 @@ class PromptUI extends React.Component<Props, State> {
   render() {
     const {
       state: { value },
-      props: { prompt },
+      props: { prompt, setPrompt },
     } = this;
 
-    if (prompt) {
-      return (
-        <div className={`prompt-wrapper ${prompt ? "shown" : ""}`}>
-          <div
-            className="prompt-background"
-            onClick={() => setPrompt(undefined)}
-          ></div>
-          <div className="prompt">
-            <div className="prompt-top">
-              Enter a value for {prompt.fieldName}!
-            </div>
-            <div className="prompt-input">
-              <input
-                type="text"
-                name={prompt.fieldName}
-                placeholder={prompt.fieldName}
-                autoFocus={true}
-                onChange={this.onChange}
-                value={value}
-              />
-            </div>
-            <div className="prompt-buttons">
-              <button
-                className="prompt-save"
-                onClick={() => prompt.callback(value)}
-              >
-                Save
-              </button>
-              <button
-                className="prompt-cancel"
-                onClick={() => setPrompt(undefined)}
-              >
-                Cancel
-              </button>
-            </div>
+    return (
+      <div className={`prompt-wrapper ${prompt ? "shown" : ""}`}>
+        <div
+          className="prompt-background"
+          onClick={() => setPrompt(undefined)}
+        ></div>
+        <div className="prompt">
+          <div className="prompt-top">
+            Enter a value for {prompt?.fieldName}!
+          </div>
+          <div className="prompt-input">
+            <input
+              type="text"
+              name={prompt?.fieldName}
+              placeholder={prompt?.fieldName}
+              autoFocus={true}
+              onChange={this.onChange}
+              value={value}
+            />
+          </div>
+          <div className="prompt-buttons">
+            <button
+              className="prompt-save"
+              onClick={() => {
+                prompt?.callback(value);
+                setPrompt(undefined);
+              }}
+            >
+              Save
+            </button>
+            <button
+              className="prompt-cancel"
+              onClick={() => setPrompt(undefined)}
+            >
+              Cancel
+            </button>
           </div>
         </div>
-      );
-    }
-    return <div></div>;
+      </div>
+    );
   }
 }
 
