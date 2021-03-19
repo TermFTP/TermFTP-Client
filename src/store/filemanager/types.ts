@@ -1,5 +1,3 @@
-import { FTP } from "@lib";
-import { Group, HistoryServer, Server } from "@models";
 import Client from "ftp";
 
 export interface ContextMenuProps {

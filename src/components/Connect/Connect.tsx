@@ -192,7 +192,7 @@ export class ConnectUI extends Component<Props, State> {
     });
   };
 
-  componentDidUpdate() {
+  componentDidUpdate(): void {
     const { currentlyEdited } = this.props;
     if (currentlyEdited && currentlyEdited.serverID !== this.state.serverID) {
       const {

@@ -8,6 +8,7 @@ import { listReducer } from "./lists";
 import { ftpReducer } from "./ftp";
 import { fmReducer } from "./filemanager";
 
+// eslint-disable-next-line
 export const createRootReducer = (history: History) =>
   combineReducers({
     router: connectRouter(history),

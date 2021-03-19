@@ -139,9 +139,16 @@ export class FTP extends EventEmitter {
     }
   }
 
-  put(input: NodeJS.ReadableStream | Buffer, destPath: string): void {
-    this.client.put(input, destPath, () => {
-      this.emit("ftp-event", { details: "dasd" });
+  put(input: NodeJS.ReadableStream | Buffer, destPath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.put(input, destPath, (error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve();
+        this.emit("ftp-event", { details: "all" });
+      });
     });
   }
 

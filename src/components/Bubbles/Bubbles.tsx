@@ -1,7 +1,5 @@
-import { BubbleModel } from "@models";
 import { DefaultDispatch, RootState } from "@store";
-import { addBubble } from "@store/app";
-import React, { CSSProperties, useState } from "react";
+import React, { CSSProperties } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import Bubble from "./Bubble/Bubble";
 import "./Bubbles.scss";
@@ -14,9 +12,10 @@ const mapState = ({
   bubbles,
 });
 
+// eslint-disable-next-line
 const mapDispatch = (dispatch: DefaultDispatch) => ({
-  addBubble: (key: string, bubble: BubbleModel) =>
-    dispatch(addBubble(key, bubble)),
+  // addBubble: (key: string, bubble: BubbleModel) =>
+  // dispatch(addBubble(key, bubble)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -24,7 +23,7 @@ const connector = connect(mapState, mapDispatch);
 type PropsFromState = ConnectedProps<typeof connector>;
 type Props = PropsFromState;
 
-export const BubblesUI = ({ bubbles, addBubble }: Props): JSX.Element => {
+export const BubblesUI = ({ bubbles }: Props): JSX.Element => {
   const keys = [];
   for (const k of bubbles.keys()) {
     keys.push(k);

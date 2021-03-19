@@ -53,7 +53,7 @@ export const listReducer: Reducer<ListState> = (
         }
       }
 
-      let groups = [...state.groups];
+      const groups = [...state.groups];
       for (const group of groups) {
         const result = recursiveSearch(group, action.payload);
         if (result) {

@@ -1,16 +1,15 @@
-import { Group } from "@models";
 import { DefaultDispatch, RootState } from "@store";
-import { groupCollapsed } from "node:console";
 import React, { MouseEvent } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import { List } from "./List/List";
 import "./Lists.scss";
-import ServerItem, { ConnectDetails } from "./ServerItem/ServerItem";
+import { ConnectDetails } from "./ServerItem/ServerItem";
 
 const mapState = ({ listReducer }: RootState) => ({
   ...listReducer,
 });
 
+// eslint-disable-next-line
 const mapDispatch = (dispatch: DefaultDispatch) => ({});
 
 const connector = connect(mapState, mapDispatch);

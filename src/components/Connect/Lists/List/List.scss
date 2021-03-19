@@ -4,15 +4,16 @@
   --toggle-height: calc(var(--item-height) * 1.5);
   font-size: 0.85em;
   text-align: left;
-  height: calc(
+  min-height: calc(
     var(--item-height) * var(--items) + var(--toggle-height) +
       var(--toggle-height) * var(--groups)
   );
-  min-height: var(--toggle-height);
+  // min-height: calc(var(--toggle-height) + var(--item-height));
   transition: var(--dur) all ease;
   // margin-bottom: 15px;
   background: var(--dark-bg-1);
   border-radius: var(--box-radius);
+  // max-height: calc(var(--item-height) * 10);
 
   & > * {
     // padding: var(--list-item-padding) 10px;
@@ -22,20 +23,13 @@
       transition: var(--dur) all ease;
       opacity: 1;
     }
-
-    &:last-child {
-      // height: calc(var(--item-height) + var(--box-radius));
-      // border-radius: 0 0 var(--box-radius) var(--box-radius);
-      & > * {
-        // border-radius: 0 0 var(--box-radius) var(--box-radius);
-      }
-    }
   }
 
   &.toggled {
     height: var(--toggle-height);
     margin-bottom: 0;
     overflow: hidden;
+    min-height: var(--toggle-height);
 
     &:last-child .connect-list-toggle {
       border-radius: var(--box-radius);
@@ -60,7 +54,7 @@
 
 .connect-list-indented {
   background: inherit;
-  padding-left: calc(var(--level) * 1em);
+  padding-left: calc((var(--level)) * 4px);
 
   .connect-list-toggle {
     background: inherit;
@@ -68,9 +62,7 @@
 }
 
 .list-sortable {
-  height: calc(
-    var(--item-height) * var(--items) + var(--toggle-height) * var(--groups)
-  );
+  height: calc(var(--item-height) * var(--items));
   min-height: var(--item-height);
 }
 

@@ -1,16 +1,19 @@
-import { Endpoints, FTP } from "@lib";
-import { addBubble, setLoading, setPrompt } from "@store/app";
+import { FTP } from "@lib";
+import { DefaultReturn } from "@models";
 import { push } from "connected-react-router";
-import Client from "ftp";
 import { Action, ActionCreator } from "redux";
-import { ThunkAction, ThunkDispatch } from "redux-thunk";
+import { ThunkAction } from "redux-thunk";
 import { FTPState, FTPActionTypes } from "./types";
 
 export type FTPThunk<ReturnType = void> = ActionCreator<
   ThunkAction<ReturnType, FTPState, unknown, Action<string>>
 >;
 
-export const setFTPClient = (client: FTP) => ({
+interface Ret extends DefaultReturn {
+  type: FTPActionTypes;
+}
+
+export const setFTPClient = (client: FTP): Ret => ({
   type: FTPActionTypes.SET_FTP_CLIENT,
   payload: client,
 });

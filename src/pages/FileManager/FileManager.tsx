@@ -64,6 +64,7 @@ export class FileManagerUI extends Component<Props, State> {
     this.props.client?.disconnect();
   }
 
+  // eslint-disable-next-line
   onChange = (args: FTPEventDetails): void => {
     this.props.client.pwd().then((pwd) => {
       this.setState({ pwd });
@@ -102,7 +103,6 @@ export class FileManagerUI extends Component<Props, State> {
         isOpen: false,
       });
     } else {
-      // document.addEventListener("click", this.handleOuterPlusClick);
       this.setState({ plusOpen: true });
       this.props.setContextMenu({
         file: undefined,
@@ -113,17 +113,20 @@ export class FileManagerUI extends Component<Props, State> {
     }
   };
 
-  handleOuterPlusClick = (t: Document, ev: MouseEvent): any => {
-    console.log("handling");
-  };
+  // eslint-disable-next-line
+  // handleOuterPlusClick = (t: Document, ev: MouseEvent): any => {
+  //   // TODO handle clicking
+  //   console.log("handling");
+  // };
 
   onContextMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>): void => {
-    console.log(e);
+    // console.log(e);
     this.props.setContextMenu({
       isOpen: true,
       x: e.clientX,
       y: e.clientY,
     });
+    this.setState({ plusOpen: true });
   };
 
   render(): JSX.Element {
