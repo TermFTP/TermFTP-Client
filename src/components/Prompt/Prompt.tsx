@@ -1,6 +1,6 @@
 import { DefaultDispatch, RootState } from "@store";
 import { setPrompt } from "@store/app";
-import React, { useState } from "react";
+import React, { createRef, Ref } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./Prompt.scss";
 
@@ -27,6 +27,7 @@ interface State {
 }
 
 class PromptUI extends React.Component<Props, State> {
+  input = createRef<HTMLInputElement>();
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -37,6 +38,7 @@ class PromptUI extends React.Component<Props, State> {
 
   componentDidUpdate() {
     const { prompt } = this.props;
+    prompt && this.input.current.focus();
     if (prompt && prompt.initial && prompt.initial !== this.state.initial) {
       this.setState({
         initial: prompt.initial,
@@ -47,6 +49,7 @@ class PromptUI extends React.Component<Props, State> {
         initial: undefined,
         value: "",
       });
+      this.input.current && this.input.current.blur();
     }
   }
 
@@ -54,6 +57,12 @@ class PromptUI extends React.Component<Props, State> {
     this.setState({
       value: event.target.value,
     });
+  };
+
+  onKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Escape") {
+      this.props.setPrompt(undefined);
+    }
   };
 
   render() {
@@ -77,9 +86,10 @@ class PromptUI extends React.Component<Props, State> {
               type="text"
               name={prompt?.fieldName}
               placeholder={prompt?.fieldName}
-              autoFocus={true}
+              ref={this.input}
               onChange={this.onChange}
               value={value}
+              onKeyUp={this.onKeyUp}
             />
           </div>
           <div className="prompt-buttons">
