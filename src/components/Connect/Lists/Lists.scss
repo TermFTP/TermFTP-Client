@@ -1,10 +1,11 @@
 #connect-lists {
-  width: 16em;
+  width: 20em;
   transition: var(--dur) width ease;
   display: flex;
   flex-direction: column;
   gap: 10px;
 
+  font-size: 0.85em;
   &.connect-lists-hidden {
     width: 0;
   }

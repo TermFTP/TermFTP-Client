@@ -1,3 +1,4 @@
+import { getNumOfItems } from "@lib";
 import { DefaultDispatch, RootState } from "@store";
 import React, { MouseEvent } from "react";
 import { connect, ConnectedProps } from "react-redux";
@@ -25,7 +26,8 @@ function ListsUI({ groups, history, saved, favourites, connect }: Props) {
       id="connect-lists"
       className={`${
         favourites?.server?.length > 0 ||
-        saved?.server?.length > 0 ||
+        getNumOfItems(saved) > 0 ||
+        groups?.length > 0 ||
         history?.length > 0
           ? ""
           : "connect-lists-hidden"

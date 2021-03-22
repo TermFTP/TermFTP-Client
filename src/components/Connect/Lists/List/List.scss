@@ -2,11 +2,12 @@
   --item-height: 2em;
   --list-item-padding: 5px;
   --toggle-height: calc(var(--item-height) * 1.5);
-  font-size: 0.85em;
+  --empty-height: 10px;
+  --indent-toggle-height: calc(var(--toggle-height) * 0.8);
   text-align: left;
   min-height: calc(
     var(--item-height) * var(--items) + var(--toggle-height) +
-      var(--toggle-height) * var(--groups)
+      var(--indent-toggle-height) * var(--groups)
   );
   // min-height: calc(var(--toggle-height) + var(--item-height));
   transition: var(--dur) all ease;
@@ -49,21 +50,24 @@
     overflow: hidden;
     border-top: none;
     margin: 0;
+    --empty-height: 0;
   }
 }
 
 .connect-list-indented {
   background: inherit;
-  padding-left: calc((var(--level)) * 4px);
+  padding-left: calc((var(--level)) * 8px);
 
   .connect-list-toggle {
+    border-radius: 0;
     background: inherit;
+    height: var(--indent-toggle-height);
   }
 }
 
 .list-sortable {
   height: calc(var(--item-height) * var(--items));
-  min-height: var(--item-height);
+  min-height: var(--empty-height);
 
   & > *:last-child,
   & > *:last-child .connect-hover {
@@ -102,11 +106,14 @@
   overflow: hidden;
 
   .connect-icon {
+    --icon-height: calc(
+      var(--item-height) - var(--list-item-padding) * 2
+    ) !important;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100% !important;
-    width: calc(var(--item-height) - var(--list-item-padding) * 2) !important;
+    height: var(--icon-height);
+    width: var(--icon-height);
 
     svg {
       font-size: 0.9em;

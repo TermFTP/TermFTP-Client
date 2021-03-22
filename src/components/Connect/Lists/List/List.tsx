@@ -10,6 +10,7 @@ import { ReactSortable } from "react-sortablejs";
 import { addGroup, changeGroup, removeServerFromGroup } from "@store/lists";
 import { PromptProps } from "@components/Prompt/Prompt";
 import { setPrompt } from "@store/app";
+import { getNumOfItems } from "@lib";
 
 const mapState = ({ listReducer }: RootState) => ({
   ...listReducer,
@@ -99,7 +100,8 @@ const ListUI = ({
   return (
     <div
       className={`connect-list ${
-        group && (group?.server?.length > 0 || showOnNoItems)
+        group &&
+        (group?.server?.length > 0 || showOnNoItems || getNumOfItems(group) > 0)
           ? "connect-list-shown"
           : ""
       } ${level ? "connect-list-indented" : ""}`}
@@ -107,10 +109,11 @@ const ListUI = ({
       style={
         {
           ...items(
-            group?.server?.length == 0 ? 1 : group?.server?.length,
+            group?.server?.length, // == 0 ? 1 : group?.server?.length,
             group?.serverGroups?.length
           ),
           "--level": level,
+          "--total": getNumOfItems(group),
         } as React.CSSProperties
       }
     >
@@ -173,16 +176,6 @@ const ListUI = ({
     </div>
   );
 };
-
-// eslint-disable-next-line
-function getNumOfItems(group: Group): number {
-  let sum = 0;
-  for (const g of group.serverGroups) {
-    // eslint-disable-next-line
-    sum += getNumOfItems(g);
-  }
-  return sum;
-}
 
 export const List = connector(ListUI);
 export default List;
