@@ -116,6 +116,42 @@
   }
 }
 
+#dragtext {
+  opacity: 0;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  transition: 250ms opacity ease;
+
+  &.dragtext-shown {
+    opacity: 1;
+  }
+
+  .dragtext-icon {
+    height: 5em;
+    width: 5em;
+    display: grid;
+    place-items: center;
+
+    svg {
+      font-size: 3.5em;
+    }
+  }
+
+  .dragtext-text {
+    font-weight: bold;
+    font-size: 2em;
+  }
+}
+
 @keyframes opened {
   0% {
     transform: rotate(0);

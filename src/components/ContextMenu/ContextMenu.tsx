@@ -8,6 +8,7 @@ import { setPrompt, addBubble } from "@store/app";
 import { BubbleModel } from "@models";
 import { uploadFolder, uploadFile } from "@lib";
 import { remote } from "electron";
+import fs from "fs";
 
 const mapState = ({
   fmReducer: { menu },
@@ -63,9 +64,7 @@ const ContextMenuUI = ({
       ...items,
       {
         label: "Download file",
-        func: () => {
-          return;
-        },
+        func: onFileDownload,
       },
       {
         label: "Delete file",
@@ -166,6 +165,23 @@ const ContextMenuUI = ({
         });
       },
     });
+  }
+
+  function onFileDownload(): void {
+    remote.dialog
+      .showSaveDialog({
+        defaultPath: file.name,
+        properties: ["createDirectory"],
+      })
+      .then((path) => {
+        if (path) {
+          client.get(file.name).then((stream) => {
+            const ws = fs.createWriteStream(path.filePath);
+            stream.pipe(ws);
+            stream.on("end", () => console.warn("DONE"));
+          });
+        }
+      });
   }
 
   return (

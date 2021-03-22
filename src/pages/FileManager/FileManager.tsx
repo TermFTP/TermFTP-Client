@@ -1,7 +1,7 @@
 import { ContextMenu } from "@components";
 import File from "@components/File/File";
 import { faCircle } from "@fortawesome/free-regular-svg-icons";
-import { faCog, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faCog, faPlus, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FTPEventDetails, uploadFile } from "@lib";
 import { BubbleModel, HistoryReq } from "@models";
@@ -39,15 +39,18 @@ interface State {
   pwd: string;
   list: Client.ListingElement[];
   plusOpen: boolean;
+  dragging: boolean;
 }
 
 export class FileManagerUI extends Component<Props, State> {
+  counter = 0;
   constructor(props: Props) {
     super(props);
     this.state = {
       pwd: "",
       list: [],
       plusOpen: false,
+      dragging: false,
     };
     (window as any).refreshFTP = this.onConnected;
   }
@@ -127,9 +130,25 @@ export class FileManagerUI extends Component<Props, State> {
     });
   };
 
+  onDragEnter = (e: React.DragEvent<HTMLDivElement>): void => {
+    e.preventDefault();
+    e.stopPropagation();
+    this.counter++;
+    this.setState({ dragging: true });
+  };
+
+  onDragLeave = (e: React.DragEvent<HTMLDivElement>): void => {
+    e.preventDefault();
+    e.stopPropagation();
+    this.counter--;
+    if (this.counter === 0) this.setState({ dragging: false });
+  };
+
   onDrop = (event: React.DragEvent<HTMLDivElement>): void => {
     event.preventDefault();
     event.stopPropagation();
+    this.counter = 0;
+    this.setState({ dragging: false });
     for (const file of event.dataTransfer.files) {
       const p = file.path;
 
@@ -147,11 +166,7 @@ export class FileManagerUI extends Component<Props, State> {
     const connected = Boolean(this.props.client?.connected);
 
     return (
-      <div
-        id="file-manager"
-        onDrop={this.onDrop}
-        onDragOver={(e) => e.preventDefault()}
-      >
+      <div id="file-manager">
         <div id="file-manager-settings">
           <button
             className="connect-settings-btn"
@@ -160,7 +175,22 @@ export class FileManagerUI extends Component<Props, State> {
             <FontAwesomeIcon icon={faCog}></FontAwesomeIcon>
           </button>
         </div>
-        <div id="file-manager-ui">
+        <div
+          id="dragtext"
+          className={`${this.state.dragging ? "dragtext-shown" : ""}`}
+        >
+          <div className="dragtext-icon">
+            <FontAwesomeIcon icon={faUpload}></FontAwesomeIcon>
+          </div>
+          <div className="dragtext-text">Drag and drop your files</div>
+        </div>
+        <div
+          id="file-manager-ui"
+          onDrop={this.onDrop}
+          onDragOver={(e) => e.preventDefault()}
+          onDragEnter={this.onDragEnter}
+          onDragLeave={this.onDragLeave}
+        >
           {connected && (
             <>
               <div id="file-manager-pwd">{this.state.pwd}</div>
