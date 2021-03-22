@@ -4,6 +4,7 @@ import React from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./Welcome.scss";
 import logo from "@images/logo.png";
+import { ipcRenderer } from "electron";
 
 const mapState = () => ({});
 const mapDispatch = (dispatch: DefaultDispatch) => ({

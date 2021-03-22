@@ -56,12 +56,19 @@
 
 .connect-list-indented {
   background: inherit;
-  padding-left: calc((var(--level)) * 8px);
 
   .connect-list-toggle {
     border-radius: 0;
     background: inherit;
     height: var(--indent-toggle-height);
+    padding-left: calc(var(--level) * 8px + 10px);
+  }
+
+  .connect-server {
+    padding-left: calc(var(--level) * 8px + var(--toggle-height) * 0.4);
+    .connect-hover {
+      border-left: 1px solid rgba(127, 127, 127, 0.6);
+    }
   }
 }
 

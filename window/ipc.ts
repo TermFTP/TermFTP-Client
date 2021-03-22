@@ -1,4 +1,4 @@
-import { ipcMain } from "electron";
+import { ipcMain, nativeImage } from "electron";
 import {
   IPCEncryptRequest,
   EncryptionType,
@@ -30,3 +30,18 @@ ipcMain.on("encrypt", (event, arg: IPCEncryptRequest) => {
   })
  * ipcRenderer.send("encrypt", "aaaaa, yes - senpai");
  */
+
+const dragIcon = nativeImage.createFromPath("assets/logo.png");
+ipcMain.on("ondragstart", (event, filePath) => {
+  event.sender.startDrag({
+    file: filePath,
+    icon: dragIcon.resize({ height: 32, width: 32 }),
+  });
+});
+// onDragStart={(e) => {
+//   e.preventDefault();
+//   e.stopPropagation();
+//   console.log("ss");
+//   ipcRenderer.send("ondragstart", "D:\\msdia80.dll");
+// }}
+// draggable={true}
