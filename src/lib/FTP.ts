@@ -1,5 +1,6 @@
 import Client from "ftp";
 import { EventEmitter } from "events";
+import { rmdir } from "fs-extra";
 
 export interface FTPConfig extends Client.Options {
   sshPort: number;
@@ -155,6 +156,32 @@ export class FTP extends EventEmitter {
   createFolder(path: string, recursive: boolean): Promise<void> {
     return new Promise((resolve, reject) => {
       this.client.mkdir(path, recursive, (error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve();
+        this.emit("ftp-event", { details: "all" });
+      });
+    });
+  }
+
+  delete(path: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.delete(path, (error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve();
+        this.emit("ftp-event", { details: "all" });
+      });
+    });
+  }
+
+  rmdir(path: string, recursive = true): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.rmdir(path, recursive, (error) => {
         if (error) {
           reject(error);
           return;

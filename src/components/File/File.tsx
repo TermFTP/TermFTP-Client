@@ -34,7 +34,6 @@ function FileUI({ file, ftp, setContextMenu }: Props): JSX.Element {
       y: e.clientY,
       file,
     });
-    console.log(" asaaa");
   }
   return (
     <div

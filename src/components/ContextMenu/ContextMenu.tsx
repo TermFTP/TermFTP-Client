@@ -52,26 +52,13 @@ const ContextMenuUI = ({
           return;
         },
       },
-      {
-        label: "Delete folder",
-        func: () => {
-          return;
-        },
-      },
+      { label: "Delete folder", func: onDeleteFolder },
     ];
   } else if (file) {
     items = [
       ...items,
-      {
-        label: "Download file",
-        func: onFileDownload,
-      },
-      {
-        label: "Delete file",
-        func: () => {
-          return;
-        },
-      },
+      { label: "Download file", func: onFileDownload },
+      { label: "Delete file", func: onDeleteFile },
     ];
   }
 
@@ -182,6 +169,26 @@ const ContextMenuUI = ({
           });
         }
       });
+  }
+
+  function onDeleteFile(): void {
+    client.delete(file.name).catch(() => {
+      addBubble("delete-error", {
+        title: `Could not delete file`,
+        type: "ERROR",
+        message: `failed on: ${file.name}`,
+      });
+    });
+  }
+
+  function onDeleteFolder(): void {
+    client.rmdir(file.name).catch(() => {
+      addBubble("delete-error", {
+        title: `Could not delete folder`,
+        type: "ERROR",
+        message: `failed on: ${file.name}`,
+      });
+    });
   }
 
   return (
