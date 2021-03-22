@@ -3,15 +3,15 @@ import File from "@components/File/File";
 import { faCircle } from "@fortawesome/free-regular-svg-icons";
 import { faCog, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { FTPEventDetails } from "@lib";
-import { HistoryReq } from "@models";
+import { FTPEventDetails, uploadFile } from "@lib";
+import { BubbleModel, HistoryReq } from "@models";
 import { DefaultDispatch, RootState } from "@store";
-import { setSettings } from "@store/app";
+import { addBubble, setSettings } from "@store/app";
 import { ContextMenuProps, setContextMenu } from "@store/filemanager";
 import { historyItem } from "@store/lists";
 import Client from "ftp";
 import { hostname } from "os";
-import React, { Component, createRef } from "react";
+import React, { Component } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./FileManager.scss";
 import { uploadFolder } from "@lib";
@@ -26,6 +26,8 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   openSettings: () => dispatch(setSettings(true)),
   setContextMenu: (contextMenu: ContextMenuProps) =>
     dispatch(setContextMenu(contextMenu)),
+  addBubble: (key: string, bubble: BubbleModel) =>
+    dispatch(addBubble(key, bubble)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -40,8 +42,6 @@ interface State {
 }
 
 export class FileManagerUI extends Component<Props, State> {
-  managerRef = createRef<HTMLDivElement>();
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -56,17 +56,11 @@ export class FileManagerUI extends Component<Props, State> {
       this.props.client.connect().then(this.onConnected);
       this.props.client.on("ftp-event", this.onChange);
     }
-
-    const dropZone = document.getElementById("file-manager");
-    dropZone.addEventListener("dragover", (evt) => {
-      evt.preventDefault();
-    });
-    dropZone.addEventListener("drop", this.onDrop);
   }
 
   componentDidUpdate(): void {
-    if (this.state.plusOpen && !this.props.menu.isOpen) {
-      this.setState({ plusOpen: false });
+    if (this.state.plusOpen != this.props.menu.isOpen) {
+      this.setState({ plusOpen: this.props.menu.isOpen });
     }
   }
 
@@ -123,23 +117,17 @@ export class FileManagerUI extends Component<Props, State> {
     }
   };
 
-  // eslint-disable-next-line
-  // handleOuterPlusClick = (t: Document, ev: MouseEvent): any => {
-  //   // TODO handle clicking
-  //   console.log("handling");
-  // };
-
   onContextMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>): void => {
-    // console.log(e);
+    e.preventDefault();
+    e.stopPropagation();
     this.props.setContextMenu({
       isOpen: true,
       x: e.clientX,
       y: e.clientY,
     });
-    this.setState({ plusOpen: true });
   };
 
-  onDrop = (event: DragEvent): void => {
+  onDrop = (event: React.DragEvent<HTMLDivElement>): void => {
     event.preventDefault();
     event.stopPropagation();
     for (const file of event.dataTransfer.files) {
@@ -148,17 +136,22 @@ export class FileManagerUI extends Component<Props, State> {
       console.warn(p);
 
       if (fs.statSync(p).isDirectory()) {
-        uploadFolder(this.props.client, [...p]);
+        uploadFolder(this.props.client, [p], this.props.addBubble);
+      } else if (fs.statSync(p).isFile()) {
+        uploadFile(this.props.client, [p], this.props.addBubble);
       }
     }
   };
 
   render(): JSX.Element {
     const connected = Boolean(this.props.client?.connected);
-    // console.log("list", this.state.list);
 
     return (
-      <div id="file-manager" ref={this.managerRef}>
+      <div
+        id="file-manager"
+        onDrop={this.onDrop}
+        onDragOver={(e) => e.preventDefault()}
+      >
         <div id="file-manager-settings">
           <button
             className="connect-settings-btn"
@@ -171,10 +164,7 @@ export class FileManagerUI extends Component<Props, State> {
           {connected && (
             <>
               <div id="file-manager-pwd">{this.state.pwd}</div>
-              <div
-                id="file-manager-files"
-                onContextMenuCapture={this.onContextMenu}
-              >
+              <div id="file-manager-files" onContextMenu={this.onContextMenu}>
                 <div className="file">
                   <div className="file-type">Type</div>
                   <div className="file-name">Name</div>

@@ -6,7 +6,7 @@ import { ContextMenuProps, setContextMenu } from "@store/filemanager";
 import { PromptProps } from "@components/Prompt/Prompt";
 import { setPrompt, addBubble } from "@store/app";
 import { BubbleModel } from "@models";
-import { onCreateFolder, uploadFolder, uploadFile, FTP } from "@lib";
+import { uploadFolder, uploadFile } from "@lib";
 import { remote } from "electron";
 
 const mapState = ({
@@ -32,12 +32,53 @@ const ContextMenuUI = ({
   menu,
   client,
   setContextMenu,
+  setPrompt,
+  addBubble,
 }: Props) => {
   const ownRef = useRef<HTMLDivElement>();
   const [listening, setListening] = useState<boolean>(false);
+  let items = [
+    { label: "Create folder", func: onCreateFolder },
+    { label: "Upload file(s)", func: onFileUpload },
+    { label: "Upload folder(s)", func: onFolderUpload },
+  ];
+  if (file?.type === "d") {
+    items = [
+      ...items,
+      {
+        label: "Download folder",
+        func: () => {
+          return;
+        },
+      },
+      {
+        label: "Delete folder",
+        func: () => {
+          return;
+        },
+      },
+    ];
+  } else if (file) {
+    items = [
+      ...items,
+      {
+        label: "Download file",
+        func: () => {
+          return;
+        },
+      },
+      {
+        label: "Delete file",
+        func: () => {
+          return;
+        },
+      },
+    ];
+  }
+
   let contextStyles = {
     "--width": "10em",
-    "--items": 3,
+    "--items": items.length,
   } as any;
   if (x && y) {
     if (ownRef.current) {
@@ -75,12 +116,12 @@ const ContextMenuUI = ({
 
   // window.removeEventListener("click", onClick);
 
-  function onFolderUpload(client: FTP): void {
+  function onFolderUpload(): void {
     remote.dialog
       .showOpenDialog({ properties: ["openDirectory", "multiSelections"] })
       .then((res) => {
         if (res.canceled) return;
-        uploadFolder(client, res.filePaths);
+        uploadFolder(client, res.filePaths, addBubble);
       })
       .catch((err) => {
         addBubble("upload-error", {
@@ -91,7 +132,7 @@ const ContextMenuUI = ({
       });
   }
 
-  function onFileUpload(client: FTP): void {
+  function onFileUpload(): void {
     remote.dialog
       .showOpenDialog({
         properties: ["openFile", "multiSelections"],
@@ -99,7 +140,7 @@ const ContextMenuUI = ({
       .then((res) => {
         if (res.canceled) return;
         console.log(res);
-        uploadFile(client, res.filePaths);
+        uploadFile(client, res.filePaths, addBubble);
       })
       .catch((err) => {
         addBubble("upload-error", {
@@ -108,6 +149,23 @@ const ContextMenuUI = ({
           type: "ERROR",
         });
       });
+  }
+
+  function onCreateFolder(): void {
+    setPrompt({
+      fieldName: "Folder name",
+      initial: "",
+      callback: (value: string) => {
+        setPrompt(undefined);
+        client.createFolder(value, false).catch((err) => {
+          addBubble("mkdir-error", {
+            title: err.title || "Failed to create directory",
+            message: err.message,
+            type: "ERROR",
+          });
+        });
+      },
+    });
   }
 
   return (
@@ -117,9 +175,11 @@ const ContextMenuUI = ({
       style={contextStyles}
       ref={ownRef}
     >
-      <button onClick={() => onCreateFolder(client)}>Create folder</button>
-      <button onClick={() => onFileUpload(client)}>Upload file(s)</button>
-      <button onClick={() => onFolderUpload(client)}>Upload folder(s)</button>
+      {items.map((i) => (
+        <button key={i.label} onClick={() => i.func()}>
+          {i.label}
+        </button>
+      ))}
     </div>
   );
 };
