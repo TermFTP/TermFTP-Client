@@ -6,9 +6,8 @@ import { ContextMenuProps, setContextMenu } from "@store/filemanager";
 import { PromptProps } from "@components/Prompt/Prompt";
 import { setPrompt, addBubble } from "@store/app";
 import { BubbleModel } from "@models";
+import { onCreateFolder, uploadFolder, uploadFile, FTP } from "@lib";
 import { remote } from "electron";
-import fs from "fs";
-import { basename, join, dirname, sep } from "path";
 
 const mapState = ({
   fmReducer: { menu },
@@ -33,8 +32,6 @@ const ContextMenuUI = ({
   menu,
   client,
   setContextMenu,
-  setPrompt,
-  addBubble,
 }: Props) => {
   const ownRef = useRef<HTMLDivElement>();
   const [listening, setListening] = useState<boolean>(false);
@@ -78,56 +75,12 @@ const ContextMenuUI = ({
 
   // window.removeEventListener("click", onClick);
 
-  function getAllFiles(dirPath: string, arrayOfFiles: string[]) {
-    const files = fs.readdirSync(dirPath);
-
-    arrayOfFiles = arrayOfFiles || [];
-
-    files.forEach(function (file) {
-      if (fs.statSync(dirPath + "/" + file).isDirectory()) {
-        arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles);
-      } else {
-        arrayOfFiles.push(join(dirPath, "/", file));
-      }
-    });
-
-    return arrayOfFiles;
-  }
-
-  function onCreateFolder() {
-    setPrompt({
-      fieldName: "Folder name",
-      callback: (value: string) => {
-        setPrompt(undefined);
-        client.createFolder(value).catch((err) => {
-          addBubble("mkdir-error", {
-            title: err.title || "Failed to create directory",
-            message: err.message,
-            type: "ERROR",
-          });
-        });
-      },
-    });
-  }
-
-  function onFileUpload() {
+  function onFolderUpload(client: FTP): void {
     remote.dialog
-      .showOpenDialog({
-        properties: ["openFile", "multiSelections"],
-      })
+      .showOpenDialog({ properties: ["openDirectory", "multiSelections"] })
       .then((res) => {
         if (res.canceled) return;
-        console.log(res);
-        for (const path of res.filePaths) {
-          const a = client.put(fs.createReadStream(path), basename(path));
-          a.catch((err) => {
-            addBubble("mkdir-error", {
-              title: err.title || "Failed to upload file",
-              message: err.message,
-              type: "ERROR",
-            });
-          });
-        }
+        uploadFolder(client, res.filePaths);
       })
       .catch((err) => {
         addBubble("upload-error", {
@@ -138,39 +91,15 @@ const ContextMenuUI = ({
       });
   }
 
-  function onFolderUpload() {
+  function onFileUpload(client: FTP): void {
     remote.dialog
-      .showOpenDialog({ properties: ["openDirectory", "multiSelections"] })
+      .showOpenDialog({
+        properties: ["openFile", "multiSelections"],
+      })
       .then((res) => {
         if (res.canceled) return;
         console.log(res);
-        for (const path of res.filePaths) {
-          const files = getAllFiles(path, []);
-          console.log(files);
-          for (const file of files) {
-            console.warn(
-              "FILEaab:",
-              join(
-                path.substring(path.lastIndexOf(sep) + 1),
-                file.split(path)[1]
-              )
-            );
-            const a = client.put(
-              fs.createReadStream(file),
-              join(
-                path.substring(path.lastIndexOf(sep) + 1),
-                file.split(path)[1]
-              )
-            );
-            a.catch((err) => {
-              addBubble("upload-error", {
-                title: err.title || "Failed to upload directory",
-                message: err.message,
-                type: "ERROR",
-              });
-            });
-          }
-        }
+        uploadFile(client, res.filePaths);
       })
       .catch((err) => {
         addBubble("upload-error", {
@@ -188,9 +117,9 @@ const ContextMenuUI = ({
       style={contextStyles}
       ref={ownRef}
     >
-      <button onClick={() => onCreateFolder()}>Create folder</button>
-      <button onClick={() => onFileUpload()}>Upload file(s)</button>
-      <button onClick={() => onFolderUpload()}>Upload folder(s)</button>
+      <button onClick={() => onCreateFolder(client)}>Create folder</button>
+      <button onClick={() => onFileUpload(client)}>Upload file(s)</button>
+      <button onClick={() => onFolderUpload(client)}>Upload folder(s)</button>
     </div>
   );
 };

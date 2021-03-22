@@ -70,6 +70,7 @@ class LoginUI extends React.Component<Props, State> {
 
   handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    event.stopPropagation();
     if (!this.state.canRegister) return;
 
     const {

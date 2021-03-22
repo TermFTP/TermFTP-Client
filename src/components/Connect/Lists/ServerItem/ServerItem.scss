@@ -2,6 +2,7 @@
   transition: var(--dur) all ease;
   background: inherit;
   position: relative;
+  height: var(--item-height);
 
   .connect-server-details {
     opacity: 0;

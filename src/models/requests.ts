@@ -49,3 +49,16 @@ export interface AuthHeaders {
   "Access-Token"?: string;
   // "PC-Name"?: string;
 }
+
+export interface RemoveFromGroupReq {
+  serverID: string;
+  groupID: string;
+}
+
+export interface RemoveGroupReq {
+  groupID: string;
+}
+
+export interface RemoveServerReq {
+  serverID: string;
+}

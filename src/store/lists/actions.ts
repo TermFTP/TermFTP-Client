@@ -17,6 +17,16 @@ export const listReducer: Reducer<ListState> = (
   switch (action.type) {
     case ListActionTypes.ADD_HISTORY:
       return { ...state, history: [...state.history, action.payload] };
+    case ListActionTypes.FETCH_GROUPS:
+      return {
+        ...state,
+        ...action.payload,
+      };
+    case ListActionTypes.ADD_GROUP:
+      return {
+        ...state,
+        groups: [...state.groups, action.payload],
+      };
     case ListActionTypes.ADD_FAV:
       return {
         ...state,
@@ -25,7 +35,6 @@ export const listReducer: Reducer<ListState> = (
           server: [...state.favourites.server, action.payload],
         },
       };
-
     case ListActionTypes.SAVE_SERVER:
       return {
         ...state,
@@ -34,15 +43,6 @@ export const listReducer: Reducer<ListState> = (
           server: [...state.saved.server, action.payload],
         },
       };
-
-    case ListActionTypes.FETCH_GROUPS:
-      return {
-        ...state,
-        ...action.payload,
-      };
-
-    case ListActionTypes.CHANGE_EDIT_SERVER:
-      return { ...state, currentlyEdited: action.payload };
     case ListActionTypes.EDIT_SERVER: {
       let saved = undefined;
       if (state.saved) saved = { ...state.saved };
@@ -71,6 +71,8 @@ export const listReducer: Reducer<ListState> = (
       }
       return { ...state };
     }
+    case ListActionTypes.START_EDIT_SERVER:
+      return { ...state, currentlyEdited: action.payload };
     default:
       return state;
   }

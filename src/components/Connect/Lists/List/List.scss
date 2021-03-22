@@ -64,6 +64,11 @@
 .list-sortable {
   height: calc(var(--item-height) * var(--items));
   min-height: var(--item-height);
+
+  & > *:last-child,
+  & > *:last-child .connect-hover {
+    border-radius: 0 0 var(--box-radius) var(--box-radius);
+  }
 }
 
 .connect-newGroup {

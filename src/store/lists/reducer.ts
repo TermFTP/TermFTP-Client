@@ -7,6 +7,9 @@ import {
   DefaultReturn,
   Server,
   GroupReq,
+  RemoveFromGroupReq,
+  RemoveGroupReq,
+  RemoveServerReq,
 } from "@models";
 import { addBubble, setLoading, setPrompt } from "@store/app";
 import { Action, ActionCreator } from "redux";
@@ -136,7 +139,7 @@ export const saveServer: ListsThunk = (req: SaveReq) => {
 
 export const changeEditServer = (server: Server): Ret => {
   return {
-    type: ListActionTypes.CHANGE_EDIT_SERVER,
+    type: ListActionTypes.START_EDIT_SERVER,
     payload: server,
   };
 };
@@ -178,8 +181,51 @@ export const changeGroup: ListsThunk = (req: GroupReq) => {
   return basic(
     req,
     "group",
-    "Could not add server(s) to group",
+    "Could not add server to group",
     ListActionTypes.ADD_TO_GROUP,
-    "Added servers to group"
+    undefined,
+    (dispatch: TDispatch) => {
+      dispatch(fetchGroups());
+    }
+    // "Added servers to group"
+  );
+};
+
+export const removeServerFromGroup: ListsThunk = (req: RemoveFromGroupReq) => {
+  return basic(
+    req,
+    "removeServerFromGroup",
+    "Could not remove server from group",
+    ListActionTypes.REMOVE_SERVER_FROM_GROUP,
+    undefined,
+    (dispatch: TDispatch) => {
+      dispatch(fetchGroups());
+    }
+  );
+};
+
+export const removeGroup: ListsThunk = (req: RemoveGroupReq) => {
+  return basic(
+    req,
+    "removeGroup",
+    "Could not remove group",
+    ListActionTypes.REMOVE_GROUP,
+    "Removed group",
+    (dispatch: TDispatch) => {
+      dispatch(fetchGroups());
+    }
+  );
+};
+
+export const removeServer: ListsThunk = (req: RemoveServerReq) => {
+  return basic(
+    req,
+    "removeServer",
+    "Could not remove server",
+    ListActionTypes.REMOVE_SERVER,
+    "Removed Server",
+    (dispatch: TDispatch) => {
+      dispatch(fetchGroups());
+    }
   );
 };

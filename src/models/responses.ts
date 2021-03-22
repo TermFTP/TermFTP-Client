@@ -73,3 +73,13 @@ export interface SaveRes extends Def {
 export interface GroupsRes extends Def {
   data: Group[];
 }
+
+export interface GroupRes extends Def {
+  groupID: string;
+}
+
+// export interface RemoveFromGroupRes extends Def {}
+
+// export interface RemoveGroupRes extends Def {}
+
+// export interface RemoveServerRes extends Def {}

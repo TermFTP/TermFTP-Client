@@ -152,9 +152,9 @@ export class FTP extends EventEmitter {
     });
   }
 
-  createFolder(path: string): Promise<void> {
+  createFolder(path: string, recursive: boolean): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.client.mkdir(path, false, (error) => {
+      this.client.mkdir(path, recursive, (error) => {
         if (error) {
           reject(error);
           return;

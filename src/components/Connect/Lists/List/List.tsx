@@ -1,4 +1,4 @@
-import { Group, GroupReq } from "@models";
+import { Group, GroupReq, RemoveFromGroupReq } from "@models";
 import React, { MouseEvent } from "react";
 import "./List.scss";
 import { faChevronDown, faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -7,7 +7,7 @@ import ServerItem, { ConnectDetails } from "../ServerItem/ServerItem";
 import { DefaultDispatch, RootState } from "@store";
 import { connect, ConnectedProps } from "react-redux";
 import { ReactSortable } from "react-sortablejs";
-import { addGroup } from "@store/lists";
+import { addGroup, changeGroup, removeServerFromGroup } from "@store/lists";
 import { PromptProps } from "@components/Prompt/Prompt";
 import { setPrompt } from "@store/app";
 
@@ -18,6 +18,9 @@ const mapState = ({ listReducer }: RootState) => ({
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   addGroup: (group: GroupReq) => dispatch(addGroup(group)),
   setPrompt: (prompt: PromptProps) => dispatch(setPrompt(prompt)),
+  removeServerFromGroup: (req: RemoveFromGroupReq) =>
+    dispatch(removeServerFromGroup(req)),
+  changeGroup: (req: GroupReq) => dispatch(changeGroup(req)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -71,6 +74,8 @@ const ListUI = ({
   setPrompt,
   showOnNoItems,
   level,
+  changeGroup,
+  removeServerFromGroup,
 }: Props) => {
   // this is how it transitions between heights
   const items = (amount: number, groups: number) =>
@@ -115,17 +120,27 @@ const ListUI = ({
       ></ToggleBtn>
 
       <ReactSortable
-        list={[
-          ...(group?.server?.map((item) => ({ ...item, id: item.serverID })) ||
-            []),
-          ...(group?.serverGroups?.map((g) => ({ ...g, id: g.groupID })) || []),
-        ]}
-        setList={(newState, sortable, store) => {
-          console.groupCollapsed(`group-${group.groupID}`);
-          console.log(newState);
-          console.log(sortable);
-          console.log(store);
-          console.groupEnd();
+        list={
+          group?.server?.map((item) => ({ ...item, id: item.serverID })) || []
+        }
+        setList={(newState) => {
+          const prevIDs = group.server.map((s) => s.serverID);
+          const newIDs = newState.map((s) => s.serverID);
+          if (newIDs.length < prevIDs.length) {
+            // reduction -> remove server from group
+            const missingID = prevIDs.filter((id) => !newIDs.includes(id))[0];
+            removeServerFromGroup({
+              groupID: group.groupID,
+              serverID: missingID,
+            });
+          } else if (newIDs.length > prevIDs.length) {
+            // addition -> add server to group
+            const newID = newIDs.filter((id) => !prevIDs.includes(id))[0];
+            changeGroup({
+              groupID: group.groupID,
+              servers: [newID],
+            });
+          }
         }}
         className="list-sortable"
         group={{ name: "connect-lists", pull: true, put: true }}
@@ -162,7 +177,7 @@ const ListUI = ({
 // eslint-disable-next-line
 function getNumOfItems(group: Group): number {
   let sum = 0;
-  for (let g of group.serverGroups) {
+  for (const g of group.serverGroups) {
     // eslint-disable-next-line
     sum += getNumOfItems(g);
   }

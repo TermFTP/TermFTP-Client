@@ -11,9 +11,11 @@ import { ContextMenuProps, setContextMenu } from "@store/filemanager";
 import { historyItem } from "@store/lists";
 import Client from "ftp";
 import { hostname } from "os";
-import React, { Component } from "react";
+import React, { Component, createRef } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./FileManager.scss";
+import { uploadFolder } from "@lib";
+import fs from "fs";
 
 const mapState = ({
   ftpReducer: { client },
@@ -38,6 +40,8 @@ interface State {
 }
 
 export class FileManagerUI extends Component<Props, State> {
+  managerRef = createRef<HTMLDivElement>();
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -52,6 +56,12 @@ export class FileManagerUI extends Component<Props, State> {
       this.props.client.connect().then(this.onConnected);
       this.props.client.on("ftp-event", this.onChange);
     }
+
+    const dropZone = document.getElementById("file-manager");
+    dropZone.addEventListener("dragover", (evt) => {
+      evt.preventDefault();
+    });
+    dropZone.addEventListener("drop", this.onDrop);
   }
 
   componentDidUpdate(): void {
@@ -129,12 +139,26 @@ export class FileManagerUI extends Component<Props, State> {
     this.setState({ plusOpen: true });
   };
 
+  onDrop = (event: DragEvent): void => {
+    event.preventDefault();
+    event.stopPropagation();
+    for (const file of event.dataTransfer.files) {
+      const p = file.path;
+
+      console.warn(p);
+
+      if (fs.statSync(p).isDirectory()) {
+        uploadFolder(this.props.client, [...p]);
+      }
+    }
+  };
+
   render(): JSX.Element {
     const connected = Boolean(this.props.client?.connected);
     // console.log("list", this.state.list);
 
     return (
-      <div id="file-manager">
+      <div id="file-manager" ref={this.managerRef}>
         <div id="file-manager-settings">
           <button
             className="connect-settings-btn"
@@ -160,7 +184,7 @@ export class FileManagerUI extends Component<Props, State> {
                 {this.state.pwd !== "/" && (
                   <File
                     ftp={this.props.client}
-                    file={{ size: 0, name: "..", type: "d", date: new Date() }}
+                    file={{ size: 0, name: "..", type: "d", date: undefined }}
                   ></File>
                 )}
                 {this.state.list.map((file) => (

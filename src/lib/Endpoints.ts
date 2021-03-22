@@ -13,6 +13,10 @@ import {
   HistoryItemRes,
   GroupsRes,
   GroupReq,
+  GroupRes,
+  RemoveFromGroupReq,
+  RemoveGroupReq,
+  RemoveServerReq,
 } from "@models";
 import { hostname } from "os";
 import { IRawParams } from "@shared/models";
@@ -55,7 +59,7 @@ export class Endpoints implements IRawParams {
 
   fetchFromAPI = async (
     url: string,
-    method: "GET" | "POST" | "PUT" = "GET",
+    method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
     body = {}
   ): Promise<any> => {
     let options: RequestInit = {
@@ -139,9 +143,24 @@ export class Endpoints implements IRawParams {
     return this.fetchFromAPI(`${this.baseURL}/serverGroups`);
   };
 
-  group = (req: GroupReq): Promise<GroupReq> => {
+  group = (req: GroupReq): Promise<GroupRes> => {
     return this.fetchFromAPI(`${this.baseURL}/group`, "POST", req);
   };
+
+  removeServerFromGroup(req: RemoveFromGroupReq): Promise<void> {
+    return this.fetchFromAPI(
+      `${this.baseURL}/removeServerFromGroup?groupID=${req.groupID}&serverID=${req.serverID}`,
+      "DELETE"
+    );
+  }
+
+  removeGroup(req: RemoveGroupReq): Promise<void> {
+    return this.fetchFromAPI(`${this.baseURL}/removeGroup`, "DELETE", req);
+  }
+
+  removeServer(req: RemoveServerReq): Promise<void> {
+    return this.fetchFromAPI(`${this.baseURL}/removeServer`, "DELETE", req);
+  }
 }
 
 /**

@@ -27,7 +27,7 @@ export function File({ file, ftp }: Props): JSX.Element {
       </div>
       <div className="file-name">{file.name}</div>
       <div className="file-size">{convertFileSize(file.size)}</div>
-      <div className="file-last">{file.date.toLocaleString()}</div>
+      <div className="file-last">{file.date?.toLocaleString()}</div>
     </div>
   );
 }

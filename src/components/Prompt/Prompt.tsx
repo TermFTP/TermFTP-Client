@@ -1,6 +1,6 @@
 import { DefaultDispatch, RootState } from "@store";
 import { setPrompt } from "@store/app";
-import React, { createRef, Ref } from "react";
+import React, { createRef } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./Prompt.scss";
 
@@ -77,7 +77,15 @@ class PromptUI extends React.Component<Props, State> {
           className="prompt-background"
           onClick={() => setPrompt(undefined)}
         ></div>
-        <div className="prompt">
+        <form
+          className="prompt"
+          onSubmit={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            prompt?.callback(value);
+            setPrompt(undefined);
+          }}
+        >
           <div className="prompt-top">
             Enter a value for {prompt?.fieldName}!
           </div>
@@ -93,23 +101,18 @@ class PromptUI extends React.Component<Props, State> {
             />
           </div>
           <div className="prompt-buttons">
-            <button
-              className="prompt-save"
-              onClick={() => {
-                prompt?.callback(value);
-                setPrompt(undefined);
-              }}
-            >
+            <button type="submit" className="prompt-save">
               Save
             </button>
             <button
+              type="button"
               className="prompt-cancel"
               onClick={() => setPrompt(undefined)}
             >
               Cancel
             </button>
           </div>
-        </div>
+        </form>
       </div>
     );
   }
