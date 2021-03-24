@@ -21,11 +21,13 @@ type Props = PropsFromState & {
 };
 
 function ListsUI({ groups, history, saved, favourites, connect }: Props) {
+
   return (
     <div
       id="connect-lists"
       className={`${
         favourites?.server?.length > 0 ||
+		saved?.server?.length > 0 ||
         getNumOfItems(saved) > 0 ||
         groups?.length > 0 ||
         history?.length > 0

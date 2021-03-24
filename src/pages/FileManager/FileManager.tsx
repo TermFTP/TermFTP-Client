@@ -152,7 +152,7 @@ export class FileManagerUI extends Component<Props, State> {
     for (const file of event.dataTransfer.files) {
       const p = file.path;
 
-      console.warn(p);
+      //console.warn(p);
 
       if (fs.statSync(p).isDirectory()) {
         uploadFolder(this.props.client, [p], this.props.addBubble);
