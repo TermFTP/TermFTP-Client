@@ -6,9 +6,17 @@ import { ContextMenuProps, setContextMenu } from "@store/filemanager";
 import { PromptProps } from "@components/Prompt/Prompt";
 import { setPrompt, addBubble } from "@store/app";
 import { BubbleModel } from "@models";
-import { uploadFolder, uploadFile } from "@lib";
+import { uploadFolder, uploadFile, downloadFile, downloadFolder } from "@lib";
 import { remote } from "electron";
-import fs from "fs";
+import {
+  faFileDownload,
+  faFolder,
+  faFolderMinus,
+  faFolderOpen,
+  faFolderPlus,
+  faMinus,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const mapState = ({
   fmReducer: { menu },
@@ -30,7 +38,6 @@ type Props = PropsFromState;
 
 const ContextMenuUI = ({
   menu: { x, y, file, isOpen },
-  menu,
   client,
   setContextMenu,
   setPrompt,
@@ -39,26 +46,56 @@ const ContextMenuUI = ({
   const ownRef = useRef<HTMLDivElement>();
   const [listening, setListening] = useState<boolean>(false);
   let items = [
-    { label: "Create folder", func: onCreateFolder },
-    { label: "Upload file(s)", func: onFileUpload },
-    { label: "Upload folder(s)", func: onFolderUpload },
+    {
+      label: "Create folder",
+      func: onCreateFolder,
+      name: "context-create-folder",
+      icon: faFolderOpen,
+    },
+    {
+      label: "Upload file(s)",
+      func: onFileUpload,
+      name: "context-upload-file",
+      icon: faFileDownload,
+    },
+    {
+      label: "Upload folder(s)",
+      func: onFolderUpload,
+      name: "context-upload-folder",
+      icon: faFolderPlus,
+    },
   ];
   if (file?.type === "d") {
     items = [
       ...items,
       {
         label: "Download folder",
-        func: () => {
-          return;
-        },
+        func: onFolderDownload,
+        name: "context-download",
+        icon: faFolder,
       },
-      { label: "Delete folder", func: onDeleteFolder },
+      {
+        label: "Delete folder",
+        func: onDeleteFolder,
+        name: "context-delete",
+        icon: faFolderMinus,
+      },
     ];
   } else if (file) {
     items = [
       ...items,
-      { label: "Download file", func: onFileDownload },
-      { label: "Delete file", func: onDeleteFile },
+      {
+        label: "Download file",
+        func: onFileDownload,
+        name: "context-download-file",
+        icon: faFileDownload,
+      },
+      {
+        label: "Delete file",
+        func: onDeleteFile,
+        name: "context-delete",
+        icon: faMinus,
+      },
     ];
   }
 
@@ -86,16 +123,16 @@ const ContextMenuUI = ({
       position: "fixed",
     };
   }
+  const click = (e: MouseEvent) => {
+    if (isOpen && !(e.target as HTMLButtonElement).id.includes("plus")) {
+      setContextMenu({ isOpen: false, file, x, y });
+      window.removeEventListener("click", click);
+      setListening(false);
+    }
+  };
   useEffect(() => {
     if (!listening && isOpen) {
-      window.addEventListener("click", (e) => {
-        if (
-          menu.isOpen &&
-          !(e.target as HTMLButtonElement).id.includes("plus")
-        ) {
-          setContextMenu({ isOpen: false, file, x: menu.x, y: menu.y });
-        }
-      });
+      window.addEventListener("click", click);
       setListening(true);
     }
   });
@@ -162,12 +199,18 @@ const ContextMenuUI = ({
       })
       .then((path) => {
         if (path) {
-          client.get(file.name).then((stream) => {
-            const ws = fs.createWriteStream(path.filePath);
-            stream.pipe(ws);
-            stream.on("end", () => console.warn("DONE"));
-          });
+          downloadFile(client, file, path.filePath);
         }
+      });
+  }
+
+  function onFolderDownload(): void {
+    remote.dialog
+      .showOpenDialog({
+        properties: ["createDirectory", "openDirectory"],
+      })
+      .then((res) => {
+        downloadFolder(client, file, res.filePaths[0]);
       });
   }
 
@@ -199,8 +242,11 @@ const ContextMenuUI = ({
       ref={ownRef}
     >
       {items.map((i) => (
-        <button key={i.label} onClick={() => i.func()}>
-          {i.label}
+        <button key={i.label} onClick={() => i.func()} className={i.name}>
+          <div className="context-icon">
+            <FontAwesomeIcon icon={i.icon}></FontAwesomeIcon>
+          </div>
+          <div className="context-text">{i.label}</div>
         </button>
       ))}
     </div>

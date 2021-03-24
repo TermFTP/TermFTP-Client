@@ -36,23 +36,25 @@ function FileUI({ file, ftp, setContextMenu }: Props): JSX.Element {
     });
   }
   return (
-    <div
-      className={`file file-${file.type}`}
-      onDoubleClick={() => {
-        if (file.type === "d") {
-          ftp.cd(file.name);
-        }
-      }}
-      onContextMenuCapture={onContextMenu}
-    >
-      <div className="file-type">
-        <FontAwesomeIcon
-          icon={file.type === "d" ? faFolder : faFile}
-        ></FontAwesomeIcon>
+    <div className="file-wrapper">
+      <div
+        className={`file file-${file.type}`}
+        onDoubleClick={() => {
+          if (file.type === "d") {
+            ftp.cd(file.name);
+          }
+        }}
+        onContextMenuCapture={onContextMenu}
+      >
+        <div className="file-type">
+          <FontAwesomeIcon
+            icon={file.type === "d" ? faFolder : faFile}
+          ></FontAwesomeIcon>
+        </div>
+        <div className="file-name">{file.name}</div>
+        <div className="file-size">{convertFileSize(file.size)}</div>
+        <div className="file-last">{file.date?.toLocaleString()}</div>
       </div>
-      <div className="file-name">{file.name}</div>
-      <div className="file-size">{convertFileSize(file.size)}</div>
-      <div className="file-last">{file.date?.toLocaleString()}</div>
     </div>
   );
 }

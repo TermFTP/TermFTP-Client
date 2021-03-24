@@ -133,15 +133,19 @@ export class FileManagerUI extends Component<Props, State> {
   onDragEnter = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
     e.stopPropagation();
-    this.counter++;
-    this.setState({ dragging: true });
+    if (e.dataTransfer.files.length === 0) {
+      this.counter++;
+      this.setState({ dragging: true });
+    }
   };
 
   onDragLeave = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
     e.stopPropagation();
-    this.counter--;
-    if (this.counter === 0) this.setState({ dragging: false });
+    if (e.dataTransfer.files.length === 0) {
+      this.counter--;
+      if (this.counter < 0) this.setState({ dragging: false });
+    }
   };
 
   onDrop = (event: React.DragEvent<HTMLDivElement>): void => {
@@ -195,11 +199,13 @@ export class FileManagerUI extends Component<Props, State> {
             <>
               <div id="file-manager-pwd">{this.state.pwd}</div>
               <div id="file-manager-files" onContextMenu={this.onContextMenu}>
-                <div className="file">
-                  <div className="file-type">Type</div>
-                  <div className="file-name">Name</div>
-                  <div className="file-size">Size</div>
-                  <div className="file-last">Last Modified</div>
+                <div className="file-wrapper">
+                  <div className="file">
+                    <div className="file-type"></div>
+                    <div className="file-name">Name</div>
+                    <div className="file-size">Size</div>
+                    <div className="file-last">Last Modified</div>
+                  </div>
                 </div>
                 {this.state.pwd !== "/" && (
                   <File

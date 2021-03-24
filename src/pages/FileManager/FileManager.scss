@@ -1,7 +1,7 @@
 #file-manager {
   --plus-height: 2.5em;
   --file-height: 2.5em;
-  --file-width: 4em;
+  // --file-width: 4em;
   --bottom-height: 2em;
   height: 100%;
   width: 100%;
@@ -26,10 +26,13 @@
   flex-direction: column;
 
   #file-manager-files > * {
-    display: grid;
-    grid-template-columns: var(--file-width) auto 5em 6em;
-    align-items: center;
-    gap: 5px;
+    width: 100%;
+    > * {
+      display: grid;
+      grid-template-columns: var(--file-height) auto 5em 6em;
+      align-items: center;
+      gap: 5px;
+    }
   }
 }
 

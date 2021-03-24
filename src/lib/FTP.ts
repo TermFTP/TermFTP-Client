@@ -1,6 +1,5 @@
 import Client from "ftp";
 import { EventEmitter } from "events";
-import { rmdir } from "fs-extra";
 
 export interface FTPConfig extends Client.Options {
   sshPort: number;

@@ -2,6 +2,7 @@ import { addBubble } from "@store/app";
 import fs from "fs";
 import { basename, join, sep } from "path";
 import { FTP } from "./FTP";
+import Client from "ftp";
 
 function getAllFiles(dirPath: string, arrayOfFiles: string[]) {
   const files = fs.readdirSync(dirPath);
@@ -103,5 +104,39 @@ export function uploadFolder(
         });
       });
     }
+  }
+}
+
+export function downloadFile(
+  client: FTP,
+  file: Client.ListingElement,
+  path: string
+): void {
+  client.get(file.name).then((stream) => {
+    const ws = fs.createWriteStream(path);
+    stream.pipe(ws);
+    stream.on("end", () => console.log("DONE"));
+  });
+}
+
+export async function downloadFolder(
+  client: FTP,
+  file: Client.ListingElement,
+  path: string
+): Promise<void> {
+  if (file.type === "d") {
+    try {
+      fs.mkdirSync(join(path, file.name));
+    } catch (e) {
+      //folder already exists, who cares..
+    }
+    client.list(file.name).then((items) => {
+      items.forEach((i) => {
+        i.name = join(file.name, i.name);
+        downloadFolder(client, i, path);
+      });
+    });
+  } else if (file.type === "-") {
+    downloadFile(client, file, join(path, file.name));
   }
 }

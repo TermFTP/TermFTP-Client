@@ -1,15 +1,28 @@
+.file-wrapper {
+  border-bottom: 1px solid rgba(120, 120, 120, 0.7);
+
+  &:last-child {
+    border: none;
+  }
+
+  &:not(:first-child):hover {
+    .file {
+      cursor: pointer;
+      background: var(--dark-bg-1);
+    }
+  }
+}
+
 .file {
-  background: var(--dark-bg-1);
   border-radius: 10px;
   height: var(--file-height);
-  margin-bottom: 0.5em;
+  margin: 0.25em 0;
   color: white;
-  cursor: pointer;
-  transition: var(--dur) background ease;
+  // transition: var(--dur) background ease;
 
   .file-type {
     height: var(--file-height);
-    width: var(--file-width);
+    width: var(--file-height);
     padding: 10px;
     display: grid;
     place-items: center;
@@ -24,9 +37,5 @@
 
   .file-last {
     font-size: 0.8em;
-  }
-
-  &:hover {
-    background: var(--dark-bg-2);
   }
 }
