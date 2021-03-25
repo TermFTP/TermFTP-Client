@@ -1,26 +1,24 @@
 #file-manager-context-menu {
-  --menu-item-height: 2em;
+  --menu-item-height: 2.75em;
   position: absolute;
   bottom: calc(var(--plus-height) + 10px);
   right: 0;
-  width: 12em;
+  width: 14em;
   border-radius: 10px;
   overflow: hidden;
   height: 0;
-  transition: var(--dur) height ease;
+  transition: var(--dur) height ease, var(--dur) box-shadow;
   will-change: height;
   display: flex;
   justify-content: flex-end;
   align-items: flex-start;
   flex-direction: column;
-  // box-shadow: 1px 1px 10px white;
+  box-shadow: none;
 
   button {
     width: 100%;
     border-radius: 0;
     flex-grow: 1;
-    // flex-shrink: 0;
-    // height: var(--menu-item-height);
     font-size: inherit;
     font-size: 0.9em;
     padding: 0;
@@ -29,6 +27,8 @@
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
+    transition: var(--dur) background ease;
+    padding: 0 0.5em;
 
     &:hover {
       background: var(--dark-bg-2);
@@ -44,10 +44,14 @@
 
   &.opened {
     height: calc(var(--items) * var(--menu-item-height));
-    border: 1px solid white;
+    box-shadow: 1px 1px 10px 2px black;
   }
 
   .context-delete {
-    background: var(--red);
+    background: #af5750;
+
+    &:hover {
+      background: var(--red);
+    }
   }
 }

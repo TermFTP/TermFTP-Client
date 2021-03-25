@@ -1,5 +1,7 @@
 .file-wrapper {
   border-bottom: 1px solid rgba(120, 120, 120, 0.7);
+  max-width: 900px;
+  margin: 0 auto;
 
   &:last-child {
     border: none;
@@ -16,7 +18,7 @@
 .file {
   border-radius: 10px;
   height: var(--file-height);
-  margin: 0.25em 0;
+  margin: 0.25em auto;
   color: white;
   // transition: var(--dur) background ease;
 

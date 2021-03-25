@@ -103,18 +103,24 @@
     display: grid;
     place-items: center center;
     font-size: inherit;
-    transition: var(--dur) transform ease, var(--dur) background ease;
+    transition: var(--dur) transform ease, var(--dur) background ease,
+      var(--dur) color ease;
     animation: closed var(--dur) ease forwards;
     background: var(--dark-bg-1);
 
     &:hover {
       background: var(--dark-bg-2);
     }
+
+    &:focus {
+      box-shadow: none;
+    }
   }
 
   &.file-manager-plus-opened {
     #file-manager-plus-btn {
       animation: opened var(--dur) ease forwards;
+      color: var(--red);
     }
   }
 }

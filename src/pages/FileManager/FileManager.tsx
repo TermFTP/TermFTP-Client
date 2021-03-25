@@ -104,9 +104,6 @@ export class FileManagerUI extends Component<Props, State> {
     if (this.state.plusOpen) {
       this.setState({ plusOpen: false });
       this.props.setContextMenu({
-        file: undefined,
-        x: undefined,
-        y: undefined,
         isOpen: false,
       });
     } else {
@@ -133,18 +130,18 @@ export class FileManagerUI extends Component<Props, State> {
   onDragEnter = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.dataTransfer.files.length === 0) {
-      this.counter++;
-      this.setState({ dragging: true });
-    }
+    console.log(JSON.stringify(e.dataTransfer));
+    this.counter++;
+    this.setState({ dragging: true });
   };
 
   onDragLeave = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.dataTransfer.files.length === 0) {
-      this.counter--;
-      if (this.counter < 0) this.setState({ dragging: false });
+    this.counter--;
+    if (this.counter <= 0) {
+      this.setState({ dragging: false });
+      this.counter = 0;
     }
   };
 
@@ -156,8 +153,6 @@ export class FileManagerUI extends Component<Props, State> {
     for (const file of event.dataTransfer.files) {
       const p = file.path;
 
-      //console.warn(p);
-
       if (fs.statSync(p).isDirectory()) {
         uploadFolder(this.props.client, [p], this.props.addBubble);
       } else if (fs.statSync(p).isFile()) {
@@ -168,6 +163,12 @@ export class FileManagerUI extends Component<Props, State> {
 
   render(): JSX.Element {
     const connected = Boolean(this.props.client?.connected);
+    const dotdotExists =
+      this.state.list.filter((f) => f.name == "..").length > 0;
+
+    const filtered = this.state.list.filter(
+      (f) => !(f.name == ".." || f.name == ".")
+    );
 
     return (
       <div id="file-manager">
@@ -207,13 +208,13 @@ export class FileManagerUI extends Component<Props, State> {
                     <div className="file-last">Last Modified</div>
                   </div>
                 </div>
-                {this.state.pwd !== "/" && (
+                {this.state.pwd !== "/" && dotdotExists && (
                   <File
                     ftp={this.props.client}
                     file={{ size: 0, name: "..", type: "d", date: undefined }}
                   ></File>
                 )}
-                {this.state.list.map((file) => (
+                {filtered.map((file) => (
                   <File
                     ftp={this.props.client}
                     file={file}

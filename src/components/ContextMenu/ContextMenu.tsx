@@ -11,12 +11,11 @@ import { remote } from "electron";
 import {
   faFileDownload,
   faFolder,
-  faFolderMinus,
   faFolderOpen,
   faFolderPlus,
-  faMinus,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 
 const mapState = ({
   fmReducer: { menu },
@@ -78,7 +77,7 @@ const ContextMenuUI = ({
         label: "Delete folder",
         func: onDeleteFolder,
         name: "context-delete",
-        icon: faFolderMinus,
+        icon: faTrashAlt,
       },
     ];
   } else if (file) {
@@ -94,7 +93,7 @@ const ContextMenuUI = ({
         label: "Delete file",
         func: onDeleteFile,
         name: "context-delete",
-        icon: faMinus,
+        icon: faTrashAlt,
       },
     ];
   }
@@ -124,8 +123,9 @@ const ContextMenuUI = ({
     };
   }
   const click = (e: MouseEvent) => {
+    // TODO also listen to escape
     if (isOpen && !(e.target as HTMLButtonElement).id.includes("plus")) {
-      setContextMenu({ isOpen: false, file, x, y });
+      setContextMenu({ isOpen: false });
       window.removeEventListener("click", click);
       setListening(false);
     }

@@ -6,7 +6,7 @@ import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Lists } from "@components";
 import { setPrompt, setSettings } from "@store/app";
-import { FTP, validateIP } from "@lib";
+import { FTP } from "@lib";
 import {
   editServer,
   fetchGroups,
@@ -101,7 +101,7 @@ export class ConnectUI extends Component<Props, State> {
 
     upd = {
       ...upd,
-      canConnect: validateIP(upd.ip) && upd.ftpPort != upd.sshPort,
+      canConnect: upd.ftpPort != upd.sshPort,
     };
 
     this.setState(upd);
@@ -247,7 +247,7 @@ export class ConnectUI extends Component<Props, State> {
             <Lists connect={onConnect}></Lists>
           </div>
           <form className="connect-form" onSubmit={(e) => e.preventDefault()}>
-            <span className="connect-ip" data-info="ip">
+            <span className="connect-ip" data-info="ip/domain">
               <input
                 type="text"
                 placeholder="IP"
