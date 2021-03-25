@@ -190,6 +190,19 @@ export class FTP extends EventEmitter {
       });
     });
   }
+
+  rename(oldPath: string, newPath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.rename(oldPath, newPath, (error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve();
+        this.emit("ftp-event", { details: "all" });
+      });
+    });
+  }
 }
 
 export function convertFileSize(size: number, decimals = 1): string {

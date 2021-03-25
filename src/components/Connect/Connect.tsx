@@ -101,7 +101,7 @@ export class ConnectUI extends Component<Props, State> {
 
     upd = {
       ...upd,
-      canConnect: upd.ftpPort != upd.sshPort,
+      canConnect: upd.ftpPort != upd.sshPort && upd.ip.length > 0,
     };
 
     this.setState(upd);

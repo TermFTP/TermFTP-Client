@@ -13,6 +13,7 @@ import {
   faFolder,
   faFolderOpen,
   faFolderPlus,
+  faICursor,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
@@ -74,8 +75,14 @@ const ContextMenuUI = ({
         icon: faFolder,
       },
       {
+        label: "Rename folder",
+        func: onFolderRename,
+        name: "context-rename",
+        icon: faICursor,
+      },
+      {
         label: "Delete folder",
-        func: onDeleteFolder,
+        func: onFolderDelete,
         name: "context-delete",
         icon: faTrashAlt,
       },
@@ -90,8 +97,14 @@ const ContextMenuUI = ({
         icon: faFileDownload,
       },
       {
+        label: "Rename file",
+        func: onFileRename,
+        name: "context-rename",
+        icon: faICursor,
+      },
+      {
         label: "Delete file",
-        func: onDeleteFile,
+        func: onFileDelete,
         name: "context-delete",
         icon: faTrashAlt,
       },
@@ -137,7 +150,38 @@ const ContextMenuUI = ({
     }
   });
 
-  // window.removeEventListener("click", onClick);
+  function onFolderRename(): void {
+    console.log("ajsj");
+    setPrompt({
+      fieldName: "Folder name",
+      initial: file.name,
+      callback: (val) => {
+        client.rename(file.name, val).catch((e) =>
+          addBubble("rename-error", {
+            title: "Could not rename folder",
+            type: "ERROR",
+            message: `renaming of ${file.name} failed`,
+          })
+        );
+      },
+    });
+  }
+
+  function onFileRename(): void {
+    setPrompt({
+      fieldName: "File name",
+      initial: file.name,
+      callback: (val) => {
+        client.rename(file.name, val).catch((e) =>
+          addBubble("rename-error", {
+            title: "Could not rename folder",
+            type: "ERROR",
+            message: `renaming of ${file.name} failed`,
+          })
+        );
+      },
+    });
+  }
 
   function onFolderUpload(): void {
     remote.dialog
@@ -214,7 +258,7 @@ const ContextMenuUI = ({
       });
   }
 
-  function onDeleteFile(): void {
+  function onFileDelete(): void {
     client.delete(file.name).catch(() => {
       addBubble("delete-error", {
         title: `Could not delete file`,
@@ -224,7 +268,7 @@ const ContextMenuUI = ({
     });
   }
 
-  function onDeleteFolder(): void {
+  function onFolderDelete(): void {
     client.rmdir(file.name).catch(() => {
       addBubble("delete-error", {
         title: `Could not delete folder`,
