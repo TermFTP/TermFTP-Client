@@ -1,17 +1,25 @@
-import { DefaultReturn } from "@models";
-import { Action, ActionCreator } from "redux";
-import { ThunkAction } from "redux-thunk";
-import { ContextMenuProps, FMState, FMTypes } from "./types";
+import { FMState, FMTypes } from "./types";
+import { Reducer } from "redux";
 
-export type FTPThunk<ReturnType = void> = ActionCreator<
-  ThunkAction<ReturnType, FMState, unknown, Action<string>>
->;
+export const initialState: FMState = {
+  menu: {
+    isOpen: false,
+  },
+};
 
-interface Ret extends DefaultReturn {
-  type: FMTypes;
-}
+export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
+  switch (action.type) {
+    case FMTypes.SET_CONTEXT_MENU:
+      return {
+        ...state,
+        menu: {
+          ...state.menu,
+          ...action.payload,
+        },
+      };
+    default:
+      return state;
+  }
+};
 
-export const setContextMenu = (client: ContextMenuProps): Ret => ({
-  type: FMTypes.SET_CONTEXT_MENU,
-  payload: client,
-});
+export default fmReducer;

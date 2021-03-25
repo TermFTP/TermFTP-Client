@@ -1,64 +1,54 @@
+import { Action, ActionCreator } from "redux";
+import { ThunkAction } from "redux-thunk";
 import { AppState, AppActionTypes } from "./types";
-import { Reducer } from "redux";
-import { BubbleModel } from "@models";
+import { BubbleModel, DefaultReturn } from "@models";
+import { PromptProps } from "@components";
 
-export const initialState: AppState = {
-  data: {
-    isLoading: false,
-    bubbles: new Map<string, BubbleModel>(),
-  },
-  settingsOpen: false,
-  prompt: undefined,
+export type AppThunk<ReturnType = void> = ActionCreator<
+  ThunkAction<ReturnType, AppState, unknown, Action<string>>
+>;
+
+interface Ret extends DefaultReturn {
+  type: AppActionTypes;
+}
+
+export const setLoading = (loading: boolean): Ret => {
+  return {
+    type: AppActionTypes.SET_LOADING,
+    payload: loading,
+  };
 };
 
-export const appReducer: Reducer<AppState> = (state = initialState, action) => {
-  switch (action.type) {
-    case AppActionTypes.SET_LOADING: {
-      return {
-        ...state,
-        data: {
-          ...state.data,
-          isLoading: action.payload,
-        },
-      };
-    }
-    case AppActionTypes.SET_PROMPT: {
-      return {
-        ...state,
-        prompt: action.payload,
-      };
-    }
-    case AppActionTypes.SET_SETTINGS: {
-      return {
-        ...state,
-        settingsOpen: action.payload,
-      };
-    }
-    case AppActionTypes.ADD_BUBBLE: {
-      if (state.data.bubbles.get(action.payload.key)) {
-        console.error(
-          `bubble with "${action.payload.key}" already exists, so it was not created`
-        );
-      }
-      const nMap = new Map<string, BubbleModel>(state.data.bubbles);
-      nMap.set(action.payload.key, action.payload.bubble);
-      return {
-        ...state,
-        data: {
-          ...state.data,
-          bubbles: nMap,
-        },
-      };
-    }
-    case AppActionTypes.REMOVE_BUBBLE: {
-      const copy = new Map<string, BubbleModel>(state.data.bubbles);
-      copy.delete(action.payload.key);
-      return { ...state, data: { bubbles: copy } };
-      // return state;
-    }
-    default:
-      return state;
-  }
+export const setSettings = (open: boolean): Ret => {
+  return {
+    type: AppActionTypes.SET_SETTINGS,
+    payload: open,
+  };
 };
 
-export default appReducer;
+export const setPrompt = (prompt: PromptProps): Ret => {
+  return {
+    type: AppActionTypes.SET_PROMPT,
+    payload: prompt,
+  };
+};
+
+export const addBubble = (key: string, bubble: BubbleModel): Ret => {
+  bubble.when = new Date();
+  return {
+    type: AppActionTypes.ADD_BUBBLE,
+    payload: {
+      key,
+      bubble,
+    },
+  };
+};
+
+export const removeBubble = (key: string): Ret => {
+  return {
+    type: AppActionTypes.REMOVE_BUBBLE,
+    payload: {
+      key,
+    },
+  };
+};
