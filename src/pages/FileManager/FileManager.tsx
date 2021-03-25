@@ -208,7 +208,7 @@ export class FileManagerUI extends Component<Props, State> {
                     <div className="file-last">Last Modified</div>
                   </div>
                 </div>
-                {this.state.pwd !== "/" && dotdotExists && (
+                {this.state.pwd !== "/" && !dotdotExists && (
                   <File
                     ftp={this.props.client}
                     file={{ size: 0, name: "..", type: "d", date: undefined }}
