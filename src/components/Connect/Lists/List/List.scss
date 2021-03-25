@@ -12,13 +12,13 @@
   // min-height: calc(var(--toggle-height) + var(--item-height));
   transition: var(--dur) all ease;
   // margin-bottom: 15px;
-  background: var(--dark-bg-1);
+  background: var(--dark-bg-2);
   border-radius: var(--box-radius);
   // max-height: calc(var(--item-height) * 10);
 
   & > * {
     // padding: var(--list-item-padding) 10px;
-    height: var(--item-height);
+    // height: var(--item-height);
 
     &:not(:first-child):not(button) {
       transition: var(--dur) all ease;
@@ -40,7 +40,7 @@
       opacity: 0;
     }
 
-    .connect-list-toggle svg {
+    & > .connect-list-toggle svg {
       transform: rotate(180deg);
     }
   }
@@ -83,17 +83,11 @@
 }
 
 .connect-newGroup {
-  background: var(--dark-bg-1);
-  // width: 100%;
-  margin: 2px auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-  gap: 5px;
+  // background: var(--dark-bg-2);
+  transition: var(--dur) color ease;
 
   &:hover {
-    background: var(--dark-bg-2);
+    color: var(--green);
   }
 }
 
@@ -102,10 +96,10 @@
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  background: var(--dark-bg-2);
+  background: var(--dark-bg-1);
   text-transform: uppercase;
   font-variant: small-caps;
-  transition: var(--dur) all ease;
+  transition: var(--dur) filter ease;
   cursor: pointer;
   padding: calc(var(--list-item-padding) * 1.5) 10px;
   height: var(--toggle-height);
@@ -135,5 +129,6 @@
 
   &:hover {
     filter: brightness(0.9);
+    // background: var(--background);
   }
 }

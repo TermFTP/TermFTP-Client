@@ -31,21 +31,22 @@
     padding: var(--list-item-padding) 10px;
     position: relative;
     overflow: hidden;
-  }
+    transition: var(--dur) background ease;
 
-  .connect-hover:hover {
-    cursor: pointer;
-    background: var(--dark-bg-2);
+    &:hover {
+      cursor: pointer;
+      background: var(--dark-bg-1);
 
-    & ~ .connect-server-details,
-    & ~ .connect-server-details:hover {
-      opacity: 1;
-      transform: translateX(0);
-    }
+      & ~ .connect-server-details,
+      & ~ .connect-server-details:hover {
+        opacity: 1;
+        transform: translateX(0);
+      }
 
-    .connect-server-edit {
-      transform: translateX(0);
-      filter: opacity(100%);
+      .connect-server-edit {
+        transform: translateX(0);
+        filter: opacity(100%);
+      }
     }
   }
 }

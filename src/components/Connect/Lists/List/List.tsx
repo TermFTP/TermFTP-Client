@@ -59,7 +59,7 @@ function ToggleBtn({
       </div>
       <div className="text">{title}</div>
       {add && (
-        <button className="connect-icon" onClick={add}>
+        <button className="connect-icon connect-newGroup" onClick={add}>
           <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
         </button>
       )}

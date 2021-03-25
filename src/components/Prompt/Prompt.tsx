@@ -39,13 +39,12 @@ class PromptUI extends React.Component<Props, State> {
   componentDidUpdate() {
     const { prompt } = this.props;
     prompt && this.input.current?.focus();
-    console.log("aaa");
     if (prompt && prompt.initial && prompt.initial !== this.state.initial) {
       this.setState({
         initial: prompt.initial,
         value: prompt.initial,
       });
-    } else if (!prompt && this.state.initial) {
+    } else if (!prompt && this.state.value) {
       this.setState({
         initial: undefined,
         value: "",

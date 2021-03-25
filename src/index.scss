@@ -58,6 +58,14 @@ input[type="submit"] {
   }
 }
 
+button,
+input[type="submit"],
+input[type="button"] {
+  &:hover {
+    background-color: var(--dark-bg-1);
+  }
+}
+
 #root {
   width: 100%;
   height: 100%;

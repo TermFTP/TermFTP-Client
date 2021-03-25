@@ -156,7 +156,7 @@ const ContextMenuUI = ({
       fieldName: "Folder name",
       initial: file.name,
       callback: (val) => {
-        client.rename(file.name, val).catch((e) =>
+        client.rename(file.name, val).catch(() =>
           addBubble("rename-error", {
             title: "Could not rename folder",
             type: "ERROR",
@@ -172,7 +172,7 @@ const ContextMenuUI = ({
       fieldName: "File name",
       initial: file.name,
       callback: (val) => {
-        client.rename(file.name, val).catch((e) =>
+        client.rename(file.name, val).catch(() =>
           addBubble("rename-error", {
             title: "Could not rename folder",
             type: "ERROR",
@@ -192,7 +192,7 @@ const ContextMenuUI = ({
       })
       .catch((err) => {
         addBubble("upload-error", {
-          title: err.title,
+          title: "Could not upload folder",
           message: err.message,
           type: "ERROR",
         });
@@ -206,12 +206,12 @@ const ContextMenuUI = ({
       })
       .then((res) => {
         if (res.canceled) return;
-        console.log(res);
+        // console.log(res);
         uploadFile(client, res.filePaths, addBubble);
       })
       .catch((err) => {
         addBubble("upload-error", {
-          title: err.title,
+          title: "Could not upload file",
           message: err.message,
           type: "ERROR",
         });
