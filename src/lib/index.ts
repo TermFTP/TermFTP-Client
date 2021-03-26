@@ -3,3 +3,4 @@ export * from "./validators";
 export * from "./FTP";
 export * from "./FileOperations";
 export * from "./util";
+export * from "./BaseFTP";

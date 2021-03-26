@@ -48,6 +48,7 @@ class BubbleUI extends Component<Props, State> {
     this.FADE = window
       .getComputedStyle(document.documentElement)
       .getPropertyValue("--dur");
+    console.error("an error occured:", props.bubble);
   }
 
   componentDidMount(): void {

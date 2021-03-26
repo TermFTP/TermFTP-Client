@@ -1,8 +1,9 @@
+import { FileI, FileType } from "@models";
 import { addBubble } from "@store/app";
 import fs from "fs";
 import { basename, join, sep } from "path";
-import { FTP } from "./FTP";
-import Client from "ftp";
+import { BaseFTP } from "./BaseFTP";
+// import Client from "BaseFTP";
 
 function getAllFiles(dirPath: string, arrayOfFiles: string[]) {
   const files = fs.readdirSync(dirPath);
@@ -43,28 +44,29 @@ function getAllFolders(
   return arrayOfFolders;
 }
 
-export function uploadFile(
-  client: FTP,
+export async function uploadFile(
+  client: BaseFTP,
   filePaths: string[],
   addB: typeof addBubble
-): void {
+): Promise<void> {
   for (const path of filePaths) {
-    const a = client.put(fs.createReadStream(path), basename(path));
-    a.catch((err) => {
+    try {
+      await client.put(path, basename(path));
+    } catch (err) {
       addB("mkdir-error", {
         title: err.title || "Failed to upload file",
         message: err.message,
         type: "ERROR",
       });
-    });
+    }
   }
 }
 
-export function uploadFolder(
-  client: FTP,
+export async function uploadFolder(
+  client: BaseFTP,
   filePaths: string[],
   addB: typeof addBubble
-): void {
+): Promise<void> {
   for (const path of filePaths) {
     const files = getAllFiles(path, []);
     const folders = getAllFolders(
@@ -73,70 +75,67 @@ export function uploadFolder(
       []
     );
 
-    client
-      .createFolder(path.substring(path.lastIndexOf(sep) + 1), false)
-      .catch((error) => {
-        //folder already exists
-        console.info(error);
-      });
+    try {
+      await client.mkdir(path.substring(path.lastIndexOf(sep) + 1));
+    } catch (e) {
+      console.info(`folder already exists`);
+    }
 
     for (const folder of folders) {
-      client.createFolder(folder, true).catch((error) => {
-        //folder already exists
-        console.info(error);
-      });
+      try {
+        await client.mkdir(folder);
+      } catch (e) {
+        console.info(`folder already exists`);
+      }
     }
 
     for (const file of files) {
-      console.warn(
-        "FILEaab:",
-        join(path.substring(path.lastIndexOf(sep) + 1), file.split(path)[1])
-      );
-      const a = client.put(
-        fs.createReadStream(file),
-        join(path.substring(path.lastIndexOf(sep) + 1), file.split(path)[1])
-      );
-      a.catch((err) => {
+      // console.warn(
+      //   "FILEaab:",
+      //   join(path.substring(path.lastIndexOf(sep) + 1), file.split(path)[1])
+      // );
+      try {
+        await client.put(
+          file,
+          join(path.substring(path.lastIndexOf(sep) + 1), file.split(path)[1])
+        );
+      } catch (err) {
         addB("upload-error", {
           title: err.title || "Failed to upload directory",
           message: err.message,
           type: "ERROR",
         });
-      });
+      }
     }
   }
 }
 
-export function downloadFile(
-  client: FTP,
-  file: Client.ListingElement,
+export async function downloadFile(
+  client: BaseFTP,
+  file: FileI,
   path: string
-): void {
-  client.get(file.name).then((stream) => {
-    const ws = fs.createWriteStream(path);
-    stream.pipe(ws);
-    stream.on("end", () => console.log("DONE"));
-  });
+): Promise<void> {
+  await client.get(file.name, path);
+  return Promise.resolve();
 }
 
 export async function downloadFolder(
-  client: FTP,
-  file: Client.ListingElement,
+  client: BaseFTP,
+  file: FileI,
   path: string
 ): Promise<void> {
-  if (file.type === "d") {
+  if (file.type === FileType.DIR) {
     try {
       fs.mkdirSync(join(path, file.name));
     } catch (e) {
       //folder already exists, who cares..
     }
-    client.list(file.name).then((items) => {
-      items.forEach((i) => {
-        i.name = join(file.name, i.name);
-        downloadFolder(client, i, path);
-      });
-    });
-  } else if (file.type === "-") {
-    downloadFile(client, file, join(path, file.name));
+    const items = await client.list(file.name);
+    for (const i of items) {
+      i.name = join(file.name, i.name);
+      await downloadFolder(client, i, path);
+    }
+  } else if (file.type === FileType.FILE) {
+    await downloadFile(client, file, join(path, file.name));
   }
 }

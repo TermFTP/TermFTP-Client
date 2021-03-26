@@ -120,7 +120,6 @@ export class ConnectUI extends Component<Props, State> {
       new FTP({
         user: username,
         password,
-        debug: console.log,
         host: ip,
         port: ftpPort || 21,
         sshPort: sshPort || 22,
@@ -253,6 +252,7 @@ export class ConnectUI extends Component<Props, State> {
                 placeholder="IP"
                 value={ip}
                 onChange={(e) => handleChange(e, Change.IP)}
+                autoFocus
               />
             </span>
             <div className="connect-ftp-port" data-info="FTP Port">
