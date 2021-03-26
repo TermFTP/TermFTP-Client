@@ -9,10 +9,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWindowMaximize } from "@fortawesome/free-regular-svg-icons";
-import isDev from "electron-is-dev";
 import { DefaultDispatch, RootState } from "@store";
 import { connect, ConnectedProps } from "react-redux";
 import { goBack, push } from "connected-react-router";
+import { Endpoints } from "@lib/Endpoints";
 
 const mapState = ({ router }: RootState) => ({
   router,
@@ -52,26 +52,24 @@ function HeaderUI({ goBack, push, router }: Props) {
         <div className="headerContent" id={id}>
           <div id="headerTitle">
             {id === "" && <span id="headerTitleText">TermFTP</span>}
-            {isDev && (
-              <button
-                onClick={() => {
-                  back();
-                }}
-                className="navBtn"
-              >
-                <FontAwesomeIcon icon={faArrowLeft}></FontAwesomeIcon>
-              </button>
-            )}
-            {isDev && (
-              <button
-                onClick={() => {
-                  push("/");
-                }}
-                className="navBtn"
-              >
-                <FontAwesomeIcon icon={faHome}></FontAwesomeIcon>
-              </button>
-            )}
+            <button
+              onClick={() => {
+                back();
+              }}
+              className="navBtn"
+            >
+              <FontAwesomeIcon icon={faArrowLeft}></FontAwesomeIcon>
+            </button>
+            <button
+              onClick={() => {
+                if (Endpoints.getInstance().headers["Access-Token"])
+                  push("/main");
+                else push("/");
+              }}
+              className="navBtn"
+            >
+              <FontAwesomeIcon icon={faHome}></FontAwesomeIcon>
+            </button>
           </div>
           <div className="headerDock">
             <GetWindowControls id={id}></GetWindowControls>
