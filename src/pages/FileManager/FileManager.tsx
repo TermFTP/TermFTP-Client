@@ -16,6 +16,8 @@ import { connect, ConnectedProps } from "react-redux";
 import "./FileManager.scss";
 import { uploadFolder } from "@lib";
 import fs from "fs";
+import { HotKeys } from "react-hotkeys";
+import { SearchBox } from "@components";
 
 const mapState = ({
   ftpReducer: { client },
@@ -40,10 +42,13 @@ interface State {
   list: Client.ListingElement[];
   plusOpen: boolean;
   dragging: boolean;
+  searching: boolean;
 }
 
 export class FileManagerUI extends Component<Props, State> {
   counter = 0;
+  keyMap = {};
+  handlers = {};
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -51,8 +56,21 @@ export class FileManagerUI extends Component<Props, State> {
       list: [],
       plusOpen: false,
       dragging: false,
+      searching: false,
     };
     (window as any).refreshFTP = this.onConnected;
+
+    this.keyMap = {
+      SEARCH: "ctrl+f",
+    };
+
+    this.handlers = {
+      SEARCH: () => {
+        this.setState({
+          searching: true,
+        });
+      },
+    };
   }
   componentDidMount(): void {
     if (this.props.client && !this.props.client?.connected) {
@@ -86,7 +104,7 @@ export class FileManagerUI extends Component<Props, State> {
         }
         return 1;
       });
-      this.setState({ list });
+      this.setState({ list: list as Client.ListingElement[] });
     });
   };
 
@@ -161,10 +179,16 @@ export class FileManagerUI extends Component<Props, State> {
     }
   };
 
+  onSearch = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    //search item and scroll to it and hightlight it?
+    console.log(event.target.value);
+  };
+
   render(): JSX.Element {
     const connected = Boolean(this.props.client?.connected);
     const dotdotExists =
       this.state.list.filter((f) => f.name == "..").length > 0;
+    const { searching, pwd } = this.state;
 
     const filtered = this.state.list.filter(
       (f) => !(f.name == ".." || f.name == ".")
@@ -197,8 +221,18 @@ export class FileManagerUI extends Component<Props, State> {
           onDragLeave={this.onDragLeave}
         >
           {connected && (
-            <>
+            <HotKeys
+              keyMap={this.keyMap}
+              handlers={this.handlers}
+              id="file-manager"
+            >
               <div id="file-manager-pwd">{this.state.pwd}</div>
+
+              <SearchBox
+                onSearch={this.onSearch}
+                searching={searching}
+                setSearching={(s) => this.setState({ searching: s })}
+              />
               <div id="file-manager-files" onContextMenu={this.onContextMenu}>
                 <div className="file-wrapper">
                   <div className="file">
@@ -208,12 +242,14 @@ export class FileManagerUI extends Component<Props, State> {
                     <div className="file-last">Last Modified</div>
                   </div>
                 </div>
-                {this.state.pwd !== "/" && !dotdotExists && (
+
+                {pwd !== "/" && !dotdotExists && (
                   <File
                     ftp={this.props.client}
                     file={{ size: 0, name: "..", type: "d", date: undefined }}
                   ></File>
                 )}
+
                 {filtered.map((file) => (
                   <File
                     ftp={this.props.client}
@@ -233,7 +269,7 @@ export class FileManagerUI extends Component<Props, State> {
                 </button>
                 <ContextMenu></ContextMenu>
               </div>
-            </>
+            </HotKeys>
           )}
         </div>
         <div id="file-manager-bottom">

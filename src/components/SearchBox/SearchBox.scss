@@ -1,0 +1,12 @@
+#search-box {
+  position: absolute;
+  top: 3.5em;
+  right: 10px;
+  transition: var(--dur) transform ease;
+  transform: translateY(-300%);
+  display: inline;
+
+  &.search-box-searching {
+    transform: translateY(0);
+  }
+}

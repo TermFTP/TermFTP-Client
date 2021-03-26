@@ -1,4 +1,4 @@
-import { Group, GroupReq, RemoveFromGroupReq } from "@models";
+import { Group, GroupReq, RemoveFromGroupReq, Server } from "@models";
 import React, { MouseEvent } from "react";
 import "./List.scss";
 import { faChevronDown, faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -97,6 +97,10 @@ const ListUI = ({
     });
   }
 
+  const compareServers = (a: Server, b: Server) => {
+    return (a.name || a.ip).localeCompare(b.name || b.ip);
+  };
+
   return (
     <div
       className={`connect-list ${
@@ -148,7 +152,7 @@ const ListUI = ({
         className="list-sortable"
         group={{ name: "connect-lists", pull: true, put: true }}
       >
-        {group?.server?.map((s) => (
+        {group?.server?.sort(compareServers).map((s) => (
           <ServerItem
             connect={connect}
             key={s.serverID}
@@ -157,16 +161,18 @@ const ListUI = ({
         ))}
       </ReactSortable>
 
-      {group?.serverGroups?.map((g) => (
-        <List
-          connect={connect}
-          key={g.groupID}
-          group={g}
-          newGroups={newGroups}
-          showOnNoItems={true}
-          level={(level || 0) + 1}
-        ></List>
-      ))}
+      {group?.serverGroups
+        ?.sort((a, b) => a.name.localeCompare(b.name))
+        .map((g) => (
+          <List
+            connect={connect}
+            key={g.groupID}
+            group={g}
+            newGroups={newGroups}
+            showOnNoItems={true}
+            level={(level || 0) + 1}
+          ></List>
+        ))}
       {/* {newGroups && (
         <button className="connect-newGroup" onClick={newGroup}>
           <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
