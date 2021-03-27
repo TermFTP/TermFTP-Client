@@ -30,7 +30,7 @@ function createWindow(): void {
   });
 
   if (isDev) {
-    win.loadURL("http://localhost:3000");
+    win.loadURL("http://localhost:14000");
     win.webContents.openDevTools();
   } else {
     win.loadURL(`file://${join(__dirname, "./index.html")}`);

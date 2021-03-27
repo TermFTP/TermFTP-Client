@@ -181,7 +181,33 @@ export class FileManagerUI extends Component<Props, State> {
 
   onSearch = (event: React.ChangeEvent<HTMLInputElement>): void => {
     //search item and scroll to it and hightlight it?
-    console.log(event.target.value);
+    const query = event.target.value;
+
+    const highlighted = document.getElementsByClassName("file-highlight");
+
+    const results = document.querySelectorAll(
+      `[data-name*="${query.toLowerCase()}"]`
+    ) as NodeListOf<HTMLElement>;
+
+    console.log("query", query);
+    console.log("results", results);
+    console.log("high", highlighted);
+
+    for (const hs of highlighted) {
+      console.log("00");
+      if (
+        !hs.getAttribute("data-name").includes(query.toLowerCase()) ||
+        query.length == 0
+      ) {
+        console.log("aa");
+        hs.classList.remove("file-highlight");
+      }
+    }
+
+    if (results.length == 0) return;
+
+    results[0].scrollIntoView(true);
+    results.forEach((e) => e.classList.add("file-highlight"));
   };
 
   render(): JSX.Element {

@@ -36,7 +36,7 @@ function FileUI({ file, ftp, setContextMenu }: Props): JSX.Element {
     });
   }
   return (
-    <div className="file-wrapper">
+    <div className="file-wrapper" data-name={file.name.toLowerCase()}>
       <div
         className={`file file-${file.type}`}
         onDoubleClick={() => {

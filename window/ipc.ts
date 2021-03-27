@@ -4,7 +4,7 @@ import {
   EncryptionType,
   IPCEncryptReply,
 } from "../shared/models";
-import { randomBytes, pbkdf2Sync } from "crypto";
+import { pbkdf2Sync } from "crypto";
 
 ipcMain.on("encrypt", (event, arg: IPCEncryptRequest) => {
   //do the hot stuff

@@ -42,9 +42,11 @@ export function SearchBox({
         // defaultValue={value}
         placeholder="search..."
         autoFocus
+        onBlur={() => setSearching(false)}
         onKeyUp={onKeyUp}
         onFocus={handleFocus}
         onChange={onSearch}
+        // onBlur={e => setSearching(false)}
         // onBlur={e => setSearching(false)}
       />
     </div>

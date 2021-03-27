@@ -186,7 +186,14 @@ class RegisterUI extends React.Component<Props, State> {
               />
               <p>
                 {/* TODO make terms of service */}I have read and agree to the{" "}
-                <a href="..">Terms of Service</a> agreement.
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                >
+                  Terms of Service
+                </a>{" "}
+                agreement.
               </p>
             </label>
             <input type="submit" value="Register" disabled={!canRegister} />
