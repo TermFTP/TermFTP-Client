@@ -8,8 +8,8 @@
   }
 
   &:not(:first-child):hover {
+    cursor: pointer;
     .file {
-      cursor: pointer;
       background: var(--dark-bg-2);
     }
   }

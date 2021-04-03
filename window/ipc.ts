@@ -20,7 +20,6 @@ ipcMain.on("encrypt", (event, arg: IPCEncryptRequest) => {
   if (arg.caller === "register") {
     res = [...res, arg.email];
   }
-  console.log(arg.caller)
 
   event.reply(arg.caller + "-encrypt-reply", res);
 });

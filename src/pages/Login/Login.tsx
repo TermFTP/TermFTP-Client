@@ -95,6 +95,7 @@ class LoginUI extends React.Component<Props, State> {
                 placeholder="bob"
                 value={username}
                 onChange={(e) => this.handleChange(e, Change.USERNAME)}
+                autoFocus
               />
             </label>
             <label htmlFor="password">

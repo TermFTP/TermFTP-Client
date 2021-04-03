@@ -89,9 +89,8 @@ export class FileManagerUI extends Component<Props, State> {
 
   // eslint-disable-next-line
   onChange = async (args: FTPEventDetails): Promise<void> => {
-    document
-      .getElementById("search-box")
-      .getElementsByTagName("input")[0].value = "";
+    const searchBox = document.getElementById("search-box");
+    if (searchBox) searchBox.getElementsByTagName("input")[0].value = "";
     const pwd = await this.props.client.pwd();
     const list = await this.props.client.list(undefined);
     this.setState({ list, pwd });
@@ -131,6 +130,7 @@ export class FileManagerUI extends Component<Props, State> {
       isOpen: true,
       x: e.clientX,
       y: e.clientY,
+      file: undefined,
     });
   };
 
