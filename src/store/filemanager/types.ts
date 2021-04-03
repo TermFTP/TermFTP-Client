@@ -1,9 +1,9 @@
-import { FileI } from "@models";
+import Client from "ftp";
 
 export interface ContextMenuProps {
   x?: number;
   y?: number;
-  file?: FileI;
+  file?: Client.ListingElement;
   isOpen: boolean;
 }
 

@@ -1,4 +1,4 @@
-import { BaseFTP } from "@lib";
+import { FTP } from "@lib";
 import { DefaultReturn } from "@models";
 import { push } from "connected-react-router";
 import { Action, ActionCreator } from "redux";
@@ -13,12 +13,12 @@ interface Ret extends DefaultReturn {
   type: FTPActionTypes;
 }
 
-export const setFTPClient = (client: BaseFTP): Ret => ({
+export const setFTPClient = (client: FTP): Ret => ({
   type: FTPActionTypes.SET_FTP_CLIENT,
   payload: client,
 });
 
-export const goToFTPClient: FTPThunk = (client: BaseFTP) => {
+export const goToFTPClient: FTPThunk = (client: FTP) => {
   return async (dispatch) => {
     dispatch(setFTPClient(client));
     return dispatch(push("/file-manager"));

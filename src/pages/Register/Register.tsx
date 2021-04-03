@@ -150,7 +150,6 @@ class RegisterUI extends React.Component<Props, State> {
                 placeholder="bob@example.com"
                 onChange={(e) => handleChange(e, Change.EMAIL)}
                 value={email}
-                autoFocus
               />
             </label>
             <label>

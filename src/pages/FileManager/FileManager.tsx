@@ -4,11 +4,12 @@ import { faCircle } from "@fortawesome/free-regular-svg-icons";
 import { faCog, faPlus, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FTPEventDetails, uploadFile } from "@lib";
-import { BubbleModel, FileI, FileType, HistoryReq } from "@models";
+import { BubbleModel, HistoryReq } from "@models";
 import { DefaultDispatch, RootState } from "@store";
 import { addBubble, setSettings } from "@store/app";
 import { ContextMenuProps, setContextMenu } from "@store/filemanager";
 import { historyItem } from "@store/lists";
+import Client from "ftp";
 import { hostname } from "os";
 import React, { Component } from "react";
 import { connect, ConnectedProps } from "react-redux";
@@ -36,7 +37,7 @@ type Props = PropsFromState;
 
 interface State {
   pwd: string;
-  list: FileI[];
+  list: Client.ListingElement[];
   plusOpen: boolean;
   dragging: boolean;
 }
@@ -74,18 +75,18 @@ export class FileManagerUI extends Component<Props, State> {
   onChange = (args: FTPEventDetails): void => {
     this.props.client.pwd().then((pwd) => {
       this.setState({ pwd });
-      this.props.client.list().then((list) => {
-        list = list.sort((a, b) => {
-          if (a.type === b.type) {
-            return a.name.localeCompare(b.name);
-          }
-          if (a.type === FileType.DIR) {
-            return -1;
-          }
-          return 1;
-        });
-        this.setState({ list });
+    });
+    this.props.client.list(undefined).then((list) => {
+      list = list.sort((a, b) => {
+        if (a.type === b.type) {
+          return a.name.localeCompare(b.name);
+        }
+        if (a.type === "d") {
+          return -1;
+        }
+        return 1;
       });
+      this.setState({ list });
     });
   };
 
@@ -104,7 +105,6 @@ export class FileManagerUI extends Component<Props, State> {
       this.setState({ plusOpen: false });
       this.props.setContextMenu({
         isOpen: false,
-        file: undefined,
       });
     } else {
       this.setState({ plusOpen: true });
@@ -124,7 +124,6 @@ export class FileManagerUI extends Component<Props, State> {
       isOpen: true,
       x: e.clientX,
       y: e.clientY,
-      file: undefined,
     });
   };
 
@@ -212,12 +211,7 @@ export class FileManagerUI extends Component<Props, State> {
                 {this.state.pwd !== "/" && !dotdotExists && (
                   <File
                     ftp={this.props.client}
-                    file={{
-                      size: 0,
-                      name: "..",
-                      type: FileType.DIR,
-                      date: undefined,
-                    }}
+                    file={{ size: 0, name: "..", type: "d", date: undefined }}
                   ></File>
                 )}
                 {filtered.map((file) => (

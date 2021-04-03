@@ -5,7 +5,7 @@ import { connect, ConnectedProps } from "react-redux";
 import { ContextMenuProps, setContextMenu } from "@store/filemanager";
 import { PromptProps } from "@components/Prompt/Prompt";
 import { setPrompt, addBubble } from "@store/app";
-import { BubbleModel, FileType } from "@models";
+import { BubbleModel } from "@models";
 import { uploadFolder, uploadFile, downloadFile, downloadFolder } from "@lib";
 import { remote } from "electron";
 import {
@@ -65,7 +65,7 @@ const ContextMenuUI = ({
       icon: faFolderPlus,
     },
   ];
-  if (file?.type === FileType.DIR) {
+  if (file?.type === "d") {
     items = [
       ...items,
       {
@@ -151,7 +151,7 @@ const ContextMenuUI = ({
   });
 
   function onFolderRename(): void {
-    // console.log("ajsj");
+    console.log("ajsj");
     setPrompt({
       fieldName: "Folder name",
       initial: file.name,
@@ -186,10 +186,9 @@ const ContextMenuUI = ({
   function onFolderUpload(): void {
     remote.dialog
       .showOpenDialog({ properties: ["openDirectory", "multiSelections"] })
-      .then(async (res) => {
+      .then((res) => {
         if (res.canceled) return;
-        await uploadFolder(client, res.filePaths, addBubble);
-        client.emit("ftp-event", { details: "all" });
+        uploadFolder(client, res.filePaths, addBubble);
       })
       .catch((err) => {
         addBubble("upload-error", {
@@ -225,7 +224,7 @@ const ContextMenuUI = ({
       initial: "",
       callback: (value: string) => {
         setPrompt(undefined);
-        client.mkdir(value).catch((err) => {
+        client.createFolder(value, false).catch((err) => {
           addBubble("mkdir-error", {
             title: err.title || "Failed to create directory",
             message: err.message,
@@ -260,7 +259,7 @@ const ContextMenuUI = ({
   }
 
   function onFileDelete(): void {
-    client.deleteFile(file.name).catch(() => {
+    client.delete(file.name).catch(() => {
       addBubble("delete-error", {
         title: `Could not delete file`,
         type: "ERROR",

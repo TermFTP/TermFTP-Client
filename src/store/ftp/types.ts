@@ -1,9 +1,9 @@
-import { BaseFTP } from "@lib";
+import { FTP } from "@lib";
 
 export enum FTPActionTypes {
   SET_FTP_CLIENT = "ftp/set-ftp-client",
 }
 
 export interface FTPState {
-  client: BaseFTP;
+  client: FTP;
 }

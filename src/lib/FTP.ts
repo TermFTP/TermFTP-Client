@@ -1,9 +1,7 @@
-import { FileI, FileType } from "@models/file";
-import { AccessOptions, Client, FileType as BasicType } from "basic-ftp";
-import { BaseFTP } from "./BaseFTP";
+import Client from "ftp";
+import { EventEmitter } from "events";
 
-export interface FTPConfig extends AccessOptions {
-  password: string;
+export interface FTPConfig extends Client.Options {
   sshPort: number;
 }
 
@@ -11,110 +9,212 @@ export interface FTPEventDetails {
   change: "all" | "directory" | "files";
 }
 
-export class FTP extends BaseFTP {
+HTMLDivElement;
+
+export type FTPEvent = CustomEvent<FTPEventDetails>;
+
+export class FTP extends EventEmitter {
   config: FTPConfig;
   client: Client;
-
-  convertFileType(type: BasicType): FileType {
-    switch (type) {
-      case BasicType.Unknown:
-        return FileType.UNKNOWN;
-      case BasicType.Directory:
-        return FileType.DIR;
-      case BasicType.SymbolicLink:
-        return FileType.SYMBOLIC;
-      case BasicType.File:
-        return FileType.FILE;
-      default:
-        return FileType.UNKNOWN;
-    }
-  }
+  connected = false;
 
   constructor(config: FTPConfig) {
     super();
     this.config = config;
+  }
+
+  connect(): Promise<any> {
     this.client = new Client();
+    const c = this.client;
+    return new Promise((resolve) => {
+      c.on(
+        "ready",
+        (() => {
+          this.connected = true;
+          resolve("connected");
+        }).bind(this)
+      );
+
+      c.on(
+        "error",
+        ((e: any) => {
+          this.connected = false;
+          this.client = undefined;
+          console.log("error", e);
+          console.groupEnd();
+        }).bind(this)
+      );
+
+      console.groupCollapsed(`FTP Connection: ${this.config.host}`);
+      console.log("Config", this.config);
+      c.connect(this.config);
+    });
   }
 
-  async connect(): Promise<void> {
-    await this.client.access(this.config);
+  pwd(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!this.client) {
+        reject("no client");
+      }
+      this.client.pwd((err, path) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        resolve(path);
+      });
+    });
   }
 
-  async pwd(): Promise<string> {
-    return await this.client.pwd();
-  }
-
-  async list(dir?: string): Promise<FileI[]> {
-    const list = await this.client.list(dir);
-    return list.map(
-      (v) =>
-        ({
-          type: this.convertFileType(v.type),
-          date: v.modifiedAt,
-          name: v.name,
-          size: v.size,
-        } as FileI)
-    );
+  list(dir: string): Promise<Client.ListingElement[]> {
+    return new Promise((resolve, reject) => {
+      if (!this.client) {
+        reject("no client");
+      }
+      if (dir) {
+        this.client.list(dir, (err, list) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(list);
+        });
+      } else {
+        this.client.list((err, list) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(list);
+        });
+      }
+    });
   }
 
   disconnect(): void {
-    this.client.close();
+    if (!this.client) {
+      console.error("no client");
+    }
+    if (this.connected) {
+      this.client.end();
+      this.connected = false;
+      this.client = undefined;
+      console.groupEnd();
+    }
   }
 
-  async cd(dir: string): Promise<void> {
-    if (!this.connected) return Promise.reject("Client is not connected");
-    await this.client.cd(dir);
-    this.emit("ftp-event", { details: "all" });
-    return Promise.resolve();
+  cd(dir: string): Promise<string> {
+    if (!this.client) {
+      console.error("no client");
+    }
+    if (this.connected) {
+      return new Promise((resolve, reject) => {
+        this.client.cwd(dir, (err, current) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(current);
+          this.emit("ftp-event", { details: "all" });
+        });
+      });
+    }
   }
 
-  async get(
-    remoteFile: string,
-    localPath: string,
-    startAt?: number
-  ): Promise<void> {
-    if (!this.connected) return Promise.reject("Client is not connected");
-    await this.client.downloadTo(localPath, remoteFile, startAt);
-    return Promise.resolve();
+  get(file: string): Promise<NodeJS.ReadableStream> {
+    if (!this.client) {
+      console.error("no client");
+    }
+    if (this.connected) {
+      return new Promise((resolve, reject) => {
+        this.client.get(file, (err, fileStream) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(fileStream);
+        });
+      });
+    }
   }
 
-  async put(source: string, destPath: string, emit = true): Promise<void> {
-    if (!this.connected) return Promise.reject("Client is not connected");
-    await this.client.uploadFrom(source, destPath);
-    emit && this.emit("ftp-event", { details: "all" });
-    return Promise.resolve();
+  put(input: NodeJS.ReadableStream | Buffer, destPath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.put(input, destPath, (error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve();
+        this.emit("ftp-event", { details: "all" });
+      });
+    });
   }
 
-  async mkdir(path: string): Promise<void> {
-    await this.client.ensureDir(path);
-    this.emit("ftp-event", { details: "all" });
-    return Promise.resolve();
+  createFolder(path: string, recursive: boolean): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.mkdir(path, recursive, (error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve();
+        this.emit("ftp-event", { details: "all" });
+      });
+    });
   }
 
-  async deleteFile(path: string): Promise<void> {
-    await this.client.remove(path);
-    this.emit("ftp-event", { details: "all" });
-    return Promise.resolve();
+  delete(path: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.delete(path, (error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve();
+        this.emit("ftp-event", { details: "all" });
+      });
+    });
   }
 
-  async rmdir(path: string, recursive = true): Promise<void> {
-    if (recursive) await this.client.removeDir(path);
-    else await this.client.removeEmptyDir(path);
-
-    this.emit("ftp-event", { details: "all" });
-    return Promise.resolve();
+  rmdir(path: string, recursive = true): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.rmdir(path, recursive, (error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve();
+        this.emit("ftp-event", { details: "all" });
+      });
+    });
   }
 
-  async rename(oldPath: string, newPath: string): Promise<void> {
-    await this.client.rename(oldPath, newPath);
-
-    this.emit("ftp-event", { details: "all" });
-    return Promise.resolve();
+  rename(oldPath: string, newPath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.rename(oldPath, newPath, (error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve();
+        this.emit("ftp-event", { details: "all" });
+      });
+    });
   }
+}
 
-  get connected(): boolean {
-    return !this.client.closed;
-  }
+export function convertFileSize(size: number, decimals = 1): string {
+  if (size === 0) return "";
+
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+
+  const i = Math.floor(Math.log(size) / Math.log(k));
+
+  return `${parseFloat((size / Math.pow(k, i)).toFixed(dm))}${sizes[i]}`;
 }
 
 export default FTP;
