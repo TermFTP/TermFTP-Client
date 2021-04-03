@@ -120,7 +120,6 @@ export class ConnectUI extends Component<Props, State> {
       new FTP({
         user: username,
         password,
-        debug: console.log,
         host: ip,
         port: ftpPort || 21,
         sshPort: sshPort || 22,

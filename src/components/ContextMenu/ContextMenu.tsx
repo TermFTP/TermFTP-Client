@@ -5,8 +5,7 @@ import { connect, ConnectedProps } from "react-redux";
 import { ContextMenuProps, setContextMenu } from "@store/filemanager";
 import { PromptProps } from "@components/Prompt/Prompt";
 import { setPrompt, addBubble } from "@store/app";
-import { BubbleModel } from "@models";
-import { uploadFolder, uploadFile, downloadFile, downloadFolder } from "@lib";
+import { BubbleModel, FileType } from "@models";
 import { remote } from "electron";
 import {
   faFileDownload,
@@ -65,7 +64,7 @@ const ContextMenuUI = ({
       icon: faFolderPlus,
     },
   ];
-  if (file?.type === "d") {
+  if (file?.type === FileType.DIR) {
     items = [
       ...items,
       {
@@ -87,7 +86,7 @@ const ContextMenuUI = ({
         icon: faTrashAlt,
       },
     ];
-  } else if (file) {
+  } else if (file?.type === FileType.FILE) {
     items = [
       ...items,
       {
@@ -151,7 +150,6 @@ const ContextMenuUI = ({
   });
 
   function onFolderRename(): void {
-    console.log("ajsj");
     setPrompt({
       fieldName: "Folder name",
       initial: file.name,
@@ -183,39 +181,36 @@ const ContextMenuUI = ({
     });
   }
 
-  function onFolderUpload(): void {
-    remote.dialog
-      .showOpenDialog({ properties: ["openDirectory", "multiSelections"] })
-      .then((res) => {
-        if (res.canceled) return;
-        uploadFolder(client, res.filePaths, addBubble);
-      })
-      .catch((err) => {
-        addBubble("upload-error", {
-          title: "Could not upload folder",
-          message: err.message,
-          type: "ERROR",
-        });
+  async function onFolderUpload(): Promise<void> {
+    try {
+      const res = await remote.dialog.showOpenDialog({
+        properties: ["openDirectory", "multiSelections"],
       });
+      if (res.canceled) return;
+      client.putFolders(res.filePaths);
+    } catch (err) {
+      addBubble("upload-error", {
+        title: "Could not upload folder",
+        message: err.message,
+        type: "ERROR",
+      });
+    }
   }
 
-  function onFileUpload(): void {
-    remote.dialog
-      .showOpenDialog({
+  async function onFileUpload(): Promise<void> {
+    try {
+      const res = await remote.dialog.showOpenDialog({
         properties: ["openFile", "multiSelections"],
-      })
-      .then((res) => {
-        if (res.canceled) return;
-        // console.log(res);
-        uploadFile(client, res.filePaths, addBubble);
-      })
-      .catch((err) => {
-        addBubble("upload-error", {
-          title: "Could not upload file",
-          message: err.message,
-          type: "ERROR",
-        });
       });
+      if (res.canceled) return;
+      client.putFiles(res.filePaths);
+    } catch (err) {
+      addBubble("upload-error", {
+        title: "Could not upload file",
+        message: err.message,
+        type: "ERROR",
+      });
+    }
   }
 
   function onCreateFolder(): void {
@@ -224,7 +219,7 @@ const ContextMenuUI = ({
       initial: "",
       callback: (value: string) => {
         setPrompt(undefined);
-        client.createFolder(value, false).catch((err) => {
+        client.mkdir(value, false).catch((err) => {
           addBubble("mkdir-error", {
             title: err.title || "Failed to create directory",
             message: err.message,
@@ -242,8 +237,8 @@ const ContextMenuUI = ({
         properties: ["createDirectory"],
       })
       .then((path) => {
-        if (path) {
-          downloadFile(client, file, path.filePath);
+        if (path && !path.canceled) {
+          client.get(file.name, path.filePath);
         }
       });
   }
@@ -254,12 +249,13 @@ const ContextMenuUI = ({
         properties: ["createDirectory", "openDirectory"],
       })
       .then((res) => {
-        downloadFolder(client, file, res.filePaths[0]);
+        if (res.canceled) return;
+        client.getFolder(file, res.filePaths[0]);
       });
   }
 
   function onFileDelete(): void {
-    client.delete(file.name).catch(() => {
+    client.deleteFile(file.name).catch(() => {
       addBubble("delete-error", {
         title: `Could not delete file`,
         type: "ERROR",
