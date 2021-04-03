@@ -7,22 +7,15 @@ import { ConnectedProps, connect } from "react-redux";
 import { validateEmail } from "@lib";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
-import { register } from "@store/user";
 import { push } from "connected-react-router";
-import { BubbleModel } from "@models";
-import { addBubble } from "@store/app";
-import { IPCEncryptRequest, IPCEncryptReply } from "@shared/models";
+import { IPCEncryptRequest } from "@shared/models";
 
 import { ipcRenderer } from "electron";
 
 const mapState = () => ({});
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
-  register: (email: string, username: string, password: string) =>
-    dispatch(register(email, username, password)),
   login: () => dispatch(push("login")),
-  addBubble: (key: string, bubble: BubbleModel) =>
-    dispatch(addBubble(key, bubble)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -104,21 +97,18 @@ class RegisterUI extends React.Component<Props, State> {
 
   handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    event.stopPropagation();
     if (!this.state.canRegister) return;
 
     const {
       state: { email, username, password },
-      props: { register },
     } = this;
     ipcRenderer.send("encrypt", {
       caller: "register",
       password,
       username,
+      email,
     } as IPCEncryptRequest);
-    ipcRenderer.on("register-encrypt-reply", (event, args: IPCEncryptReply) => {
-      const [master] = args;
-      register(email, username, master);
-    });
   }
 
   openInBrowser() {
@@ -186,7 +176,14 @@ class RegisterUI extends React.Component<Props, State> {
               />
               <p>
                 {/* TODO make terms of service */}I have read and agree to the{" "}
-                <a href="..">Terms of Service</a> agreement.
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                >
+                  Terms of Service
+                </a>{" "}
+                agreement.
               </p>
             </label>
             <input type="submit" value="Register" disabled={!canRegister} />

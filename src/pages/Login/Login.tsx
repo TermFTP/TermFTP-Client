@@ -1,20 +1,17 @@
 import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DefaultDispatch } from "@store";
-import { login } from "@store/user";
 import React from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./Login.scss";
 import { push } from "connected-react-router";
-import { IPCEncryptReply, IPCEncryptRequest } from "@shared/models";
+import { IPCEncryptRequest } from "@shared/models";
 
 import { ipcRenderer } from "electron";
 
 const mapState = () => ({});
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
-  login: (username: string, password: string) =>
-    dispatch(login(username, password)),
   register: () => dispatch(push("/register")),
 });
 
@@ -75,18 +72,12 @@ class LoginUI extends React.Component<Props, State> {
 
     const {
       state: { username, password },
-      props: { login },
     } = this;
     ipcRenderer.send("encrypt", {
       caller: "login",
       password,
       username,
     } as IPCEncryptRequest);
-    ipcRenderer.on("login-encrypt-reply", (event, args: IPCEncryptReply) => {
-      const [master] = args;
-      // TODO save key
-      login(username, master);
-    });
   }
 
   render() {

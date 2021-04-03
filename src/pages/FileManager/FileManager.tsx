@@ -14,6 +14,8 @@ import React, { Component } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./FileManager.scss";
 import fs from "fs";
+import { HotKeys } from "react-hotkeys";
+import { SearchBox } from "@components";
 
 const mapState = ({
   ftpReducer: { client },
@@ -38,10 +40,13 @@ interface State {
   list: FileI[];
   plusOpen: boolean;
   dragging: boolean;
+  searching: boolean;
 }
 
 export class FileManagerUI extends Component<Props, State> {
   counter = 0;
+  keyMap = {};
+  handlers = {};
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -49,8 +54,21 @@ export class FileManagerUI extends Component<Props, State> {
       list: [],
       plusOpen: false,
       dragging: false,
+      searching: false,
     };
     (window as any).refreshFTP = this.onConnected;
+
+    this.keyMap = {
+      SEARCH: "ctrl+f",
+    };
+
+    this.handlers = {
+      SEARCH: () => {
+        this.setState({
+          searching: true,
+        });
+      },
+    };
   }
   componentDidMount(): void {
     if (this.props.client && !this.props.client?.connected) {
@@ -71,6 +89,9 @@ export class FileManagerUI extends Component<Props, State> {
 
   // eslint-disable-next-line
   onChange = async (args: FTPEventDetails): Promise<void> => {
+    document
+      .getElementById("search-box")
+      .getElementsByTagName("input")[0].value = "";
     const pwd = await this.props.client.pwd();
     const list = await this.props.client.list(undefined);
     this.setState({ list, pwd });
@@ -150,10 +171,36 @@ export class FileManagerUI extends Component<Props, State> {
     this.props.client.putFiles(files);
   };
 
+  onSearch = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    //search item and scroll to it and hightlight it?
+    const query = event.target.value;
+
+    const highlighted = document.getElementsByClassName("file-highlight");
+
+    const results = document.querySelectorAll(
+      `[data-name*="${query.toLowerCase()}"]`
+    ) as NodeListOf<HTMLElement>;
+
+    [...highlighted].forEach((hs) => {
+      if (
+        !hs.getAttribute("data-name").includes(query.toLowerCase()) ||
+        query.length == 0
+      ) {
+        hs.classList.remove("file-highlight");
+      }
+    });
+
+    if (results.length == 0) return;
+
+    results[0].scrollIntoView(true);
+    results.forEach((e) => e.classList.add("file-highlight"));
+  };
+
   render(): JSX.Element {
     const connected = Boolean(this.props.client?.connected);
     const dotdotExists =
       this.state.list.filter((f) => f.name == "..").length > 0;
+    const { searching, pwd } = this.state;
 
     const filtered = this.state.list.filter(
       (f) => !(f.name == ".." || f.name == ".")
@@ -186,8 +233,18 @@ export class FileManagerUI extends Component<Props, State> {
           onDragLeave={this.onDragLeave}
         >
           {connected && (
-            <>
+            <HotKeys
+              keyMap={this.keyMap}
+              handlers={this.handlers}
+              id="file-manager"
+            >
               <div id="file-manager-pwd">{this.state.pwd}</div>
+
+              <SearchBox
+                onSearch={this.onSearch}
+                searching={searching}
+                setSearching={(s) => this.setState({ searching: s })}
+              />
               <div id="file-manager-files" onContextMenu={this.onContextMenu}>
                 <div className="file-wrapper">
                   <div className="file">
@@ -197,7 +254,8 @@ export class FileManagerUI extends Component<Props, State> {
                     <div className="file-last">Last Modified</div>
                   </div>
                 </div>
-                {this.state.pwd !== "/" && !dotdotExists && (
+
+                {pwd !== "/" && !dotdotExists && (
                   <File
                     ftp={this.props.client}
                     file={{
@@ -208,6 +266,7 @@ export class FileManagerUI extends Component<Props, State> {
                     }}
                   ></File>
                 )}
+
                 {filtered.map((file) => (
                   <File
                     ftp={this.props.client}
@@ -227,7 +286,7 @@ export class FileManagerUI extends Component<Props, State> {
                 </button>
                 <ContextMenu></ContextMenu>
               </div>
-            </>
+            </HotKeys>
           )}
         </div>
         <div id="file-manager-bottom">

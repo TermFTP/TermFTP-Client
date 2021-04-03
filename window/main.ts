@@ -1,15 +1,7 @@
-import { join, normalize } from "path";
-import {
-  app,
-  BrowserWindow,
-  Menu,
-  MenuItem,
-  webFrame,
-  protocol,
-} from "electron";
+import { join } from "path";
+import { app, BrowserWindow, Menu, MenuItem } from "electron";
 import isDev from "electron-is-dev";
 import dotenv from "dotenv";
-import { pathExists } from "fs-extra";
 import "./ipc";
 
 dotenv.config();
@@ -34,10 +26,11 @@ function createWindow(): void {
     resizable: true,
     minHeight: 400,
     minWidth: 400,
+    icon: join(app.getAppPath(), "assets", "logo.ico"),
   });
 
   if (isDev) {
-    win.loadURL("http://localhost:3000");
+    win.loadURL("http://localhost:14000");
     win.webContents.openDevTools();
   } else {
     win.loadURL(`file://${join(__dirname, "./index.html")}`);

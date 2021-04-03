@@ -1,7 +1,11 @@
 import { Bubbles, Header, Loading, Prompt, Settings } from "@components";
 import { FileManager, Login, Main, Register, ToS, Welcome } from "@pages";
+import { IPCEncryptReply } from "@shared/models";
+import { login, register } from "@store/user";
 import { ConnectedRouter } from "connected-react-router";
+import { ipcRenderer } from "electron";
 import React from "react";
+import { useDispatch } from "react-redux";
 import { Route, Switch } from "react-router";
 import "./App.scss";
 import { history } from "./configureStore";
@@ -15,6 +19,19 @@ import "./variables.scss";
 // type Props = PropsFromState;
 
 export function App(): JSX.Element {
+  const dispatch = useDispatch();
+  ipcRenderer.removeAllListeners("register-encrypt-reply");
+  ipcRenderer.on("register-encrypt-reply", (event, args: IPCEncryptReply) => {
+    const [master, , username, email] = args;
+    dispatch(register(email, username, master));
+  });
+  ipcRenderer.removeAllListeners("login-encrypt-reply");
+  ipcRenderer.on("login-encrypt-reply", (event, args: IPCEncryptReply) => {
+    const [master, , username] = args;
+    // TODO save key
+    dispatch(login(username, master));
+  });
+
   return (
     <div id="app">
       <Header></Header>
