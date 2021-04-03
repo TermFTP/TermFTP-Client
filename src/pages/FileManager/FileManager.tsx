@@ -91,6 +91,10 @@ export class FileManagerUI extends Component<Props, State> {
 
   // eslint-disable-next-line
   onChange = (args: FTPEventDetails): void => {
+    document
+      .getElementById("search-box")
+      .getElementsByTagName("input")[0].value = "";
+
     this.props.client.pwd().then((pwd) => {
       this.setState({ pwd });
     });
@@ -189,20 +193,14 @@ export class FileManagerUI extends Component<Props, State> {
       `[data-name*="${query.toLowerCase()}"]`
     ) as NodeListOf<HTMLElement>;
 
-    console.log("query", query);
-    console.log("results", results);
-    console.log("high", highlighted);
-
-    for (const hs of highlighted) {
-      console.log("00");
+    [...highlighted].forEach((hs) => {
       if (
         !hs.getAttribute("data-name").includes(query.toLowerCase()) ||
         query.length == 0
       ) {
-        console.log("aa");
         hs.classList.remove("file-highlight");
       }
-    }
+    });
 
     if (results.length == 0) return;
 

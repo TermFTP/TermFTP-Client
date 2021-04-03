@@ -101,7 +101,7 @@
     "electron-pack": "electron-builder -c.extraMetadata.main=build/window/main.js --publish=never",
     "dev": "cross-env PORT=14000 BROWSER=none NODE_ENV=development npm run devScript",
     "devScript": "concurrently \"npm run start\" \"npm run dev:electronBuild\" \"wait-on http://localhost:14000 && npm run dev:watchElectron\"",
-    "dev:electron": "concurrently \"npm run dev:electronBuild\" \"npm run dev:watchElectron\"",
+    "dev:electron": "cross-env NODE_ENV=development concurrently \"npm run dev:electronBuild\" \"npm run dev:watchElectron\"",
     "dev:electronBuild": "tsc --preserveWatchOutput -w -p tsconfig.electron.json",
     "dev:watchElectron": "nodemon -w build/window -w build/shared --exec \"npm run electron\""
   },
