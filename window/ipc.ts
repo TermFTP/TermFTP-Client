@@ -16,10 +16,13 @@ ipcMain.on("encrypt", (event, arg: IPCEncryptRequest) => {
 
   const master = pbkdf2Sync(key, salt, EncryptionType.MASTER, 64, "sha256");
 
-  event.reply(arg.caller + "-encrypt-reply", [
-    master.toString("hex"),
-    key.toString("hex"),
-  ] as IPCEncryptReply);
+  let res: IPCEncryptReply = [master.toString("hex"), key.toString("hex"), arg.username];
+  if (arg.caller === "register") {
+    res = [...res, arg.email];
+  }
+  console.log(arg.caller)
+
+  event.reply(arg.caller + "-encrypt-reply", res);
 });
 
 /**

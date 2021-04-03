@@ -11,9 +11,10 @@ export interface IPCEncryptRequest {
   caller: string;
   password: string;
   username: string;
+  email?: string;
 }
 
 /**
  * the first element is the master key and the second element is the actual key
  */
-export type IPCEncryptReply = [string, string];
+export type IPCEncryptReply = [string, string, string] | [string, string, string, string];
