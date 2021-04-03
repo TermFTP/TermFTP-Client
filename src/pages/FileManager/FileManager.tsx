@@ -3,18 +3,16 @@ import File from "@components/File/File";
 import { faCircle } from "@fortawesome/free-regular-svg-icons";
 import { faCog, faPlus, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { FTPEventDetails, uploadFile } from "@lib";
-import { BubbleModel, HistoryReq } from "@models";
+import { FTPEventDetails } from "@lib";
+import { BubbleModel, FileI, FileType, HistoryReq } from "@models";
 import { DefaultDispatch, RootState } from "@store";
 import { addBubble, setSettings } from "@store/app";
 import { ContextMenuProps, setContextMenu } from "@store/filemanager";
 import { historyItem } from "@store/lists";
-import Client from "ftp";
 import { hostname } from "os";
 import React, { Component } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./FileManager.scss";
-import { uploadFolder } from "@lib";
 import fs from "fs";
 
 const mapState = ({
@@ -37,7 +35,7 @@ type Props = PropsFromState;
 
 interface State {
   pwd: string;
-  list: Client.ListingElement[];
+  list: FileI[];
   plusOpen: boolean;
   dragging: boolean;
 }
@@ -72,26 +70,14 @@ export class FileManagerUI extends Component<Props, State> {
   }
 
   // eslint-disable-next-line
-  onChange = (args: FTPEventDetails): void => {
-    this.props.client.pwd().then((pwd) => {
-      this.setState({ pwd });
-    });
-    this.props.client.list(undefined).then((list) => {
-      list = list.sort((a, b) => {
-        if (a.type === b.type) {
-          return a.name.localeCompare(b.name);
-        }
-        if (a.type === "d") {
-          return -1;
-        }
-        return 1;
-      });
-      this.setState({ list });
-    });
+  onChange = async (args: FTPEventDetails): Promise<void> => {
+    const pwd = await this.props.client.pwd();
+    const list = await this.props.client.list(undefined);
+    this.setState({ list, pwd });
   };
 
   onConnected = (): void => {
-    this.forceUpdate();
+    // this.forceUpdate();
     this.props.historyItem({
       ...this.props.client.config,
       device: hostname(),
@@ -130,7 +116,6 @@ export class FileManagerUI extends Component<Props, State> {
   onDragEnter = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
     e.stopPropagation();
-    console.log(JSON.stringify(e.dataTransfer));
     this.counter++;
     this.setState({ dragging: true });
   };
@@ -145,20 +130,24 @@ export class FileManagerUI extends Component<Props, State> {
     }
   };
 
-  onDrop = (event: React.DragEvent<HTMLDivElement>): void => {
+  onDrop = async (event: React.DragEvent<HTMLDivElement>): Promise<void> => {
     event.preventDefault();
     event.stopPropagation();
     this.counter = 0;
     this.setState({ dragging: false });
+    const files = [];
+    const folders = [];
     for (const file of event.dataTransfer.files) {
       const p = file.path;
 
       if (fs.statSync(p).isDirectory()) {
-        uploadFolder(this.props.client, [p], this.props.addBubble);
+        folders.push(p);
       } else if (fs.statSync(p).isFile()) {
-        uploadFile(this.props.client, [p], this.props.addBubble);
+        files.push(p);
       }
     }
+    this.props.client.putFolders(folders);
+    this.props.client.putFiles(files);
   };
 
   render(): JSX.Element {
@@ -211,7 +200,12 @@ export class FileManagerUI extends Component<Props, State> {
                 {this.state.pwd !== "/" && !dotdotExists && (
                   <File
                     ftp={this.props.client}
-                    file={{ size: 0, name: "..", type: "d", date: undefined }}
+                    file={{
+                      size: 0,
+                      name: "..",
+                      type: FileType.DIR,
+                      date: undefined,
+                    }}
                   ></File>
                 )}
                 {filtered.map((file) => (

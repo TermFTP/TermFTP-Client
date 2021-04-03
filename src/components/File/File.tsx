@@ -1,9 +1,9 @@
 import { faFile, faFolder } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { convertFileSize, FTP } from "@lib";
+import { BaseFTP, convertFileSize } from "@lib";
+import { FileI, FileType } from "@models";
 import { DefaultDispatch } from "@store";
 import { ContextMenuProps, setContextMenu } from "@store/filemanager";
-import Client from "ftp";
 import React from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./File.scss";
@@ -18,8 +18,8 @@ const connector = connect(mapState, mapDispatch);
 
 type PropsFromState = ConnectedProps<typeof connector>;
 type Props = PropsFromState & {
-  file: Client.ListingElement;
-  ftp: FTP;
+  file: FileI;
+  ftp: BaseFTP;
 };
 
 function FileUI({ file, ftp, setContextMenu }: Props): JSX.Element {
@@ -39,16 +39,16 @@ function FileUI({ file, ftp, setContextMenu }: Props): JSX.Element {
     <div className="file-wrapper">
       <div
         className={`file file-${file.type}`}
-        onDoubleClick={() => {
-          if (file.type === "d") {
-            ftp.cd(file.name);
+        onDoubleClick={async () => {
+          if (file.type === FileType.DIR) {
+            await ftp.cd(file.name);
           }
         }}
         onContextMenuCapture={onContextMenu}
       >
         <div className="file-type">
           <FontAwesomeIcon
-            icon={file.type === "d" ? faFolder : faFile}
+            icon={file.type === FileType.DIR ? faFolder : faFile}
           ></FontAwesomeIcon>
         </div>
         <div className="file-name">{file.name}</div>
