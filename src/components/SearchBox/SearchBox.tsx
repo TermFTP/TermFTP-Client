@@ -29,7 +29,7 @@ export function SearchBox({
   if (searching) {
     ref.current?.focus();
   } else {
-    ref.current?.parentElement.parentElement.focus();
+    // ref.current?.parentElement.parentElement.focus();
   }
   return (
     <div
@@ -41,7 +41,6 @@ export function SearchBox({
         type="text"
         // defaultValue={value}
         placeholder="search..."
-        autoFocus
         onBlur={() => setSearching(false)}
         onKeyUp={onKeyUp}
         onFocus={handleFocus}

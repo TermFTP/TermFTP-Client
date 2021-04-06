@@ -1,7 +1,12 @@
 import { ContextMenu } from "@components";
 import File from "@components/File/File";
 import { faCircle } from "@fortawesome/free-regular-svg-icons";
-import { faCog, faPlus, faUpload } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCog,
+  faPlus,
+  faSync,
+  faUpload,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FTPEventDetails } from "@lib";
 import { BubbleModel, FileI, FileType, HistoryReq } from "@models";
@@ -60,6 +65,7 @@ export class FileManagerUI extends Component<Props, State> {
 
     this.keyMap = {
       SEARCH: "ctrl+f",
+      RELOAD: "F5",
     };
 
     this.handlers = {
@@ -68,10 +74,14 @@ export class FileManagerUI extends Component<Props, State> {
           searching: true,
         });
       },
+      RELOAD: () => {
+        this.onChange();
+      },
     };
   }
   componentDidMount(): void {
-    if (this.props.client && !this.props.client?.connected) {
+    console.log("myu g");
+    if (this.props.client) {
       this.props.client.connect().then(this.onConnected);
       this.props.client.on("ftp-event", this.onChange);
     }
@@ -88,9 +98,10 @@ export class FileManagerUI extends Component<Props, State> {
   }
 
   // eslint-disable-next-line
-  onChange = async (args: FTPEventDetails): Promise<void> => {
-    const searchBox = document.getElementById("search-box");
-    if (searchBox) searchBox.getElementsByTagName("input")[0].value = "";
+  onChange = async (args?: FTPEventDetails): Promise<void> => {
+    // const searchBox = document.getElementById("search-box");
+    // if (searchBox) searchBox.getElementsByTagName("input")[0].value = "";
+    console.log("a");
     const pwd = await this.props.client.pwd();
     const list = await this.props.client.list(undefined);
     this.setState({ list, pwd });
@@ -208,9 +219,16 @@ export class FileManagerUI extends Component<Props, State> {
 
     return (
       <div id="file-manager">
-        <div id="file-manager-settings">
+        <div id="file-manager-top">
           <button
-            className="connect-settings-btn"
+            className="file-manager-btn file-manager-reload"
+            onClick={() => this.onChange()}
+          >
+            <FontAwesomeIcon icon={faSync}></FontAwesomeIcon>
+          </button>
+          <div id="file-manager-pwd">{this.state.pwd}</div>
+          <button
+            className="file-manager-btn"
             onClick={this.props.openSettings}
           >
             <FontAwesomeIcon icon={faCog}></FontAwesomeIcon>
@@ -232,62 +250,62 @@ export class FileManagerUI extends Component<Props, State> {
           onDragEnter={this.onDragEnter}
           onDragLeave={this.onDragLeave}
         >
-          {connected && (
-            <HotKeys
-              keyMap={this.keyMap}
-              handlers={this.handlers}
-              id="file-manager"
-            >
-              <div id="file-manager-pwd">{this.state.pwd}</div>
-
-              <SearchBox
-                onSearch={this.onSearch}
-                searching={searching}
-                setSearching={(s) => this.setState({ searching: s })}
-              />
-              <div id="file-manager-files" onContextMenu={this.onContextMenu}>
-                <div className="file-wrapper">
-                  <div className="file">
-                    <div className="file-type"></div>
-                    <div className="file-name">Name</div>
-                    <div className="file-size">Size</div>
-                    <div className="file-last">Last Modified</div>
+          <HotKeys
+            keyMap={this.keyMap}
+            handlers={this.handlers}
+            id="file-manager"
+          >
+            <SearchBox
+              onSearch={this.onSearch}
+              searching={searching}
+              setSearching={(s) => this.setState({ searching: s })}
+            />
+            {connected && (
+              <>
+                <div id="file-manager-files" onContextMenu={this.onContextMenu}>
+                  <div className="file-wrapper">
+                    <div className="file">
+                      <div className="file-type"></div>
+                      <div className="file-name">Name</div>
+                      <div className="file-size">Size</div>
+                      <div className="file-last">Last Modified</div>
+                    </div>
                   </div>
+
+                  {pwd !== "/" && !dotdotExists && (
+                    <File
+                      ftp={this.props.client}
+                      file={{
+                        size: 0,
+                        name: "..",
+                        type: FileType.DIR,
+                        date: undefined,
+                      }}
+                    ></File>
+                  )}
+
+                  {filtered.map((file) => (
+                    <File
+                      ftp={this.props.client}
+                      file={file}
+                      key={`${file.type}-${file.name}`}
+                    ></File>
+                  ))}
                 </div>
-
-                {pwd !== "/" && !dotdotExists && (
-                  <File
-                    ftp={this.props.client}
-                    file={{
-                      size: 0,
-                      name: "..",
-                      type: FileType.DIR,
-                      date: undefined,
-                    }}
-                  ></File>
-                )}
-
-                {filtered.map((file) => (
-                  <File
-                    ftp={this.props.client}
-                    file={file}
-                    key={`${file.type}-${file.name}`}
-                  ></File>
-                ))}
-              </div>
-              <div
-                id="file-manager-plus"
-                className={`${
-                  this.state.plusOpen ? "file-manager-plus-opened" : ""
-                }`}
-              >
-                <button id="file-manager-plus-btn" onClick={this.onPlus}>
-                  <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
-                </button>
-                <ContextMenu></ContextMenu>
-              </div>
-            </HotKeys>
-          )}
+                <div
+                  id="file-manager-plus"
+                  className={`${
+                    this.state.plusOpen ? "file-manager-plus-opened" : ""
+                  }`}
+                >
+                  <button id="file-manager-plus-btn" onClick={this.onPlus}>
+                    <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
+                  </button>
+                  <ContextMenu></ContextMenu>
+                </div>
+              </>
+            )}
+          </HotKeys>
         </div>
         <div id="file-manager-bottom">
           <div

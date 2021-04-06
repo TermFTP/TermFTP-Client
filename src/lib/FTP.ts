@@ -50,6 +50,7 @@ export class FTP extends BaseFTP {
   }
 
   async connect(): Promise<void> {
+    console.log("connected")
     await this.client.access(this.config);
     this._pwd = await this.client.pwd();
   }
@@ -57,7 +58,9 @@ export class FTP extends BaseFTP {
   async pwd(): Promise<string> {
     if (this.client.closed) {
       try {
-        await this.client.connect();
+        const pwd = this._pwd;
+        await this.client.access(this.config);
+        await this.client.cd(pwd);
       } catch (e) {
         return Promise.reject("not connected")
       }
@@ -70,7 +73,9 @@ export class FTP extends BaseFTP {
   async list(dir?: string): Promise<FileI[]> {
     if (this.client.closed) {
       try {
-        await this.client.connect();
+        const pwd = this._pwd;
+        await this.client.access(this.config);
+        await this.client.cd(pwd);
       } catch (e) {
         return Promise.reject("not connected")
       }
@@ -95,7 +100,11 @@ export class FTP extends BaseFTP {
   }
 
   disconnect(): void {
-    !this.client.closed && this.client.close();
+    try {
+      !this.client.closed && this.client.close();
+    } catch (e) {
+      //
+    }
   }
 
   async cd(dir: string): Promise<void> {
