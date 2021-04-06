@@ -155,7 +155,7 @@ const ListUI = ({
         {group?.server?.sort(compareServers).map((s) => (
           <ServerItem
             connect={connect}
-            key={s.serverID}
+            key={s.serverID || s.ip}
             server={s}
           ></ServerItem>
         ))}
@@ -166,7 +166,7 @@ const ListUI = ({
         .map((g) => (
           <List
             connect={connect}
-            key={g.groupID}
+            key={g.groupID || g.name}
             group={g}
             newGroups={newGroups}
             showOnNoItems={true}

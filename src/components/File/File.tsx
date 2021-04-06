@@ -3,7 +3,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { BaseFTP, convertFileSize } from "@lib";
 import { FileI, FileType } from "@models";
 import { DefaultDispatch } from "@store";
-import { ContextMenuProps, setContextMenu } from "@store/filemanager";
+import {
+  ContextMenuProps,
+  setContextMenu,
+  setFMLoading,
+} from "@store/filemanager";
 import React from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./File.scss";
@@ -12,6 +16,7 @@ const mapState = () => ({});
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   setContextMenu: (contextMenu: ContextMenuProps) =>
     dispatch(setContextMenu(contextMenu)),
+  setFMLoading: (loading: boolean) => dispatch(setFMLoading(loading)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -22,7 +27,12 @@ type Props = PropsFromState & {
   ftp: BaseFTP;
 };
 
-function FileUI({ file, ftp, setContextMenu }: Props): JSX.Element {
+function FileUI({
+  file,
+  ftp,
+  setContextMenu,
+  setFMLoading,
+}: Props): JSX.Element {
   function onContextMenu(
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ): void {
@@ -41,7 +51,9 @@ function FileUI({ file, ftp, setContextMenu }: Props): JSX.Element {
       data-name={file.name.toLowerCase()}
       onDoubleClick={async () => {
         if (file.type === FileType.DIR) {
-          await ftp.cd(file.name);
+          setFMLoading(true);
+          await ftp.cd(file.name, true);
+          ftp.forceUpdate();
         }
       }}
       onContextMenuCapture={onContextMenu}

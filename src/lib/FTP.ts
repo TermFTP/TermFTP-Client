@@ -22,7 +22,7 @@ export class FTP extends BaseFTP {
   }
   private poolOpts: Options = {
     max: 4,
-    min: 1
+    min: 0
   }
   private pool: Pool<Client>;
   private client: Client;
@@ -50,7 +50,6 @@ export class FTP extends BaseFTP {
   }
 
   async connect(): Promise<void> {
-    console.log("connected")
     await this.client.access(this.config);
     this._pwd = await this.client.pwd();
   }
@@ -107,7 +106,7 @@ export class FTP extends BaseFTP {
     }
   }
 
-  async cd(dir: string): Promise<void> {
+  async cd(dir: string, noEmit = false): Promise<void> {
     if (this.client.closed) {
       try {
         const pwd = this._pwd;
@@ -120,7 +119,7 @@ export class FTP extends BaseFTP {
 
     await this.client.cd(dir);
     await this.pwd();
-    this.emit("ftp-event", { details: "all" });
+    !noEmit && this.emit("ftp-event", { details: "all" });
   }
 
   async get(

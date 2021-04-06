@@ -12,7 +12,11 @@ import { FTPEventDetails } from "@lib";
 import { BubbleModel, FileI, FileType, HistoryReq } from "@models";
 import { DefaultDispatch, RootState } from "@store";
 import { addBubble, setSettings } from "@store/app";
-import { ContextMenuProps, setContextMenu } from "@store/filemanager";
+import {
+  ContextMenuProps,
+  setContextMenu,
+  setFMLoading,
+} from "@store/filemanager";
 import { historyItem } from "@store/lists";
 import { hostname } from "os";
 import React, { Component } from "react";
@@ -21,11 +25,13 @@ import "./FileManager.scss";
 import fs from "fs";
 import { HotKeys } from "react-hotkeys";
 import { SearchBox } from "@components";
+import { push } from "connected-react-router";
 
 const mapState = ({
   ftpReducer: { client },
-  fmReducer: { menu },
-}: RootState) => ({ client, menu });
+  fmReducer: { menu, loading },
+}: RootState) => ({ client, menu, loading });
+
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   historyItem: (req: HistoryReq) => dispatch(historyItem(req)),
   openSettings: () => dispatch(setSettings(true)),
@@ -33,6 +39,8 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
     dispatch(setContextMenu(contextMenu)),
   addBubble: (key: string, bubble: BubbleModel) =>
     dispatch(addBubble(key, bubble)),
+  setFMLoading: (loading: boolean) => dispatch(setFMLoading(loading)),
+  push: (path: string) => dispatch(push(path)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -80,9 +88,20 @@ export class FileManagerUI extends Component<Props, State> {
     };
   }
   componentDidMount(): void {
-    console.log("myu g");
     if (this.props.client) {
-      this.props.client.connect().then(this.onConnected);
+      this.props.client
+        .connect()
+        .then(this.onConnected)
+        .catch((e: Error) => {
+          this.props.addBubble("connect-error", {
+            title: `failed to connect to ${
+              this.props.client.config.host || ""
+            }`,
+            type: "ERROR",
+            message: e.message,
+          });
+          this.props.push("/main");
+        });
       this.props.client.on("ftp-event", this.onChange);
     }
   }
@@ -101,10 +120,10 @@ export class FileManagerUI extends Component<Props, State> {
   onChange = async (args?: FTPEventDetails): Promise<void> => {
     // const searchBox = document.getElementById("search-box");
     // if (searchBox) searchBox.getElementsByTagName("input")[0].value = "";
-    console.log("a");
     const pwd = await this.props.client.pwd();
     const list = await this.props.client.list(undefined);
     this.setState({ list, pwd });
+    this.props.setFMLoading(false);
   };
 
   onConnected = (): void => {
@@ -291,6 +310,17 @@ export class FileManagerUI extends Component<Props, State> {
                       key={`${file.type}-${file.name}`}
                     ></File>
                   ))}
+
+                  {this.props.loading && (
+                    <div id="file-manager-loading">
+                      <div>
+                        <div className="first"></div>
+                        <div className="second"></div>
+                        <div className="third"></div>
+                        <div className="fourth"></div>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div
                   id="file-manager-plus"

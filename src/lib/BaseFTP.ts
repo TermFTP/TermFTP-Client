@@ -19,7 +19,7 @@ export abstract class BaseFTP extends EventEmitter {
 
   abstract pwd(): Promise<string>;
   abstract list(dir?: string): Promise<FileI[]>;
-  abstract cd(dir: string): Promise<void>;
+  abstract cd(dir: string, noEmit?: boolean): Promise<void>;
   abstract get(
     remoteFile: string,
     localPath: string,

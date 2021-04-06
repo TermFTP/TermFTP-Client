@@ -5,6 +5,7 @@ export const initialState: FMState = {
   menu: {
     isOpen: false,
   },
+  loading: false
 };
 
 export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
@@ -17,6 +18,12 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
           ...action.payload,
         },
       };
+
+    case FMTypes.SET_FM_LOADING:
+      return {
+        ...state,
+        loading: action.payload
+      }
     default:
       return state;
   }

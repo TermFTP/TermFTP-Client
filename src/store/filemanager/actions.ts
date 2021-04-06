@@ -15,3 +15,8 @@ export const setContextMenu = (client: ContextMenuProps): Ret => ({
   type: FMTypes.SET_CONTEXT_MENU,
   payload: client,
 });
+
+export const setFMLoading = (loading: boolean): Ret => ({
+  type: FMTypes.SET_FM_LOADING,
+  payload: loading
+})
