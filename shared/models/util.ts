@@ -18,3 +18,25 @@ export interface IPCEncryptRequest {
  * the first element is the master key and the second element is the actual key
  */
 export type IPCEncryptReply = [string, string, string] | [string, string, string, string];
+
+export interface IPCGetKeyRequest {
+  caller: string;
+  key: string;
+}
+
+/**
+ * the first element is true if the request was successful
+ * the second element is the value (if it does not exist, it is undefined)
+ */
+export type IPCGetKeyReply = [boolean, string]
+
+export interface IPCSaveKeyRequest {
+  caller: string;
+  key: string;
+  value: string;
+}
+
+/**
+ * if the request was successful
+ */
+export type IPCSaveKeyReply = boolean;
