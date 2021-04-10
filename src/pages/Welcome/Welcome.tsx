@@ -24,9 +24,8 @@ function WelcomeUI({ pushPath }: Props) {
         <button onClick={() => pushPath("/login")}>Login</button>
         <button onClick={() => pushPath("/register")}>Register</button>
       </div>
-      <button className="welcome-guest">
+      <button className="welcome-guest" onClick={() => pushPath("/main")}>
         Continue as Guest
-        {/* TODO also make guest mode */}
       </button>
     </div>
   );
