@@ -42,7 +42,6 @@
     "generic-pool": "^3.7.2",
     "history": "^4.10.1",
     "html-webpack-plugin": "4.5.0",
-    "idb": "^6.0.0",
     "identity-obj-proxy": "3.0.0",
     "jest": "26.6.0",
     "jest-circus": "26.6.0",
