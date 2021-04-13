@@ -1,5 +1,4 @@
 import { Endpoints } from "@lib";
-import { LocalEndpoints } from "@lib/LocalEndpoints";
 import {
   GroupsRes,
   HistoryReq,
@@ -51,8 +50,14 @@ const basic: ListsThunk = (
     try {
       let json: DefaultResponse;
 
-      if(!Endpoints.getInstance().headers["Access-Token"])
-        json = LocalEndpoints.getInstance()[method](req);
+      if(!Endpoints.getInstance().headers["Access-Token"]){
+        //nothing
+        json = {
+          status: 200,
+          data: [],
+          message: "This is the guest mode!"
+        };
+      }
       else
         json = await Endpoints.getInstance()[method](req);
 
