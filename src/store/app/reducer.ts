@@ -9,6 +9,7 @@ export const initialState: AppState = {
   },
   settingsOpen: false,
   prompt: undefined,
+  autoLoggedIn: false
 };
 
 export const appReducer: Reducer<AppState> = (state = initialState, action) => {

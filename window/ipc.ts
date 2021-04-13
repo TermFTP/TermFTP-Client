@@ -6,12 +6,12 @@ import {
   IPCGetKeyRequest,
   IPCGetKeyReply,
   IPCSaveKeyRequest,
-  IPCSaveKeyReply
+  IPCSaveKeyReply,
 } from "../shared/models";
 import { pbkdf2Sync } from "crypto";
 import keytar from "keytar";
 
-ipcMain.on("encrypt", (event, args: IPCEncryptRequest) => {
+ipcMain.handle("encrypt", (event, args: IPCEncryptRequest) => {
   //do the hot stuff
 
   const salt = Buffer.from(args.username, "utf-8");
@@ -21,12 +21,14 @@ ipcMain.on("encrypt", (event, args: IPCEncryptRequest) => {
 
   const master = pbkdf2Sync(key, salt, EncryptionType.MASTER, 64, "sha256");
 
-  let res: IPCEncryptReply = [master.toString("hex"), key.toString("hex"), args.username];
+  let res: any = [master.toString("hex"), key.toString("hex"), args.username];
   if (args.caller === "register") {
     res = [...res, args.email];
+  } else {
+    res = [...res, args.autoLogin];
   }
 
-  event.reply(args.caller + "-encrypt-reply", res);
+  return res as IPCEncryptReply;
 });
 
 const dragIcon = nativeImage.createFromPath("assets/logo.png");
@@ -44,20 +46,20 @@ ipcMain.on("ondragstart", (event, filePath) => {
 // }}
 // draggable={true}
 
-ipcMain.on("get-key", async (event, args: IPCGetKeyRequest) => {
+ipcMain.handle("get-key", async (event, args: IPCGetKeyRequest): Promise<IPCGetKeyReply> => {
   try {
     const get = await keytar.getPassword("TermFTP", args.key);
-    event.reply(`${args.caller}-get-key-reply`, [true, get] as IPCGetKeyReply);
+    return { result: true, val: get };
   } catch (e) {
-    event.reply(`${args.caller}-get-key-reply`, [false, undefined] as IPCGetKeyReply);
+    return { result: false, val: undefined, err: e };
   }
 });
 
-ipcMain.on("save-key", async (event, args: IPCSaveKeyRequest) => {
+ipcMain.handle("save-key", async (event, args: IPCSaveKeyRequest): Promise<IPCSaveKeyReply> => {
   try {
     await keytar.setPassword("TermFTP", args.key, args.value);
-    event.reply(`${args.caller}-save-key-reply`, true as IPCSaveKeyReply);
+    return { result: true };
   } catch (e) {
-    event.reply(`${args.caller}-save-key-reply`, false as IPCSaveKeyReply);
+    return { result: false, err: e };
   }
 });

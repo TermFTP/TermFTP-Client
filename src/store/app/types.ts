@@ -7,6 +7,7 @@ export enum AppActionTypes {
   SET_SETTINGS = "app/set-settings",
   ADD_BUBBLE = "app/add-bubble",
   REMOVE_BUBBLE = "app/remove-bubble",
+  SET_AUTO_LOGGED_IN = "app/set-auto-logged-in"
 }
 
 export interface AppState {
@@ -16,4 +17,5 @@ export interface AppState {
   };
   settingsOpen: boolean;
   prompt: PromptProps;
+  autoLoggedIn: boolean;
 }
