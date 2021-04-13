@@ -52,3 +52,10 @@ export const removeBubble = (key: string): Ret => {
     },
   };
 };
+
+export const setAutoLoggedIn = (autoLoggedIn: boolean): Ret => {
+  return {
+    type: AppActionTypes.SET_AUTO_LOGGED_IN,
+    payload: autoLoggedIn
+  }
+}

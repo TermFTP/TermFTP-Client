@@ -5,14 +5,25 @@ import React from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./Login.scss";
 import { push } from "connected-react-router";
-import { IPCEncryptRequest } from "@shared/models";
+import {
+  IPCEncryptReply,
+  IPCEncryptRequest,
+  IPCSaveKeyReply,
+  IPCSaveKeyRequest,
+} from "@shared/models";
 
 import { ipcRenderer } from "electron";
+import { BubbleModel } from "@models";
+import { addBubble } from "@store/app";
+import { login } from "@store/user";
 
 const mapState = () => ({});
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   register: () => dispatch(push("/register")),
+  addBubble: (key: string, bubble: BubbleModel) =>
+    dispatch(addBubble(key, bubble)),
+  login: (username: string, pw: string) => dispatch(login(username, pw)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -23,12 +34,14 @@ type Props = PropsFromState;
 interface State {
   username: string;
   password: string;
+  autoLogin: boolean;
   canRegister: boolean;
 }
 
 enum Change {
   USERNAME,
   PASSWORD,
+  AUTOLOGIN,
 }
 
 class LoginUI extends React.Component<Props, State> {
@@ -36,6 +49,7 @@ class LoginUI extends React.Component<Props, State> {
     super(props);
     this.state = {
       canRegister: false,
+      autoLogin: true,
       username: "",
       password: "",
     };
@@ -52,6 +66,9 @@ class LoginUI extends React.Component<Props, State> {
       case Change.PASSWORD:
         upd = { ...upd, password: event.target.value };
         break;
+      case Change.AUTOLOGIN:
+        upd = { ...upd, autoLogin: event.target.checked };
+        break;
       default:
         break;
     }
@@ -65,23 +82,56 @@ class LoginUI extends React.Component<Props, State> {
     this.setState(upd);
   }
 
-  handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     event.stopPropagation();
     if (!this.state.canRegister) return;
 
     const {
-      state: { username, password },
+      state: { username, password, autoLogin },
+      props: { login, addBubble },
     } = this;
-    ipcRenderer.send("encrypt", {
+    const res: IPCEncryptReply = await ipcRenderer.invoke("encrypt", {
       caller: "login",
       password,
       username,
+      autoLogin,
     } as IPCEncryptRequest);
+    const [master, , user] = res;
+    let autoSave: IPCSaveKeyReply = await ipcRenderer.invoke("save-key", {
+      caller: "login",
+      key: "auto-login",
+      value: `${autoLogin}`,
+    } as IPCSaveKeyRequest);
+    if (!autoSave.result) {
+      addBubble("autoLogin-error", {
+        title: "Could not save auto-login information",
+        type: "ERROR",
+        message: autoSave.err.message,
+      });
+      return;
+    }
+
+    if (autoLogin) {
+      const res = await ipcRenderer.invoke("save-key", {
+        caller: "login",
+        key: "username:masterpw",
+        value: `${username}:${master}`,
+      } as IPCSaveKeyRequest);
+      if (!res.result) {
+        addBubble("login-save-error", {
+          title: "Could not save auto-login data",
+          type: "ERROR",
+          message: res.err.message,
+        });
+        return;
+      }
+    }
+    login(user, master);
   }
 
   render() {
-    const { canRegister, password, username } = this.state;
+    const { canRegister, password, username, autoLogin } = this.state;
     return (
       <div id="login-wrapper">
         <h1>Login</h1>
@@ -108,6 +158,16 @@ class LoginUI extends React.Component<Props, State> {
                 onChange={(e) => this.handleChange(e, Change.PASSWORD)}
               />
             </label>
+            <label htmlFor="auto-login" id="auto-login-label">
+              <input
+                type="checkbox"
+                name="auto-login"
+                id="auto-login"
+                onChange={(e) => this.handleChange(e, Change.AUTOLOGIN)}
+                checked={autoLogin}
+              />
+              Enable auto-login
+            </label>
             <input type="submit" value="Login" disabled={!canRegister} />
           </form>
         </div>
@@ -117,7 +177,7 @@ class LoginUI extends React.Component<Props, State> {
         </div>
         <button id="login-browser">
           <FontAwesomeIcon icon={faExternalLinkAlt} />
-          Open in Browser
+          Login in Browser
         </button>
       </div>
     );

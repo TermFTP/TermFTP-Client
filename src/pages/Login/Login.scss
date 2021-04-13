@@ -5,6 +5,11 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
+
+  #register-hint button,
+  #login-browser {
+    text-decoration: underline;
+  }
 }
 
 #login-box {
@@ -31,12 +36,23 @@
     align-items: flex-start;
     margin-bottom: 15px;
     width: 100%;
-    font-style: italic;
 
     input {
       margin-top: 5px;
       width: 100%;
       text-align: left;
+    }
+  }
+
+  #auto-login-label {
+    font-variant: normal;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+
+    input {
+      width: auto;
+      margin: 0 10px;
     }
   }
 

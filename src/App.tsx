@@ -1,14 +1,16 @@
 import { Bubbles, Header, Loading, Prompt, Settings } from "@components";
 import { FileManager, Login, Main, Register, ToS, Welcome } from "@pages";
-import { IPCEncryptReply } from "@shared/models";
-import { login, register } from "@store/user";
+import { IPCGetKeyReply, IPCGetKeyRequest } from "@shared/models";
+import { setAutoLoggedIn } from "@store/app";
+import { login } from "@store/user";
 import { ConnectedRouter } from "connected-react-router";
 import { ipcRenderer } from "electron";
-import React from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch } from "react-router";
 import "./App.scss";
 import { history } from "./configureStore";
+import { RootState } from "./store";
 import "./variables.scss";
 
 // const mapDispatch = (dispatch: DefaultDispatch) => ({});
@@ -19,18 +21,33 @@ import "./variables.scss";
 // type Props = PropsFromState;
 
 export function App(): JSX.Element {
+  const state = useSelector(({ appReducer: { autoLoggedIn } }: RootState) => ({
+    autoLoggedIn,
+  }));
   const dispatch = useDispatch();
-  ipcRenderer.removeAllListeners("register-encrypt-reply");
-  ipcRenderer.on("register-encrypt-reply", (event, args: IPCEncryptReply) => {
-    const [master, , username, email] = args;
-    dispatch(register(email, username, master));
-  });
-  ipcRenderer.removeAllListeners("login-encrypt-reply");
-  ipcRenderer.on("login-encrypt-reply", (event, args: IPCEncryptReply) => {
-    const [master, , username] = args;
-    // TODO save key
-    dispatch(login(username, master));
-  });
+  useEffect(() => {
+    async function autoLogin() {
+      if (!state.autoLoggedIn) {
+        const res: IPCGetKeyReply = await ipcRenderer.invoke("get-key", {
+          caller: "app",
+          key: "auto-login",
+        } as IPCGetKeyRequest);
+        if (res.result && new Boolean(res.val)) {
+          const loginRes: IPCGetKeyReply = await ipcRenderer.invoke("get-key", {
+            caller: "app",
+            key: "username:masterpw",
+          } as IPCGetKeyRequest);
+          if (loginRes.result && Boolean(res.val)) {
+            const [username, password] = loginRes.val.split(":");
+            dispatch(login(username, password));
+          }
+        }
+        dispatch(setAutoLoggedIn(true));
+      }
+    }
+
+    autoLogin();
+  }, [state.autoLoggedIn]);
 
   return (
     <div id="app">

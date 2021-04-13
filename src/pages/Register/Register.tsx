@@ -11,11 +11,14 @@ import { push } from "connected-react-router";
 import { IPCEncryptRequest } from "@shared/models";
 
 import { ipcRenderer } from "electron";
+import { register } from "@store/user";
 
 const mapState = () => ({});
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   login: () => dispatch(push("login")),
+  register: (email: string, username: string, password: string) =>
+    dispatch(register(email, username, password)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -95,20 +98,23 @@ class RegisterUI extends React.Component<Props, State> {
     this.setState(upd);
   }
 
-  handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     event.stopPropagation();
     if (!this.state.canRegister) return;
 
     const {
       state: { email, username, password },
+      props: { register },
     } = this;
-    ipcRenderer.send("encrypt", {
+    const res = await ipcRenderer.invoke("encrypt", {
       caller: "register",
       password,
       username,
       email,
     } as IPCEncryptRequest);
+    const [master] = res;
+    register(email, username, master);
   }
 
   openInBrowser() {
