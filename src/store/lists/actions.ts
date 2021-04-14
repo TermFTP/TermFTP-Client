@@ -10,6 +10,7 @@ import {
   RemoveFromGroupReq,
   RemoveGroupReq,
   RemoveServerReq,
+  DefaultResponse,
 } from "@models";
 import { addBubble, setLoading, setPrompt } from "@store/app";
 import { Action, ActionCreator } from "redux";
@@ -47,7 +48,19 @@ const basic: ListsThunk = (
     dispatch(setLoading(true));
 
     try {
-      const json = await Endpoints.getInstance()[method](req);
+      let json: DefaultResponse;
+
+      if(!Endpoints.getInstance().headers["Access-Token"]){
+        //nothing
+        json = {
+          status: 200,
+          data: [],
+          message: "This is the guest mode!"
+        };
+      }
+      else
+        json = await Endpoints.getInstance()[method](req);
+
       dispatch(setLoading(false));
       if (success) {
         dispatch(
