@@ -5,6 +5,7 @@
   transition: var(--dur) transform ease;
   transform: translateY(-300%);
   display: inline;
+  z-index: 1;
 
   &.search-box-searching {
     transform: translateY(0);

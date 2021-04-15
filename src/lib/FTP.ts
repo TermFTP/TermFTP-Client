@@ -1,11 +1,12 @@
 // import Client from "ftp";
 import { FileI, FileType } from "@models";
-import { FileType as BasicType, Client } from "basic-ftp";
+import { FileType as BasicType, Client, FileInfo } from "basic-ftp";
 import { BaseFTP, FTPConfig } from "./BaseFTP";
 import { Factory, createPool, Options, Pool } from "generic-pool";
 import { basename } from "path";
 import { mkdirSync } from "fs-extra";
 import { join } from "path";
+import PQueue from "p-queue";
 
 export interface FTPEventDetails {
   change: "all" | "directory" | "files";
@@ -24,14 +25,16 @@ export class FTP extends BaseFTP {
     max: 4,
     min: 0
   }
-  private pool: Pool<Client>;
-  private client: Client;
+  private pool: Pool<Client> = createPool<Client>(this.factory, this.poolOpts);
+  private client: Client = new Client();
+  private queue: PQueue = new PQueue({
+    concurrency: 1,
+    throwOnTimeout: true
+  });
 
   constructor(config: FTPConfig) {
     super();
     this.config = config;
-    this.pool = createPool<Client>(this.factory, this.poolOpts);
-    this.client = new Client();
   }
 
   private convertFileType(type: BasicType): FileType {
@@ -54,48 +57,51 @@ export class FTP extends BaseFTP {
     this._pwd = await this.client.pwd();
   }
 
+  private async _reconnect(): Promise<void> {
+    try {
+      const pwd = this._pwd;
+      await this.queue.add(() => this.client.access(this.config));
+      await this.queue.add(() => this.client.cd(pwd));
+    } catch (e) {
+      return Promise.reject("not connected")
+    }
+  }
+
   async pwd(): Promise<string> {
     if (this.client.closed) {
-      try {
-        const pwd = this._pwd;
-        await this.client.access(this.config);
-        await this.client.cd(pwd);
-      } catch (e) {
-        return Promise.reject("not connected")
-      }
+      await this._reconnect();
     }
 
-    this._pwd = await this.client.pwd();
+    this._pwd = await this.queue.add(() => this.client.pwd());
     return this._pwd;
   }
 
-  async list(dir?: string): Promise<FileI[]> {
-    if (this.client.closed) {
-      try {
-        const pwd = this._pwd;
-        await this.client.access(this.config);
-        await this.client.cd(pwd);
-      } catch (e) {
-        return Promise.reject("not connected")
-      }
-    }
+  private convertFiles(files: FileInfo[]): FileI[] {
 
-    const list = (await this.client.list(dir))
+    return files
       .map((v) => ({
         type: this.convertFileType(v.type),
         date: v.modifiedAt,
         name: v.name,
         size: v.size,
-      } as FileI));
-    return list.sort((a, b) => {
-      if (a.type === b.type) {
-        return a.name.localeCompare(b.name);
-      }
-      if (a.type === FileType.DIR) {
-        return -1;
-      }
-      return 1;
-    });
+      } as FileI))
+      .sort((a, b) => {
+        if (a.type === b.type) {
+          return a.name.localeCompare(b.name);
+        }
+        if (a.type === FileType.DIR) {
+          return -1;
+        }
+        return 1;
+      });
+  }
+
+  async list(dir?: string): Promise<FileI[]> {
+    if (this.client.closed) {
+      await this._reconnect();
+    }
+
+    return this.convertFiles(await this.queue.add(() => this.client.list(dir)));
   }
 
   disconnect(): void {
@@ -108,16 +114,10 @@ export class FTP extends BaseFTP {
 
   async cd(dir: string, noEmit = false): Promise<void> {
     if (this.client.closed) {
-      try {
-        const pwd = this._pwd;
-        await this.client.access(this.config);
-        await this.client.cd(pwd);
-      } catch (e) {
-        return Promise.reject("not connected")
-      }
+      await this._reconnect();
     }
 
-    await this.client.cd(dir);
+    await this.queue.add(() => this.client.cd(dir));
     await this.pwd();
     !noEmit && this.emit("ftp-event", { details: "all" });
   }
