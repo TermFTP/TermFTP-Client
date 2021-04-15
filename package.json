@@ -50,6 +50,7 @@
     "keytar": "^7.6.0",
     "mini-css-extract-plugin": "0.11.3",
     "optimize-css-assets-webpack-plugin": "5.0.4",
+    "p-queue": "^6.6.2",
     "pbkdf2": "^3.1.1",
     "pnp-webpack-plugin": "1.6.4",
     "postcss-flexbugs-fixes": "4.2.1",
