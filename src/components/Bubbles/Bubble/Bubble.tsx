@@ -131,7 +131,7 @@ class BubbleUI extends Component<Props, State> {
               className="bubble-icon bubble-expand"
               onClick={this.toggleExpand}
             >
-              <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+              <FontAwesomeIcon icon={faChevronDown} className="no-background"></FontAwesomeIcon>
             </button>
           )}
         </div>

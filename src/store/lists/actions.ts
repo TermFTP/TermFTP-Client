@@ -142,7 +142,7 @@ export const saveServer: ListsThunk = (req: SaveReq) => {
     "saveServer",
     "Could not save server",
     ListActionTypes.SAVE_SERVER,
-    "Saving a server was successful",
+    "Saved server successfully",
     (dispatch: TDispatch) => {
       dispatch(setPrompt(undefined));
       return;

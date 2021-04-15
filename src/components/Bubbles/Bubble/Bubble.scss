@@ -29,7 +29,7 @@
     background: var(--b);
     border-radius: var(--radius);
     justify-content: center;
-    border: 1px white solid;
+    border: 1px var(--bc) solid;
     transition: var(--dur) border-radius ease;
     width: 100%;
 
@@ -39,7 +39,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: inherit;
+      background: none;
       font-size: inherit;
       border-radius: calc(var(--radius) * 1.1);
       padding: 0;
@@ -59,28 +59,35 @@
       align-items: center;
     }
 
-    .bubble-expand svg {
-      transform: rotate(0);
-      transition: var(--dur) transform ease;
-      pointer-events: none;
+    .bubble-expand {
+      box-shadow: none;
+      svg {
+        transform: rotate(0);
+        transition: var(--dur) transform ease;
+        pointer-events: none;
+      }
     }
   }
 
   // https://flatuicolors.com/palette/defo
   &.bubble-error {
     --bg: 231, 76, 60;
+    --bc: 192, 57, 43;
   }
 
   &.bubble-warning {
     --bg: 241, 196, 15;
+    --bc: 243, 156, 18;
   }
 
   &.bubble-information {
-    --bg: 127, 140, 141;
+    --bg: 52, 152, 219;
+    --bc: 41, 128, 185;
   }
 
   &.bubble-success {
     --bg: 46, 204, 113;
+    --bc: 39, 174, 96;
   }
 
   .bubble-message {
@@ -90,13 +97,15 @@
     border-radius: 0 0 var(--radius) var(--radius);
     width: 100%;
     transition: var(--dur) height ease, var(--dur) border-width ease;
-    border: 0 white solid;
+    border: 0 var(--bc) solid;
     padding: 0;
     overflow: hidden;
   }
 
   &.bubble-expanded {
     --actual-height: var(--expanded-height);
+    padding-left: 0.1em;
+    padding-right: 0.1em;
 
     .bubble-content {
       border-radius: var(--radius) var(--radius) 0 0;
