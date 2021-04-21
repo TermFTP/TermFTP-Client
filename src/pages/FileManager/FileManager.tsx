@@ -272,7 +272,7 @@ export class FileManagerUI extends Component<Props, State> {
           <HotKeys
             keyMap={this.keyMap}
             handlers={this.handlers}
-            id="file-manager"
+            // id="file-manager"
           >
             <SearchBox
               onSearch={this.onSearch}

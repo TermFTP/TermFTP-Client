@@ -8,6 +8,5 @@
 }
 
 #app-wrapper {
-  flex-basis: 0;
-  flex-grow: 1;
+  height: calc(100% - var(--headerSize));
 }

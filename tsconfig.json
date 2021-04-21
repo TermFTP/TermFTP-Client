@@ -30,7 +30,8 @@
       "@images/*": ["src/assets/images/*"],
       "@store/*": ["src/store/*"],
       "@lib/*": ["src/lib/*"],
-      "@shared/*": ["shared/*"]
+      "@shared/*": ["shared/*"],
+      "@assets/*": ["src/assets/*"]
     }
   },
   "include": ["src", "shared"]
