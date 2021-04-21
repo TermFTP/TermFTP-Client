@@ -11,6 +11,7 @@ import {
 import React from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./File.scss";
+import FileIcon from "./FileIcon";
 
 const mapState = () => ({});
 const mapDispatch = (dispatch: DefaultDispatch) => ({
@@ -59,11 +60,7 @@ function FileUI({
       onContextMenuCapture={onContextMenu}
     >
       <div className={`file file-${file.type}`}>
-        <div className="file-type">
-          <FontAwesomeIcon
-            icon={file.type === FileType.DIR ? faFolder : faFile}
-          ></FontAwesomeIcon>
-        </div>
+        <FileIcon file={file}></FileIcon>
         <div className="file-name">{file.name}</div>
         <div className="file-size">{convertFileSize(file.size)}</div>
         <div className="file-last">{file.date?.toLocaleString()}</div>

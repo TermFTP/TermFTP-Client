@@ -27,14 +27,18 @@
   gap: 5px;
   // transition: var(--dur) background ease;
 
-  .file-type {
+  .file-icon {
     height: var(--file-height);
     width: var(--file-height);
-    padding: 10px;
     display: grid;
     place-items: center;
     flex-grow: 0 !important;
-    flex-shrink: 0 !important;
+    flex-shrink: 0;
+    padding: 2px 0;
+
+    img {
+      height: 100%;
+    }
   }
 
   .file-name {
