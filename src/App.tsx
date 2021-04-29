@@ -1,17 +1,20 @@
 import { Bubbles, Header, Loading, Prompt, Settings } from "@components";
+import { SSH } from "@lib";
 import { FileManager, Login, Main, Register, ToS, Welcome } from "@pages";
 import { IPCGetKeyReply, IPCGetKeyRequest } from "@shared/models";
 import { setAutoLoggedIn } from "@store/app";
 import { login } from "@store/user";
 import { ConnectedRouter } from "connected-react-router";
 import { ipcRenderer } from "electron";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch } from "react-router";
+import XTerm, { Terminal } from "@termftp/react-xterm";
 import "./App.scss";
 import { history } from "./configureStore";
 import { RootState } from "./store";
 import "./variables.scss";
+import "../node_modules/xterm/dist/xterm.css";
 
 // const mapDispatch = (dispatch: DefaultDispatch) => ({});
 
@@ -49,8 +52,32 @@ export function App(): JSX.Element {
     autoLogin();
   }, [state.autoLoggedIn]);
 
+  const inputRef: React.RefObject<XTerm> = React.createRef();
+
+  useEffect(() => {
+
+    //TEST SSH
+    const term = inputRef.current.getTerminal();
+    term.writeln("adlskjfölasjflkjasdklfjöasdf");
+    term.open(document.getElementById('terminalContainer'));
+    term.resize(50,50);
+    const ssh: SSH = new SSH();
+    ssh.connect({host: "test.rebex.net", port: 22, username: "demo", password: "password"}, term);
+
+  }, []);
+
   return (
+    <XTerm ref={inputRef}
+          addons={['fit', 'fullscreen', 'search']}
+          style={{
+            overflow: 'hidden',
+            position: 'relative',
+            width: '100%',
+            height: '100%'
+          }}/>
+    /*
     <div id="app">
+
       <Header></Header>
       <div id="app-wrapper">
         <ConnectedRouter history={history}>
@@ -68,7 +95,8 @@ export function App(): JSX.Element {
       <Loading></Loading>
       <Prompt></Prompt>
       <Bubbles></Bubbles>
-    </div>
+
+      </div>{*/
   );
 }
 
