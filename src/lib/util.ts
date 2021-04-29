@@ -9,3 +9,14 @@ export function getNumOfItems(group: Group): number {
   }
   return sum;
 }
+
+export function normalizeURL(url: string): string {
+  url = decodeURI(url);
+  if (url.endsWith("/")) {
+    url = url.substring(0, url.length - 1);
+  }
+  if (!url.startsWith("/")) {
+    url = "/" + url;
+  }
+  return url;
+}
