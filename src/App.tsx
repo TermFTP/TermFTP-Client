@@ -1,21 +1,17 @@
 import { Bubbles, Header, Loading, Prompt, Settings } from "@components";
-import { SSH } from "@lib";
 import { FileManager, Login, Main, Register, ToS, Welcome } from "@pages";
 import { IPCGetKeyReply, IPCGetKeyRequest } from "@shared/models";
 import { setAutoLoggedIn } from "@store/app";
 import { login } from "@store/user";
 import { ConnectedRouter } from "connected-react-router";
 import { ipcRenderer } from "electron";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch } from "react-router";
-import XTerm, { Terminal } from "@termftp/react-xterm";
 import "./App.scss";
 import { history } from "./configureStore";
 import { RootState } from "./store";
 import "./variables.scss";
-import { FitAddon } from "xterm-addon-fit";
-import { WebLinksAddon } from "xterm-addon-web-links";
 
 // const mapDispatch = (dispatch: DefaultDispatch) => ({});
 
@@ -53,39 +49,39 @@ export function App(): JSX.Element {
     autoLogin();
   }, [state.autoLoggedIn]);
 
-  const inputRef: React.RefObject<XTerm> = React.createRef();
+  // const inputRef: React.RefObject<XTerm> = React.createRef();
 
   useEffect(() => {
     //TEST SSH
-    const term = inputRef.current.getTerminal();
-    term.resize(50, 50);
-    term.write("adslkjflöasjdföljaskldfasf");
-    const ssh: SSH = new SSH();
-    ssh.connect(
-      {
-        host: "195.144.107.198", 
-        port: 22, 
-        username: "demo", 
-        password: "password", 
-        keepaliveInterval: 20000, 
-        readyTimeout: 20000, 
-        debug: console.log,
-      }, term);
-
+    // const term = inputRef.current.getTerminal();
+    // term.resize(50, 50);
+    // term.write("adslkjflöasjdföljaskldfasf");
+    // const ssh: SSH = new SSH();
+    // ssh.connect(
+    //   {
+    //     host: "195.144.107.198",
+    //     port: 22,
+    //     username: "demo",
+    //     password: "password",
+    //     keepaliveInterval: 20000,
+    //     readyTimeout: 20000,
+    //     debug: console.log,
+    //   },
+    //   term
+    // );
   }, []);
 
   return (
-    <XTerm ref={inputRef}
-      addons={[new FitAddon(), new WebLinksAddon()]}
-      style={{
-        overflow: 'hidden',
-        position: 'relative',
-        width: '100%',
-        height: '100%'
-      }} />
-    /*
-    <div id="app">
+    // <XTerm ref={inputRef}
+    //   addons={[new FitAddon(), new WebLinksAddon()]}
+    //   style={{
+    //     overflow: 'hidden',
+    //     position: 'relative',
+    //     width: '100%',
+    //     height: '100%'
+    //   }} />
 
+    <div id="app">
       <Header></Header>
       <div id="app-wrapper">
         <ConnectedRouter history={history}>
@@ -103,8 +99,7 @@ export function App(): JSX.Element {
       <Loading></Loading>
       <Prompt></Prompt>
       <Bubbles></Bubbles>
-
-      </div>{*/
+    </div>
   );
 }
 

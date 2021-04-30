@@ -3,6 +3,7 @@ import { app, BrowserWindow, Menu, MenuItem } from "electron";
 import isDev from "electron-is-dev";
 import dotenv from "dotenv";
 import "./ipc";
+import "./server"
 
 dotenv.config();
 let win: BrowserWindow;
@@ -33,7 +34,7 @@ function createWindow(): void {
     win.loadURL("http://localhost:14000");
     win.webContents.openDevTools();
   } else {
-    win.loadURL(`file://${join(__dirname, "./index.html")}`);
+    win.loadURL(`http://localhost:15000`);
   }
   win.on("closed", (): void => (win = null));
   win.focus();

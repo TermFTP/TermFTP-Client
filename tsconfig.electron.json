@@ -5,7 +5,9 @@
     "outDir": "build",
     "baseUrl": "./",
     "paths": {
-      "*": ["node_modules/*"]
+      "*": ["node_modules/*"],
+      "@shared": ["shared"],
+      "@shared/*": ["shared/*"]
     },
     "strictNullChecks": false,
     "noImplicitAny": false,

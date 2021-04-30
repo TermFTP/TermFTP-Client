@@ -1,56 +1,73 @@
-import { Client, ConnectConfig } from 'ssh2';
+import { ConnectConfig } from 'ssh2';
 import { Terminal } from 'xterm';
-import utf8 from 'utf8';
-import { finished } from 'node:stream';
+import { connect } from "socket.io-client";
+import { ResizeData } from '@shared/models';
+import { Socket } from 'socket.io-client';
+import { FitAddon } from 'xterm-addon-fit';
 
 export class SSH {
 
-  private ssh: Client;
   private term: Terminal;
+  private elem: HTMLElement;
+  private fitAddon: FitAddon;
+  connected = false;
+  private onDisconnect?: () => void;
+  private socket?: typeof Socket;
 
-  public constructor() {
-    this.ssh = new Client();
-
-    window.addEventListener('unload', () => {
-      this.ssh.end();
-      this.ssh.destroy();
-    })
+  constructor(fitAddon: FitAddon, onDisconnect?: () => void) {
+    this.fitAddon = fitAddon;
+    this.onDisconnect = onDisconnect;
   }
 
-  async connect(config: ConnectConfig, term: Terminal): Promise<void> {
+  disconnect = (): void => {
+    this.connected = false;
+    this.socket && this.socket.close();
+    this.socket.removeAllListeners()
+    this.onDisconnect && this.onDisconnect();
+    this.term.clear();
+    this.socket = undefined;
+    this.onDisconnect = undefined;
+    this.term = undefined;
+  }
+
+  connect(config: ConnectConfig, term: Terminal, elem: HTMLElement): void {
     this.term = term;
-    return new Promise((resolve, reject) => {
+    this.elem = elem;
 
-      this.ssh.on('ready', () => {
-          term.write("\r\n*** SSH CONNECTION ESTABLISHED ***\n\n");
-
-          this.ssh.shell((err, stream) => {
-            if(err) term.write(err.message);
-
-            stream.on('data', (data: any) => {
-              term.write(utf8.decode(data.toString('binary')));
-            })
-            .on('close', () => {
-              this.ssh.end();
-            });
-
-            term.onKey(({key, domEvent}) => {
-              const printable = !domEvent.altKey && !domEvent.ctrlKey && !domEvent.metaKey;
-
-              if(printable) {
-                stream.write(key);
-              }
-
-            })
-
-            stream.write('whoami\n')
-        });
+    const socket = connect("localhost:15000");
+    this.socket = socket;
+    socket.on("connect", () => {
+      socket.emit("ssh", config)
+      this.connected = true;
+      // term.write("\r\n*** Connected to backend***\r\n");
+      // Browser -> Backend
+      term.onData((data) => {
+        socket.emit("data", data);
+      });
+      socket.on("init", () => {
+        this.resize();
       })
-      .on('close', () => {
-        term.write("\r\n*** SSH CONNECTION CLOSED ***\n\n");
-      })
-      .connect(config);
+      // Backend -> Browser
+      socket.on("data", function (data: string) {
+        term.write(data);
+      });
+      socket.on("disconnect", this.disconnect);
     });
+  }
+
+  resize(): void {
+    if (!this.socket || !this.elem || !this.fitAddon) return;
+
+    this.fitAddon.fit();
+    const dim = this.fitAddon.proposeDimensions();
+    const style = this.elem.getBoundingClientRect();
+    const data: ResizeData = {
+      cols: dim.cols,
+      height: style.height,
+      rows: dim.rows,
+      width: style.width,
+    };
+    this.socket.emit("resize", data);
   }
 
 }

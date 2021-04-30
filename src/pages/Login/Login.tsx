@@ -98,7 +98,7 @@ class LoginUI extends React.Component<Props, State> {
       autoLogin,
     } as IPCEncryptRequest);
     const [master, , user] = res;
-    let autoSave: IPCSaveKeyReply = await ipcRenderer.invoke("save-key", {
+    const autoSave: IPCSaveKeyReply = await ipcRenderer.invoke("save-key", {
       caller: "login",
       key: "auto-login",
       value: `${autoLogin}`,

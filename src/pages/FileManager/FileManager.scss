@@ -1,3 +1,15 @@
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  border: none;
+  background: none;
+}
+::-webkit-scrollbar-thumb {
+  background: #3b3b3b;
+  border-radius: 3px;
+}
+
 #file-manager {
   --plus-height: 2.5em;
   --file-height: 3em;
@@ -44,8 +56,23 @@
   position: relative;
   flex-direction: column;
   overflow-y: scroll;
-  height: calc(100% - var(--top-height) - var(--bottom-height));
-  max-height: calc(100% - var(--top-height) - var(--bottom-height));
+  transform: height;
+  height: calc(
+    100% - var(--top-height) - var(--bottom-height) - var(--terminalClosed)
+  );
+  max-height: calc(
+    100% - var(--top-height) - var(--bottom-height) - var(--terminalClosed)
+  );
+
+  &.fm-terminal-open {
+    height: calc(
+      100% - var(--top-height) - var(--bottom-height) - var(--terminalOpened)
+    );
+
+    #file-manager-plus {
+      bottom: calc(8px + var(--bottom-height) + var(--terminalOpened));
+    }
+  }
 
   & > div {
     height: 100%;
@@ -114,7 +141,8 @@
 #file-manager-plus {
   position: fixed;
   right: 8px;
-  bottom: calc(8px + var(--bottom-height));
+  bottom: calc(8px + var(--bottom-height) + var(--terminalClosed));
+  transition: var(--dur) bottom ease;
   height: var(--plus-height);
   width: var(--plus-height);
 

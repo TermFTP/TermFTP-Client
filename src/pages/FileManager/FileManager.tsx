@@ -1,4 +1,4 @@
-import { ContextMenu } from "@components";
+import { ContextMenu, Terminal } from "@components";
 import { faCircle } from "@fortawesome/free-regular-svg-icons";
 import {
   faCog,
@@ -17,6 +17,7 @@ import {
   setFMLoading,
 } from "@store/filemanager";
 import { historyItem } from "@store/lists";
+//eslint-disable-next-line
 import { hostname } from "os";
 import React, { Component } from "react";
 import { connect, ConnectedProps } from "react-redux";
@@ -30,9 +31,9 @@ import { setFiles } from "@store/ftp";
 
 const mapState = ({
   ftpReducer: { client },
-  fmReducer: { menu, loading },
+  fmReducer: { menu, loading, terminalOpen },
   router: { location },
-}: RootState) => ({ client, menu, loading, location });
+}: RootState) => ({ client, menu, loading, location, terminalOpen });
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   historyItem: (req: HistoryReq) => dispatch(historyItem(req)),
@@ -266,6 +267,7 @@ export class FileManagerUI extends Component<Props, State> {
         </div>
         <div
           id="file-manager-ui"
+          className={`${this.props.terminalOpen ? "fm-terminal-open" : ""}`}
           onDrop={this.onDrop}
           onDragOver={(e) => e.preventDefault()}
           onDragEnter={this.onDragEnter}
@@ -312,6 +314,7 @@ export class FileManagerUI extends Component<Props, State> {
             )}
           </HotKeys>
         </div>
+        <Terminal></Terminal>
         <div id="file-manager-bottom">
           <div
             id="file-manager-status"
