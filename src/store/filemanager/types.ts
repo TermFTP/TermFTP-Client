@@ -1,5 +1,7 @@
 import { FileI } from "@models";
 
+export type TerminalActions = "OPEN" | "CLOSE" | "TOGGLE";
+
 export interface ContextMenuProps {
   x?: number;
   y?: number;
@@ -9,10 +11,12 @@ export interface ContextMenuProps {
 
 export enum FMTypes {
   SET_CONTEXT_MENU = "fm/set-context-menu",
-  SET_FM_LOADING = "fm/set-fm-loading"
+  SET_FM_LOADING = "fm/set-fm-loading",
+  SET_TERMINAL = "fm/set-terminal"
 }
 
 export interface FMState {
   menu: ContextMenuProps;
   loading: boolean;
+  terminalOpen: boolean;
 }

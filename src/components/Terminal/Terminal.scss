@@ -1,0 +1,82 @@
+$terminalDur: 400ms;
+
+.terminal-c {
+  width: 100%;
+  transition: $terminalDur height ease;
+  height: var(--terminalClosed);
+  background: var(--dark-bg-2);
+  color: var(--color);
+  will-change: height;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  &.terminal-open {
+    height: var(--terminalOpened);
+    .terminal-toggle-btn div {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+.terminal-top {
+  height: var(--terminalClosed);
+  width: 100%;
+  background: var(--dark-bg-1);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  cursor: pointer;
+
+  p {
+    flex-grow: 1;
+    padding-left: 0.5em;
+    height: 100%;
+    line-height: var(--terminalClosed);
+    user-select: none;
+  }
+
+  & > button {
+    width: var(--terminalClosed);
+    height: var(--terminalClosed);
+    background: inherit;
+    font-size: inherit;
+    color: inherit;
+    border-radius: 0;
+
+    &:hover {
+      background: var(--dark-bg-2);
+    }
+
+    &:focus {
+      box-shadow: none;
+    }
+
+    &,
+    & > div {
+      display: grid;
+      place-items: center;
+    }
+  }
+}
+
+.terminal-close-btn:hover {
+  color: var(--red);
+}
+
+.terminal-toggle-btn div {
+  transition: $terminalDur transform ease;
+}
+
+.terminal-content {
+  height: calc(var(--terminalOpened) - var(--terminalClosed));
+  width: 100%;
+}
+
+.terminal-xterm {
+  // overflow-y: scroll;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: left;
+}

@@ -24,6 +24,7 @@
       "@store": ["src/store"],
       "@models": ["src/models"],
       "@lib": ["src/lib"],
+      "@shared": ["shared"],
       "@components/*": ["src/components/*"],
       "@models/*": ["src/models/*"],
       "@pages/*": ["src/pages/*"],

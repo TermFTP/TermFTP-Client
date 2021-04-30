@@ -35,6 +35,10 @@ export class FTP extends BaseFTP {
   constructor(config: FTPConfig) {
     super();
     this.config = config;
+    window.addEventListener("unload", (() => {
+      this.client.close();
+      this.pool.clear();
+    }).bind(this));
   }
 
   private convertFileType(type: BasicType): FileType {

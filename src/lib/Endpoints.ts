@@ -1,4 +1,3 @@
-import isDev from "electron-is-dev";
 import {
   LoginRes,
   LoginReq,
@@ -20,6 +19,7 @@ import {
 } from "@models";
 import { hostname } from "os";
 import { IRawParams } from "@shared/models";
+import isDev from "electron-is-dev";
 
 /**
  * the class for communication with the backend API
