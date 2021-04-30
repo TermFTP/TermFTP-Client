@@ -1,23 +1,23 @@
-import { faFile, faFolder } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { BaseFTP, convertFileSize } from "@lib";
+import { convertFileSize, normalizeURL } from "@lib";
 import { FileI, FileType } from "@models";
-import { DefaultDispatch } from "@store";
+import { DefaultDispatch, RootState } from "@store";
 import {
   ContextMenuProps,
   setContextMenu,
   setFMLoading,
 } from "@store/filemanager";
+import { push } from "connected-react-router";
 import React from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./File.scss";
 import FileIcon from "./FileIcon";
 
-const mapState = () => ({});
+const mapState = ({ ftpReducer: { client } }: RootState) => ({ client });
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   setContextMenu: (contextMenu: ContextMenuProps) =>
     dispatch(setContextMenu(contextMenu)),
   setFMLoading: (loading: boolean) => dispatch(setFMLoading(loading)),
+  push: (path: string) => dispatch(push(path)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -25,12 +25,11 @@ const connector = connect(mapState, mapDispatch);
 type PropsFromState = ConnectedProps<typeof connector>;
 type Props = PropsFromState & {
   file: FileI;
-  ftp: BaseFTP;
 };
 
 function FileUI({
   file,
-  ftp,
+  push,
   setContextMenu,
   setFMLoading,
 }: Props): JSX.Element {
@@ -53,8 +52,9 @@ function FileUI({
       onDoubleClick={async () => {
         if (file.type === FileType.DIR) {
           setFMLoading(true);
-          await ftp.cd(file.name, true);
-          ftp.forceUpdate();
+          // await client.cd(file.name, true);
+          // client.forceUpdate();
+          push(`${normalizeURL(window.location.pathname)}/${file.name}`);
         }
       }}
       onContextMenuCapture={onContextMenu}

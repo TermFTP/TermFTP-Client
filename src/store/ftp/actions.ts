@@ -1,5 +1,5 @@
 import { BaseFTP } from "@lib";
-import { DefaultReturn } from "@models";
+import { DefaultReturn, FileI } from "@models";
 import { push } from "connected-react-router";
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
@@ -24,3 +24,8 @@ export const goToFTPClient: FTPThunk = (client: BaseFTP) => {
     return dispatch(push("/file-manager"));
   };
 };
+
+export const setFiles = (files: FileI[]): Ret => ({
+  type: FTPActionTypes.SET_FILES,
+  payload: files
+})

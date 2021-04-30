@@ -1,5 +1,4 @@
 import { ContextMenu } from "@components";
-import File from "@components/File/File";
 import { faCircle } from "@fortawesome/free-regular-svg-icons";
 import {
   faCog,
@@ -8,8 +7,8 @@ import {
   faUpload,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { FTPEventDetails } from "@lib";
-import { BubbleModel, FileI, FileType, HistoryReq } from "@models";
+import { FTPEventDetails, normalizeURL } from "@lib";
+import { BubbleModel, FileI, HistoryReq } from "@models";
 import { DefaultDispatch, RootState } from "@store";
 import { addBubble, setSettings } from "@store/app";
 import {
@@ -26,11 +25,14 @@ import fs from "fs";
 import { HotKeys } from "react-hotkeys";
 import { SearchBox } from "@components";
 import { push } from "connected-react-router";
+import { Files } from "./Files";
+import { setFiles } from "@store/ftp";
 
 const mapState = ({
   ftpReducer: { client },
   fmReducer: { menu, loading },
-}: RootState) => ({ client, menu, loading });
+  router: { location },
+}: RootState) => ({ client, menu, loading, location });
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   historyItem: (req: HistoryReq) => dispatch(historyItem(req)),
@@ -41,6 +43,7 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
     dispatch(addBubble(key, bubble)),
   setFMLoading: (loading: boolean) => dispatch(setFMLoading(loading)),
   push: (path: string) => dispatch(push(path)),
+  setFiles: (files: FileI[]) => dispatch(setFiles(files)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -49,11 +52,10 @@ type PropsFromState = ConnectedProps<typeof connector>;
 type Props = PropsFromState;
 
 interface State {
-  pwd: string;
-  list: FileI[];
   plusOpen: boolean;
   dragging: boolean;
   searching: boolean;
+  pwd: string;
 }
 
 export class FileManagerUI extends Component<Props, State> {
@@ -63,11 +65,10 @@ export class FileManagerUI extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      pwd: "",
-      list: [],
       plusOpen: false,
       dragging: false,
       searching: false,
+      pwd: "/",
     };
     (window as any).refreshFTP = this.onConnected;
 
@@ -102,37 +103,44 @@ export class FileManagerUI extends Component<Props, State> {
           });
           this.props.push("/main");
         });
-      this.props.client.on("ftp-event", this.onChange);
     }
   }
 
-  componentDidUpdate(): void {
+  async componentDidUpdate(): Promise<void> {
     if (this.state.plusOpen != this.props.menu.isOpen) {
       this.setState({ plusOpen: this.props.menu.isOpen });
+    }
+    const url = normalizeURL(
+      window.location.pathname.replace("/file-manager", "")
+    );
+    if (this.state.pwd != url && url != "/main") {
+      await this.props.client.cd(url);
+      this.onChange();
     }
   }
 
   componentWillUnmount(): void {
     this.props.client?.disconnect();
+    this.props.client?.removeAllListeners();
   }
 
   // eslint-disable-next-line
   onChange = async (args?: FTPEventDetails): Promise<void> => {
-    // const searchBox = document.getElementById("search-box");
-    // if (searchBox) searchBox.getElementsByTagName("input")[0].value = "";
-    const pwd = await this.props.client.pwd();
+    const pwd = normalizeURL(await this.props.client.pwd());
     const list = await this.props.client.list(undefined);
-    this.setState({ list, pwd });
+    this.setState({ pwd });
+    this.props.setFiles(list);
     this.props.setFMLoading(false);
   };
 
   onConnected = (): void => {
     // this.forceUpdate();
-    this.props.historyItem({
-      ...this.props.client.config,
-      device: hostname(),
-      ip: this.props.client.config.host,
-    });
+    this.props.client.on("ftp-event", this.onChange);
+    // this.props.historyItem({
+    //   ...this.props.client.config,
+    //   device: hostname(),
+    //   ip: this.props.client.config.host,
+    // }); // TODO FIX history
     this.onChange(undefined);
   };
 
@@ -228,13 +236,7 @@ export class FileManagerUI extends Component<Props, State> {
 
   render(): JSX.Element {
     const connected = Boolean(this.props.client?.connected);
-    const dotdotExists =
-      this.state.list.filter((f) => f.name == "..").length > 0;
-    const { searching, pwd } = this.state;
-
-    const filtered = this.state.list.filter(
-      (f) => !(f.name == ".." || f.name == ".")
-    );
+    const { searching } = this.state;
 
     return (
       <div id="file-manager">
@@ -282,34 +284,7 @@ export class FileManagerUI extends Component<Props, State> {
             {connected && (
               <>
                 <div id="file-manager-files" onContextMenu={this.onContextMenu}>
-                  <div className="file-wrapper">
-                    <div className="file">
-                      <div className="file-type"></div>
-                      <div className="file-name">Name</div>
-                      <div className="file-size">Size</div>
-                      <div className="file-last">Last Modified</div>
-                    </div>
-                  </div>
-
-                  {pwd !== "/" && !dotdotExists && (
-                    <File
-                      ftp={this.props.client}
-                      file={{
-                        size: 0,
-                        name: "..",
-                        type: FileType.DIR,
-                        date: undefined,
-                      }}
-                    ></File>
-                  )}
-
-                  {filtered.map((file) => (
-                    <File
-                      ftp={this.props.client}
-                      file={file}
-                      key={`${file.type}-${file.name}`}
-                    ></File>
-                  ))}
+                  <Files></Files>
 
                   {this.props.loading && (
                     <div id="file-manager-loading">
