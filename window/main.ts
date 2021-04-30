@@ -84,3 +84,6 @@ app.on("activate", () => {
     createWindow();
   }
 });
+
+app.commandLine.appendSwitch('auto-detect', 'false')
+app.commandLine.appendSwitch('no-proxy-server')

@@ -1,6 +1,7 @@
 import { Client, ConnectConfig } from 'ssh2';
 import { Terminal } from 'xterm';
 import utf8 from 'utf8';
+import { finished } from 'node:stream';
 
 export class SSH {
 
@@ -9,11 +10,17 @@ export class SSH {
 
   public constructor() {
     this.ssh = new Client();
+
+    window.addEventListener('unload', () => {
+      this.ssh.end();
+      this.ssh.destroy();
+    })
   }
 
   async connect(config: ConnectConfig, term: Terminal): Promise<void> {
     this.term = term;
     return new Promise((resolve, reject) => {
+
       this.ssh.on('ready', () => {
           term.write("\r\n*** SSH CONNECTION ESTABLISHED ***\n\n");
 
@@ -27,7 +34,16 @@ export class SSH {
               this.ssh.end();
             });
 
-            stream.write('whoami')
+            term.onKey(({key, domEvent}) => {
+              const printable = !domEvent.altKey && !domEvent.ctrlKey && !domEvent.metaKey;
+
+              if(printable) {
+                stream.write(key);
+              }
+
+            })
+
+            stream.write('whoami\n')
         });
       })
       .on('close', () => {

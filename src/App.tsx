@@ -14,7 +14,8 @@ import "./App.scss";
 import { history } from "./configureStore";
 import { RootState } from "./store";
 import "./variables.scss";
-import "../node_modules/xterm/dist/xterm.css";
+import { FitAddon } from "xterm-addon-fit";
+import { WebLinksAddon } from "xterm-addon-web-links";
 
 // const mapDispatch = (dispatch: DefaultDispatch) => ({});
 
@@ -55,26 +56,33 @@ export function App(): JSX.Element {
   const inputRef: React.RefObject<XTerm> = React.createRef();
 
   useEffect(() => {
-
     //TEST SSH
     const term = inputRef.current.getTerminal();
-    term.writeln("adlskjfölasjflkjasdklfjöasdf");
-    term.open(document.getElementById('terminalContainer'));
-    term.resize(50,50);
+    term.resize(50, 50);
+    term.write("adslkjflöasjdföljaskldfasf");
     const ssh: SSH = new SSH();
-    ssh.connect({host: "test.rebex.net", port: 22, username: "demo", password: "password"}, term);
+    ssh.connect(
+      {
+        host: "195.144.107.198", 
+        port: 22, 
+        username: "demo", 
+        password: "password", 
+        keepaliveInterval: 20000, 
+        readyTimeout: 20000, 
+        debug: console.log,
+      }, term);
 
   }, []);
 
   return (
     <XTerm ref={inputRef}
-          addons={['fit', 'fullscreen', 'search']}
-          style={{
-            overflow: 'hidden',
-            position: 'relative',
-            width: '100%',
-            height: '100%'
-          }}/>
+      addons={[new FitAddon(), new WebLinksAddon()]}
+      style={{
+        overflow: 'hidden',
+        position: 'relative',
+        width: '100%',
+        height: '100%'
+      }} />
     /*
     <div id="app">
 

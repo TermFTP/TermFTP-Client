@@ -12,7 +12,7 @@
     "@fortawesome/react-fontawesome": "^0.1.14",
     "@pmmmwh/react-refresh-webpack-plugin": "0.4.2",
     "@svgr/webpack": "5.4.0",
-    "@termftp/react-xterm": "^3.6.2",
+    "@termftp/react-xterm": "^3.7.3",
     "@types/utf8": "^2.1.6",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.0",
@@ -87,7 +87,9 @@
     "webpack": "4.44.2",
     "webpack-dev-server": "3.11.0",
     "webpack-manifest-plugin": "2.2.0",
-    "workbox-webpack-plugin": "5.1.4"
+    "workbox-webpack-plugin": "5.1.4",
+    "xterm-addon-fit": "^0.5.0",
+    "xterm-addon-web-links": "^0.4.0"
   },
   "repository": {
     "type": "git",
