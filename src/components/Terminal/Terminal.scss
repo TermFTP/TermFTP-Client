@@ -1,7 +1,7 @@
 $terminalDur: 400ms;
 
 .terminal-c {
-  width: 100%;
+  width: 100% !important;
   transition: $terminalDur height ease;
   height: var(--terminalClosed);
   background: var(--dark-bg-2);
@@ -10,6 +10,7 @@ $terminalDur: 400ms;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
 
   &.terminal-open {
     height: var(--terminalOpened);
@@ -69,7 +70,7 @@ $terminalDur: 400ms;
 }
 
 .terminal-content {
-  height: calc(var(--terminalOpened) - var(--terminalClosed));
+  height: calc(100% - var(--terminalClosed));
   width: 100%;
 }
 
@@ -79,4 +80,19 @@ $terminalDur: 400ms;
   width: 100%;
   height: 100%;
   text-align: left;
+}
+
+.custom-handle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: #1153aa;
+  opacity: 0.75;
+  border-radius: 4px;
+
+  &.custom-handle-n {
+    top: -4px;
+    cursor: ns-resize;
+    left: 50%;
+  }
 }

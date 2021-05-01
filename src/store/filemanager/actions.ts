@@ -25,3 +25,8 @@ export const setTerminal = (action: TerminalActions): Ret => ({
   type: FMTypes.SET_TERMINAL,
   payload: action
 })
+
+export const setTerminalHeight = (height: number): Ret => ({
+  type: FMTypes.SET_TERMINAL_HEIGHT,
+  payload: height
+})

@@ -7,7 +7,7 @@ import { FitAddon } from 'xterm-addon-fit';
 
 export class SSH {
 
-  private term: Terminal;
+  private term?: Terminal;
   private elem: HTMLElement;
   private fitAddon: FitAddon;
   connected = false;
@@ -22,9 +22,9 @@ export class SSH {
   disconnect = (): void => {
     this.connected = false;
     this.socket && this.socket.close();
-    this.socket.removeAllListeners()
+    this.socket && this.socket.removeAllListeners()
     this.onDisconnect && this.onDisconnect();
-    this.term.clear();
+    this.term && this.term.clear();
     this.socket = undefined;
     this.onDisconnect = undefined;
     this.term = undefined;

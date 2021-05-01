@@ -24,16 +24,16 @@
       "@store": ["src/store"],
       "@models": ["src/models"],
       "@lib": ["src/lib"],
-      "@shared": ["shared"],
+      "@shared": ["src/shared"],
       "@components/*": ["src/components/*"],
       "@models/*": ["src/models/*"],
       "@pages/*": ["src/pages/*"],
       "@images/*": ["src/assets/images/*"],
       "@store/*": ["src/store/*"],
       "@lib/*": ["src/lib/*"],
-      "@shared/*": ["shared/*"],
+      "@shared/*": ["src/shared/*"],
       "@assets/*": ["src/assets/*"]
     }
   },
-  "include": ["src", "shared"]
+  "include": ["src"]
 }

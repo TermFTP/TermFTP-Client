@@ -5,13 +5,12 @@
     "outDir": "build",
     "baseUrl": "./",
     "paths": {
-      "*": ["node_modules/*"],
-      "@shared": ["shared"],
-      "@shared/*": ["shared/*"]
+      "@shared": ["../src/shared"],
+      "@shared/*": ["../src/shared/*"]
     },
     "strictNullChecks": false,
     "noImplicitAny": false,
     "esModuleInterop": true
   },
-  "include": ["window", "shared"]
+  "include": ["window", "src/shared"]
 }

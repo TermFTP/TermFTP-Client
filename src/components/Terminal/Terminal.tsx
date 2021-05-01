@@ -4,22 +4,29 @@ import { connect, ConnectedProps } from "react-redux";
 import { DefaultDispatch, RootState } from "@store";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleUp, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { setTerminal, TerminalActions } from "@store/filemanager";
+import {
+  setTerminal,
+  setTerminalHeight,
+  TerminalActions,
+} from "@store/filemanager";
 import { XTerm } from "@termftp/react-xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { WebLinksAddon } from "xterm-addon-web-links";
 import { SSH } from "@lib";
+import { ResizableBox, ResizeCallbackData } from "react-resizable";
 
 const mapState = ({
   ftpReducer: { client },
-  fmReducer: { terminalOpen },
+  fmReducer: { terminalOpen, terminalHeight },
 }: RootState) => ({
   client,
   terminalOpen,
+  terminalHeight,
 });
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   setTerminal: (action: TerminalActions) => dispatch(setTerminal(action)),
+  setTerminalHeight: (height: number) => dispatch(setTerminalHeight(height)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -32,9 +39,11 @@ class TerminalUI extends React.Component<Props> {
   fitAddon = new FitAddon();
   ssh: SSH = new SSH(this.fitAddon);
   webLinksAddon = new WebLinksAddon();
+  style: CSSStyleDeclaration;
 
   constructor(props: Props) {
     super(props);
+    this.style = getComputedStyle(document.documentElement);
   }
 
   onDisconnect = () => {
@@ -44,9 +53,8 @@ class TerminalUI extends React.Component<Props> {
   componentDidMount() {
     window.addEventListener("resize", this.resize);
     const term = this.xtermRef.current.getTerminal();
-    const style = getComputedStyle(document.documentElement);
     term.setOption("theme", {
-      background: style.getPropertyValue("--dark-bg-2"),
+      background: this.style.getPropertyValue("--dark-bg-2"),
     });
     (window as any).fit = this.fitAddon.fit.bind(this.fitAddon);
   }
@@ -93,12 +101,35 @@ class TerminalUI extends React.Component<Props> {
     this.ssh.disconnect();
   }
 
+  onResize = (
+    e: React.SyntheticEvent<Element, Event>,
+    data: ResizeCallbackData
+  ): void => {
+    e.stopPropagation();
+    e.preventDefault();
+    this.props.setTerminalHeight(data.size.height);
+  };
+
   render(): JSX.Element {
+    const closedStr = this.style.getPropertyValue("--terminalClosed");
+    const closed =
+      Number.parseFloat(closedStr.substring(0, closedStr.length - 2)) *
+      parseFloat(this.style.fontSize);
+
     return (
-      <div
+      <ResizableBox
+        width={window.innerWidth}
+        height={this.props.terminalOpen ? this.props.terminalHeight : closed}
+        minConstraints={[Infinity, 150]}
+        maxConstraints={[Infinity, Infinity]}
+        axis="y"
+        handle={<span className="custom-handle custom-handle-n" />}
+        resizeHandles={["n"]}
+        handleSize={[8, 8]}
         className={`terminal-c ${
           this.props.terminalOpen ? "terminal-open" : ""
         }`}
+        onResize={this.onResize}
       >
         <div className="terminal-top" onDoubleClick={this.handleToggle}>
           <p>Terminal</p>
@@ -128,7 +159,7 @@ class TerminalUI extends React.Component<Props> {
             }}
           />
         </div>
-      </div>
+      </ResizableBox>
     );
   }
 }

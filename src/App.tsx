@@ -12,6 +12,7 @@ import "./App.scss";
 import { history } from "./configureStore";
 import { RootState } from "./store";
 import "./variables.scss";
+import { SFTP } from "@lib";
 
 // const mapDispatch = (dispatch: DefaultDispatch) => ({});
 
@@ -69,6 +70,22 @@ export function App(): JSX.Element {
     //   },
     //   term
     // );
+    const sftp: SFTP = new SFTP();
+    sftp.connect(
+      {
+        host: "195.144.107.198",
+        port: 22,
+        username: "demo",
+        password: "password",
+        keepaliveInterval: 20000,
+        readyTimeout: 20000,
+        debug: console.log,
+      },
+      (res) => console.log(res)
+    );
+    setTimeout(() => sftp.cd("aspnet_client"), 5000);
+    setTimeout(() => sftp.cd("system_web"), 8000);
+    setTimeout(() => sftp.cd(".."), 10000);
   }, []);
 
   return (

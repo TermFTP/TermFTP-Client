@@ -6,7 +6,8 @@ export const initialState: FMState = {
     isOpen: false,
   },
   loading: false,
-  terminalOpen: false
+  terminalOpen: false,
+  terminalHeight: 300
 };
 
 export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
@@ -42,6 +43,11 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
             terminalOpen: false
           }
         default: return state;
+      }
+    case FMTypes.SET_TERMINAL_HEIGHT:
+      return {
+        ...state,
+        terminalHeight: action.payload
       }
     default:
       return state;

@@ -31,9 +31,16 @@ import { setFiles } from "@store/ftp";
 
 const mapState = ({
   ftpReducer: { client },
-  fmReducer: { menu, loading, terminalOpen },
+  fmReducer: { menu, loading, terminalOpen, terminalHeight },
   router: { location },
-}: RootState) => ({ client, menu, loading, location, terminalOpen });
+}: RootState) => ({
+  client,
+  menu,
+  loading,
+  location,
+  terminalOpen,
+  terminalHeight,
+});
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   historyItem: (req: HistoryReq) => dispatch(historyItem(req)),
@@ -272,6 +279,11 @@ export class FileManagerUI extends Component<Props, State> {
           onDragOver={(e) => e.preventDefault()}
           onDragEnter={this.onDragEnter}
           onDragLeave={this.onDragLeave}
+          style={
+            {
+              "--terminalHeight": `${this.props.terminalHeight}px`,
+            } as React.CSSProperties
+          }
         >
           <HotKeys
             keyMap={this.keyMap}
