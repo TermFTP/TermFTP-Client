@@ -90,23 +90,26 @@ class TerminalUI extends React.Component<Props> {
     this.props.setTerminal("TOGGLE");
   };
 
-  handleDisconnect = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    e.stopPropagation();
-    e.preventDefault();
+  handleDisconnect = (e?: React.MouseEvent<HTMLButtonElement>): void => {
+    e?.stopPropagation();
+    e?.preventDefault();
     this.props.setTerminal("CLOSE");
     this.ssh.disconnect();
   };
 
   componentWillUnmount() {
-    this.ssh.disconnect();
+    this.handleDisconnect(undefined);
   }
 
-  onResize = (
+  onResizeStop = (
     e: React.SyntheticEvent<Element, Event>,
     data: ResizeCallbackData
   ): void => {
     e.stopPropagation();
     e.preventDefault();
+    // this.fitAddon?.fit();
+    this.resize();
+    console.log(this.fitAddon?.proposeDimensions());
     this.props.setTerminalHeight(data.size.height);
   };
 
@@ -125,39 +128,41 @@ class TerminalUI extends React.Component<Props> {
         axis="y"
         handle={<span className="custom-handle custom-handle-n" />}
         resizeHandles={["n"]}
-        handleSize={[8, 8]}
+        handleSize={[Infinity, 8]}
         className={`terminal-c ${
           this.props.terminalOpen ? "terminal-open" : ""
         }`}
-        onResize={this.onResize}
+        onResizeStop={this.onResizeStop}
       >
-        <div className="terminal-top" onDoubleClick={this.handleToggle}>
-          <p>Terminal</p>
-          <button className="terminal-toggle-btn" onClick={this.handleToggle}>
-            <div className="terminal-icon-wrapper">
-              <FontAwesomeIcon icon={faAngleUp}></FontAwesomeIcon>
-            </div>
-          </button>
-          <button
-            className="terminal-close-btn"
-            onClick={this.handleDisconnect}
-          >
-            <div className="terminal-icon-wrapper">
-              <FontAwesomeIcon icon={faTimes}></FontAwesomeIcon>
-            </div>
-          </button>
-        </div>
-        <div className="terminal-content">
-          <XTerm
-            ref={this.xtermRef}
-            addons={[this.fitAddon, this.webLinksAddon]}
-            className="terminal-xterm"
-            options={{
-              convertEol: true,
-              fontFamily: `"JetBrains Mono", "MesloLGS NF"`,
-              rendererType: "dom",
-            }}
-          />
+        <div className="terminal-inner">
+          <div className="terminal-top" onDoubleClick={this.handleToggle}>
+            <p>Terminal</p>
+            <button className="terminal-toggle-btn" onClick={this.handleToggle}>
+              <div className="terminal-icon-wrapper">
+                <FontAwesomeIcon icon={faAngleUp}></FontAwesomeIcon>
+              </div>
+            </button>
+            <button
+              className="terminal-close-btn"
+              onClick={this.handleDisconnect}
+            >
+              <div className="terminal-icon-wrapper">
+                <FontAwesomeIcon icon={faTimes}></FontAwesomeIcon>
+              </div>
+            </button>
+          </div>
+          <div className="terminal-content">
+            <XTerm
+              ref={this.xtermRef}
+              addons={[this.fitAddon, this.webLinksAddon]}
+              className="terminal-xterm"
+              options={{
+                convertEol: true,
+                fontFamily: `"JetBrains Mono", "MesloLGS NF"`,
+                rendererType: "dom",
+              }}
+            />
+          </div>
         </div>
       </ResizableBox>
     );

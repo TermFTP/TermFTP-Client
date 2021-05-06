@@ -39,7 +39,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  height: 4em;
+  height: var(--top-height);
   gap: 10px;
 
   .file-manager-btn {
@@ -56,23 +56,8 @@
   position: relative;
   flex-direction: column;
   overflow-y: scroll;
-  transform: height;
-  height: calc(
-    100% - var(--top-height) - var(--bottom-height) - var(--terminalClosed)
-  );
-  max-height: calc(
-    100% - var(--top-height) - var(--bottom-height) - var(--terminalClosed)
-  );
-
-  &.fm-terminal-open {
-    height: calc(
-      100% - var(--top-height) - var(--bottom-height) - var(--terminalOpened)
-    );
-
-    #file-manager-plus {
-      bottom: calc(8px + var(--bottom-height) + var(--terminalOpened));
-    }
-  }
+  height: calc(100% - var(--top-height) - var(--bottom-height));
+  max-height: calc(100% - var(--top-height) - var(--bottom-height));
 
   & > div {
     height: 100%;

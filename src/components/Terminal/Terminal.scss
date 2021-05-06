@@ -2,15 +2,13 @@ $terminalDur: 400ms;
 
 .terminal-c {
   width: 100% !important;
-  transition: $terminalDur height ease;
   height: var(--terminalClosed);
   background: var(--dark-bg-2);
   color: var(--color);
   will-change: height;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  position: relative;
+  // overflow: hidden;
+  position: absolute;
+  bottom: var(--bottom-height);
 
   &.terminal-open {
     height: var(--terminalOpened);
@@ -18,6 +16,13 @@ $terminalDur: 400ms;
       transform: rotate(180deg);
     }
   }
+}
+
+.terminal-inner {
+  display: flex;
+  flex-direction: column;
+  height: inherit;
+  overflow: hidden;
 }
 
 .terminal-top {
@@ -83,16 +88,26 @@ $terminalDur: 400ms;
 }
 
 .custom-handle {
+  --handle-size: 8px;
   position: absolute;
-  width: 8px;
-  height: 8px;
-  background-color: #1153aa;
+  height: var(--handle-size);
+  // background-color: #1153aa;
+  transition: var(--dur) background ease;
+  background: transparent;
   opacity: 0.75;
-  border-radius: 4px;
+  display: none;
 
   &.custom-handle-n {
-    top: -4px;
+    width: calc(100% - var(--terminalClosed) * 2);
+    top: calc(var(--handle-size) / 2 * -1);
+    left: 0;
     cursor: ns-resize;
-    left: 50%;
+    // left: 50%;
+  }
+}
+.terminal-open .custom-handle {
+  display: unset;
+  &:hover {
+    background: #686060;
   }
 }

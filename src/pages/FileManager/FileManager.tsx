@@ -31,15 +31,13 @@ import { setFiles } from "@store/ftp";
 
 const mapState = ({
   ftpReducer: { client },
-  fmReducer: { menu, loading, terminalOpen, terminalHeight },
+  fmReducer: { menu, loading },
   router: { location },
 }: RootState) => ({
   client,
   menu,
   loading,
   location,
-  terminalOpen,
-  terminalHeight,
 });
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
@@ -275,16 +273,10 @@ export class FileManagerUI extends Component<Props, State> {
         </div>
         <div
           id="file-manager-ui"
-          className={`${this.props.terminalOpen ? "fm-terminal-open" : ""}`}
           onDrop={this.onDrop}
           onDragOver={(e) => e.preventDefault()}
           onDragEnter={this.onDragEnter}
           onDragLeave={this.onDragLeave}
-          style={
-            {
-              "--terminalHeight": `${this.props.terminalHeight}px`,
-            } as React.CSSProperties
-          }
         >
           <HotKeys
             keyMap={this.keyMap}
