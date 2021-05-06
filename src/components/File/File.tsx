@@ -51,7 +51,7 @@ function FileUI({
       data-name={file.name.toLowerCase()}
       onDoubleClick={async () => {
         if (file.type === FileType.DIR) {
-          setFMLoading(true);
+          // setFMLoading(true);
           // await client.cd(file.name, true);
           // client.forceUpdate();
           push(`${normalizeURL(window.location.pathname)}/${file.name}`);
