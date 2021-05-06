@@ -1,6 +1,6 @@
 import File from "@components/File/File";
 import { normalizeURL } from "@lib";
-import { FileType } from "@models";
+import { FileType } from "@shared";
 import { RootState } from "@store";
 import React from "react";
 import { useSelector } from "react-redux";

@@ -1,5 +1,5 @@
 import { convertFileSize, normalizeURL } from "@lib";
-import { FileI, FileType } from "@models";
+import { FileType, FileI } from "@shared";
 import { DefaultDispatch, RootState } from "@store";
 import { ContextMenuProps, setContextMenu } from "@store/filemanager";
 import { push } from "connected-react-router";

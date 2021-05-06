@@ -1,7 +1,7 @@
 import "./File.scss";
 import React from "react";
 import iconsImp from "@assets/icons";
-import { FileI, FileType } from "@models";
+import { FileI, FileType } from "@shared";
 
 const EXTRA_MAPPINGS = [
   { before: /\.(tsx|ts)$/, after: "js" },

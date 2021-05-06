@@ -5,7 +5,7 @@ import { connect, ConnectedProps } from "react-redux";
 import { ContextMenuProps, setContextMenu } from "@store/filemanager";
 import { PromptProps } from "@components/Prompt/Prompt";
 import { setPrompt, addBubble } from "@store/app";
-import { BubbleModel, FileType } from "@models";
+import { BubbleModel } from "@models";
 import { remote } from "electron";
 import {
   faFileDownload,
@@ -16,6 +16,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
+import { FileType } from "@shared";
 
 const mapState = ({
   fmReducer: { menu },

@@ -1,5 +1,6 @@
 import { BaseFTP } from "@lib";
-import { DefaultReturn, FileI } from "@models";
+import { DefaultReturn } from "@models";
+import { FileI } from "@shared";
 import { push } from "connected-react-router";
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";

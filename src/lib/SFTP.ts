@@ -1,6 +1,6 @@
 import { Socket, connect } from 'socket.io-client';
 import { ConnectConfig } from 'ssh2';
-import { SFTPResponse, SFTPResponseType, SFTPRequestType } from '@shared';
+import { FTPResponse, FTPResponseType, FTPRequestType } from '@shared';
 
 export class SFTP {
   private socket?: typeof Socket;
@@ -12,20 +12,20 @@ export class SFTP {
     this.cwd = "";
   }
 
-  connect(config: ConnectConfig, callback: (data: SFTPResponse) => void): void {
+  connect(config: ConnectConfig, callback: (data: FTPResponse) => void): void {
     const socket = connect('localhost:15000');
     this.socket = socket;
 
     socket.on('connect', () => {
       socket.emit('sftp', config);
 
-      socket.on('sftp:data', (res: SFTPResponse) => {
+      socket.on('sftp:data', (res: FTPResponse) => {
         callback(res);
       });
 
     })
       .on('error', (err: any) => {
-        callback({ type: SFTPResponseType.ERROR, data: err.message });
+        callback({ type: FTPResponseType.ERROR, data: err.message });
       });
 
   }
@@ -40,7 +40,7 @@ export class SFTP {
     this.cwd += "/";
 
     this.socket.emit('sftp:data', {
-      type: SFTPRequestType.LIST,
+      type: FTPRequestType.LIST,
       data: {
         dir: this.cwd,
       }
@@ -49,7 +49,7 @@ export class SFTP {
 
   list(dir?: string): void {
     this.socket.emit('sftp:data', {
-      type: SFTPRequestType.LIST,
+      type: FTPRequestType.LIST,
       data: {
         dir: dir || '',
       }
@@ -58,7 +58,7 @@ export class SFTP {
 
   get(remoteFile: string, localPath: string): void {
     this.socket.emit('sftp:data', {
-      type: SFTPRequestType.GET,
+      type: FTPRequestType.GET,
       data: {
         remotePath: remoteFile,
         localPath,
@@ -68,7 +68,7 @@ export class SFTP {
 
   put(source: string, destPath: string): void {
     this.socket.emit('sftp:data', {
-      type: SFTPRequestType.PUT,
+      type: FTPRequestType.PUT,
       data: {
         localPath: source,
         remotePath: destPath,
@@ -78,7 +78,7 @@ export class SFTP {
 
   rename(oldPath: string, newPath: string): void {
     this.socket.emit('sftp:data', {
-      type: SFTPRequestType.RENAME,
+      type: FTPRequestType.RENAME,
       data: {
         srcPath: oldPath,
         destPath: newPath,
@@ -88,7 +88,7 @@ export class SFTP {
 
   deleteFile(file: string): void {
     this.socket.emit('sftp:data', {
-      type: SFTPRequestType.DELETE,
+      type: FTPRequestType.DELETE,
       data: {
         file,
       }
@@ -97,7 +97,7 @@ export class SFTP {
 
   mkdir(path: string): void {
     this.socket.emit('sftp:data', {
-      type: SFTPRequestType.MKDIR,
+      type: FTPRequestType.MKDIR,
       data: {
         path,
       }
@@ -106,7 +106,7 @@ export class SFTP {
 
   rmdir(path: string): void {
     this.socket.emit('sftp:data', {
-      type: SFTPRequestType.RMDIR,
+      type: FTPRequestType.RMDIR,
       data: {
         path,
       }

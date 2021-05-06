@@ -1,23 +1,118 @@
-// import Client from "ftp";
-import { FileI, FileType } from "@shared";
+import { Socket } from "socket.io";
+import { ClientEvents, ServerEvents, FileI, FileType, FTPResponse, FTPResponseType, FTPRequestType } from "../../src/shared";
 import { FileType as BasicType, Client, FileInfo } from "basic-ftp";
-import { BaseFTP, FTPConfig } from "./BaseFTP";
+import { FTPConfig } from "../../src/lib/BaseFTP";
+import PQueue from "p-queue";
 import { Factory, createPool, Options, Pool } from "generic-pool";
 import { basename } from "path";
 import { mkdirSync } from "fs-extra";
 import { join } from "path";
-import PQueue from "p-queue";
+import { ProgressHandler } from "basic-ftp/dist/ProgressTracker";
 
-export interface FTPEventDetails {
-  change: "all" | "directory" | "files";
+const Res = FTPResponseType;
+const Req = FTPRequestType;
+
+export const FTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => async (config: FTPConfig): Promise<void> => {
+  const ftp = new FTP(config, (info) => socket.emit("ftp:track", info));
+  try {
+    await ftp.connect();
+  } catch {
+    socket.emit("ftp:data", {
+      type: Res.ERROR,
+      data: "could not connect"
+    })
+    socket.disconnect();
+    return;
+  }
+
+  socket.emit("ftp:data", {
+    type: Res.LIST,
+    data: {
+      files: await ftp.list(),
+      pwd: await ftp.pwd()
+    }
+  })
+
+  socket.on("ftp:data", async (req) => {
+    try {
+      switch (req.type) {
+        case Req.CD:
+          await ftp.cd(req.data.dir);
+          ftpReadDir(socket, ftp);
+          break;
+        case Req.DELETE:
+          await ftp.deleteFile(req.data.file);
+          ftpReadDir(socket, ftp);
+          break;
+        case Req.GET:
+          await ftp.get(req.data.remotePath, req.data.localPath);
+          break;
+        case Req.LIST:
+          ftpReadDir(socket, ftp);
+          break;
+        case Req.MKDIR:
+          await ftp.mkdir(req.data.path);
+          ftpReadDir(socket, ftp);
+          break;
+        case Req.PUT:
+          await ftp.put(req.data.localPath, req.data.remotePath);
+          ftpReadDir(socket, ftp);
+          break;
+        case Req.RENAME:
+          await ftp.rename(req.data.srcPath, req.data.destPath);
+          ftpReadDir(socket, ftp);
+          break;
+        case Req.RMDIR:
+          await ftp.rmdir(req.data.path);
+          ftpReadDir(socket, ftp);
+          break;
+        case Req.GET_FOLDER:
+          ftp.getFolder(req.data.remotePath, req.data.localPath);
+          break;
+        case Req.PUT_FILES:
+          ftp.putFiles(req.data.files);
+          break;
+        case Req.PUT_FOLDER:
+          ftp.putFolder(req.data.localPath, req.data.remotePath);
+          break;
+        case Req.PUT_FOLDERS:
+          ftp.putFolders(req.data.folders);
+          break;
+        default:
+          return;
+      }
+    } catch (e) {
+      ftpErr(socket, e);
+    }
+  })
 }
 
-export type FTPEvent = CustomEvent<FTPEventDetails>;
+const ftpErr = (socket: Socket<ClientEvents, ServerEvents>, err: Error) => {
+  socket.emit('ftp:data', {
+    type: FTPResponseType.ERROR,
+    data: err.message,
+  } as FTPResponse);
+}
 
-export class FTP extends BaseFTP {
+const ftpReadDir = async (socket: Socket<ClientEvents, ServerEvents>, ftp: FTP, dir?: string) => {
+  socket.emit('ftp:data', {
+    type: FTPResponseType.LIST,
+    data: {
+      files: await ftp.list(dir),
+      pwd: await ftp.pwd()
+    }
+  })
+}
+
+export class FTP {
+  config: FTPConfig;
   private _pwd: string = undefined;
   private factory: Factory<Client> = {
-    create: () => Promise.resolve(new Client()),
+    create: (() => {
+      const c = new Client();
+      this.addTracker(c);
+      return Promise.resolve(c);
+    }).bind(this),
     validate: (c) => Promise.resolve(c.closed),
     destroy: (c) => Promise.resolve(c.close())
   }
@@ -31,10 +126,12 @@ export class FTP extends BaseFTP {
     concurrency: 1,
     throwOnTimeout: true
   });
+  private handler: ProgressHandler;
 
-  constructor(config: FTPConfig) {
-    super();
+  constructor(config: FTPConfig, handler: ProgressHandler) {
     this.config = config;
+    this.handler = handler;
+    this.addTracker(this.client);
     window.addEventListener("unload", (() => {
       this.client.close();
       this.pool.clear();
@@ -54,6 +151,10 @@ export class FTP extends BaseFTP {
       default:
         return FileType.UNKNOWN;
     }
+  }
+
+  addTracker(client: Client): void {
+    client.trackProgress(this.handler)
   }
 
   async connect(): Promise<void> {
@@ -116,14 +217,13 @@ export class FTP extends BaseFTP {
     }
   }
 
-  async cd(dir: string, noEmit = false): Promise<void> {
+  async cd(dir: string): Promise<void> {
     if (this.client.closed) {
       await this._reconnect();
     }
 
     await this.queue.add(() => this.client.cd(dir));
     await this.pwd();
-    !noEmit && this.emit("ftp-event", { details: "all" });
   }
 
   async get(
@@ -173,13 +273,12 @@ export class FTP extends BaseFTP {
     }
   }
 
-  async put(source: string, destPath: string, noEmit = false): Promise<void> {
+  async put(source: string, destPath: string): Promise<void> {
     const pwd = this._pwd;
     const c = await this.pool.acquire();
     await c.access(this.config);
     await c.cd(pwd);
     await c.uploadFrom(source, destPath);
-    !noEmit && this.emit("ftp-event", { details: "all" });
     this.pool.release(c);
   }
 
@@ -189,7 +288,6 @@ export class FTP extends BaseFTP {
     await c.access(this.config);
     await c.cd(pwd);
     await c.ensureDir(path);
-    this.emit("ftp-event", { details: "all" });
     this.pool.release(c);
   }
 
@@ -199,7 +297,6 @@ export class FTP extends BaseFTP {
     await c.access(this.config);
     await c.cd(pwd);
     await c.remove(file, true);
-    this.emit("ftp-event", { details: "all" })
     this.pool.release(c);
   }
 
@@ -209,7 +306,6 @@ export class FTP extends BaseFTP {
     await c.access(this.config);
     await c.cd(pwd);
     await c.removeDir(path);
-    this.emit("ftp-event", { details: "all" });
     this.pool.release(c);
   }
 
@@ -219,37 +315,27 @@ export class FTP extends BaseFTP {
     await c.access(this.config);
     await c.cd(pwd);
     await c.rename(oldPath, newPath);
-    this.emit("ftp-event", { details: "all" });
     this.pool.release(c);
   }
 
-  async putFolder(source: string, destPath: string, noEmit = false): Promise<void> {
+  async putFolder(source: string, destPath: string): Promise<void> {
     const pwd = this._pwd;
     const c = await this.pool.acquire();
     await c.access(this.config);
     await c.cd(pwd);
     await c.uploadFromDir(source, destPath);
-    !noEmit && this.emit("ftp-event", { details: "all" });
     this.pool.release(c);
   }
 
   async putFiles(files: string[]): Promise<void> {
-    await Promise.all(files.map(f => this.put(f, basename(f), true)))
-    this.emit("ftp-event", { details: "all" });
+    await Promise.all(files.map(f => this.put(f, basename(f))))
   }
 
   async putFolders(folders: string[]): Promise<void> {
     await Promise.all(
-      folders.map((f) => this.putFolder(f, basename(f), true))
+      folders.map((f) => this.putFolder(f, basename(f)))
     );
-    this.emit("ftp-event", { details: "all" })
   }
 
   get connected(): boolean { return !this.client.closed }
-
-  forceUpdate(): void {
-    this.emit("ftp-event", { details: "all" })
-  }
 }
-
-export default FTP;

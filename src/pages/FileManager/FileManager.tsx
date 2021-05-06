@@ -8,7 +8,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FTPEventDetails, normalizeURL } from "@lib";
-import { BubbleModel, FileI, HistoryReq } from "@models";
+import { BubbleModel, HistoryReq } from "@models";
+import { FileI } from "@shared";
 import { DefaultDispatch, RootState } from "@store";
 import { addBubble, setSettings } from "@store/app";
 import {

@@ -4,13 +4,10 @@
     "sourceMap": false,
     "outDir": "build",
     "baseUrl": "./",
-    "paths": {
-      "@shared": ["../src/shared"],
-      "@shared/*": ["../src/shared/*"]
-    },
     "strictNullChecks": false,
     "noImplicitAny": false,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "target": "es5"
   },
-  "include": ["window", "src/shared"]
+  "include": ["window"]
 }

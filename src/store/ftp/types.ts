@@ -1,5 +1,5 @@
 import { BaseFTP } from "@lib";
-import { FileI } from "@models";
+import { FileI } from "@shared";
 
 export enum FTPActionTypes {
   SET_FTP_CLIENT = "ftp/set-ftp-client",

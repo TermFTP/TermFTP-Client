@@ -1,4 +1,4 @@
-import { FileI } from "@models";
+import { FileI } from "../shared/models";
 import { EventEmitter } from "events";
 import { AccessOptions } from "basic-ftp";
 

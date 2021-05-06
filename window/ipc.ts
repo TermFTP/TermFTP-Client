@@ -7,7 +7,7 @@ import {
   IPCGetKeyReply,
   IPCSaveKeyRequest,
   IPCSaveKeyReply,
-} from "../shared/models";
+} from "../src/shared/models";
 import { pbkdf2Sync } from "crypto";
 import keytar from "keytar";
 

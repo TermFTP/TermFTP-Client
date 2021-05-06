@@ -1,4 +1,4 @@
-import { FileI } from "@models";
+import { FileI } from "@shared";
 
 export type TerminalActions = "OPEN" | "CLOSE" | "TOGGLE";
 

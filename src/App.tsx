@@ -12,7 +12,6 @@ import "./App.scss";
 import { history } from "./configureStore";
 import { RootState } from "./store";
 import "./variables.scss";
-import { SFTP } from "@lib";
 
 // const mapDispatch = (dispatch: DefaultDispatch) => ({});
 
