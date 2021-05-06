@@ -1,4 +1,5 @@
 import File from "@components/File/File";
+import { normalizeURL } from "@lib";
 import { FileType } from "@models";
 import { RootState } from "@store";
 import React from "react";
@@ -8,7 +9,9 @@ export const Files = (): JSX.Element => {
   const { files } = useSelector(({ ftpReducer: { files } }: RootState) => ({
     files,
   }));
-  const pwd = window.location.pathname.replace("/file-manager", "");
+  const pwd = normalizeURL(
+    window.location.pathname.replace("/file-manager", "")
+  );
   const dotdotExists = files.filter((f) => f.name == "..").length > 0;
 
   const filtered = files.filter((f) => !(f.name == ".." || f.name == "."));
