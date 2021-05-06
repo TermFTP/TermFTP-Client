@@ -1,6 +1,5 @@
 import { Socket, connect } from 'socket.io-client';
 import { ConnectConfig } from 'ssh2';
-import { FileI, FileType } from "@models";
 import { SFTPResponse, SFTPResponseType, SFTPRequestType } from '@shared';
 
 export class SFTP {
@@ -20,7 +19,7 @@ export class SFTP {
     socket.on('connect', () => {
       socket.emit('sftp', config);
 
-      socket.on('data', (res: SFTPResponse) => {
+      socket.on('sftp:data', (res: SFTPResponse) => {
         callback(res);
       });
 
@@ -40,7 +39,7 @@ export class SFTP {
 
     this.cwd += "/";
 
-    this.socket.emit('data', {
+    this.socket.emit('sftp:data', {
       type: SFTPRequestType.LIST,
       data: {
         dir: this.cwd,
@@ -49,7 +48,7 @@ export class SFTP {
   }
 
   list(dir?: string): void {
-    this.socket.emit('data', {
+    this.socket.emit('sftp:data', {
       type: SFTPRequestType.LIST,
       data: {
         dir: dir || '',
@@ -58,7 +57,7 @@ export class SFTP {
   }
 
   get(remoteFile: string, localPath: string): void {
-    this.socket.emit('data', {
+    this.socket.emit('sftp:data', {
       type: SFTPRequestType.GET,
       data: {
         remotePath: remoteFile,
@@ -68,7 +67,7 @@ export class SFTP {
   }
 
   put(source: string, destPath: string): void {
-    this.socket.emit('data', {
+    this.socket.emit('sftp:data', {
       type: SFTPRequestType.PUT,
       data: {
         localPath: source,
@@ -78,13 +77,40 @@ export class SFTP {
   }
 
   rename(oldPath: string, newPath: string): void {
-    this.socket.emit('data', {
+    this.socket.emit('sftp:data', {
       type: SFTPRequestType.RENAME,
       data: {
         srcPath: oldPath,
         destPath: newPath,
       }
     })
+  }
+
+  deleteFile(file: string): void {
+    this.socket.emit('sftp:data', {
+      type: SFTPRequestType.DELETE,
+      data: {
+        file,
+      }
+    });
+  }
+
+  mkdir(path: string): void {
+    this.socket.emit('sftp:data', {
+      type: SFTPRequestType.MKDIR,
+      data: {
+        path,
+      }
+    });
+  }
+
+  rmdir(path: string): void {
+    this.socket.emit('sftp:data', {
+      type: SFTPRequestType.RMDIR,
+      data: {
+        path,
+      }
+    });
   }
 
 }

@@ -1,3 +1,5 @@
+import { FileEntry } from "ssh2-streams"
+
 export enum SFTPResponseType {
   LIST = "list",
   ERROR = "error",
@@ -58,23 +60,45 @@ export interface SReqDelete {
 export interface SReqMkdir {
   type: typeof Req.MKDIR;
   data: {
-    dir: string;
+    path: string;
   }
 }
 
 export interface SRegRmdir {
   type: typeof Req.RMDIR;
   data: {
-    dir: string;
+    path: string;
   }
 }
 
-export type SFTPRequest = SReqList | SReqGet | SReqPUt | SReqRename | SReqDelete | SReqMkdir | SRegRmdir;
-
-export interface SFTPResponse {
-  type: SFTPResponseType,
-  data: any,
+export interface SError {
+  type: "error";
+  data: string;
 }
+
+export type SFTPRequest = SReqList | SReqGet | SReqPUt | SReqRename | SReqDelete | SReqMkdir | SRegRmdir | SError;
+
+export interface SResTransfer {
+  type: typeof SFTPResponseType.TRANSFER_UPDATE,
+  data: {
+    name: string;
+    transferred: number;
+    chunk: number;
+    total: number;
+  }
+}
+
+export interface SResError {
+  type: typeof SFTPResponseType.ERROR,
+  data: string;
+}
+
+export interface SResList {
+  type: typeof SFTPResponseType.LIST,
+  data: FileEntry[]
+}
+
+export type SFTPResponse = SResTransfer | SResError | SResList;
 
 // export interface SFTPRequest {
 //   type: SFTPRequestType,

@@ -70,6 +70,7 @@ export function App(): JSX.Element {
     //   },
     //   term
     // );
+    /*
     const sftp: SFTP = new SFTP();
     sftp.connect(
       {
@@ -85,7 +86,7 @@ export function App(): JSX.Element {
     );
     setTimeout(() => sftp.cd("aspnet_client"), 5000);
     setTimeout(() => sftp.cd("system_web"), 8000);
-    setTimeout(() => sftp.cd(".."), 10000);
+    setTimeout(() => sftp.cd(".."), 10000);*/
   }, []);
 
   return (

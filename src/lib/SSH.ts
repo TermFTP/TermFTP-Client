@@ -42,16 +42,16 @@ export class SSH {
       // term.write("\r\n*** Connected to backend***\r\n");
       // Browser -> Backend
       term.onData((data) => {
-        socket.emit("data", data);
+        socket.emit("ssh:data", data);
       });
-      socket.on("init", () => {
+      socket.on("ssh:init", () => {
         this.resize();
       })
       // Backend -> Browser
-      socket.on("data", function (data: string) {
+      socket.on("ssh:data", function (data: string) {
         term.write(data);
       });
-      socket.on("disconnect", this.disconnect);
+      socket.on("ssh:disconnect", this.disconnect);
     });
   }
 
@@ -67,7 +67,7 @@ export class SSH {
       rows: dim.rows,
       width: style.width,
     };
-    this.socket.emit("resize", data);
+    this.socket.emit("ssh:resize", data);
   }
 
 }
