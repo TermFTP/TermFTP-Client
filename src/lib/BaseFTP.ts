@@ -1,43 +1,39 @@
-import { FileI } from "../shared/models";
-import { EventEmitter } from "events";
+import { FileI, FTPResponse } from "../shared/models";
 import { AccessOptions } from "basic-ftp";
+import { Socket } from "socket.io-client";
 
 export interface FTPConfig extends AccessOptions {
   sshPort: number;
 }
 
-export abstract class BaseFTP extends EventEmitter {
-  config: FTPConfig;
+export abstract class BaseFTP {
+  protected socket?: typeof Socket;
   // private  s: Error = new Error("implement a superclass");
   // connected = false;
-  constructor() {
-    super();
-  }
 
-  abstract connect(): Promise<void>;
+  abstract connect(callback: (res: FTPResponse) => void): void;
   abstract disconnect(): void;
 
   abstract pwd(): Promise<string>;
-  abstract list(dir?: string): Promise<FileI[]>;
-  abstract cd(dir: string, noEmit?: boolean): Promise<void>;
+  abstract list(dir?: string): void;
+  abstract cd(dir: string): void;
   abstract get(
     remoteFile: string,
     localPath: string,
     startAt?: number
-  ): Promise<void>;
-  abstract getFolder(remoteFolder: FileI, localFolder: string): Promise<void>;
-  abstract put(source: string, destPath: string, noEmit?: boolean): Promise<void>;
-  abstract mkdir(path: string, recursive?: boolean): Promise<void>;
-  abstract deleteFile(file: string): Promise<void>;
-  abstract rmdir(dir: string, recursive?: boolean): Promise<void>;
-  abstract rename(oldPath: string, newPath: string): Promise<void>;
-  abstract putFolder(source: string, destPath: string, noEmit?: boolean): Promise<void>;
-  abstract putFolders(folders: string[]): Promise<void>;
-  abstract putFiles(files: string[]): Promise<void>;
+  ): void;
+  abstract getFolder(remoteFolder: FileI, localFolder: string): void;
+  // abstract put(source: string, destPath: string): void;
+  abstract mkdir(path: string): void;
+  abstract deleteFile(file: string): void;
+  abstract rmdir(dir: string, recursive?: boolean): void;
+  abstract rename(oldPath: string, newPath: string): void;
+  abstract putFolder(source: string, destPath: string): void;
+  abstract putFolders(folders: string[]): void;
+  abstract putFiles(files: string[]): void;
 
   abstract get connected(): boolean;
-
-  abstract forceUpdate(): void;
+  abstract get config(): FTPConfig;
 }
 
 export function convertFileSize(size: number, decimals = 1): string {

@@ -1,255 +1,224 @@
 // import Client from "ftp";
-import { FileI, FileType } from "@shared";
-import { FileType as BasicType, Client, FileInfo } from "basic-ftp";
+import { FileI, FTPRequest, FTPRequestType, FTPResponse, FTPResponseType } from "@shared";
 import { BaseFTP, FTPConfig } from "./BaseFTP";
-import { Factory, createPool, Options, Pool } from "generic-pool";
-import { basename } from "path";
-import { mkdirSync } from "fs-extra";
-import { join } from "path";
-import PQueue from "p-queue";
+import Client from "socket.io-client";
 
 export interface FTPEventDetails {
   change: "all" | "directory" | "files";
 }
 
-export type FTPEvent = CustomEvent<FTPEventDetails>;
+const ReqT = FTPRequestType;
 
 export class FTP extends BaseFTP {
   private _pwd: string = undefined;
-  private factory: Factory<Client> = {
-    create: () => Promise.resolve(new Client()),
-    validate: (c) => Promise.resolve(c.closed),
-    destroy: (c) => Promise.resolve(c.close())
-  }
-  private poolOpts: Options = {
-    max: 4,
-    min: 0
-  }
-  private pool: Pool<Client> = createPool<Client>(this.factory, this.poolOpts);
-  private client: Client = new Client();
-  private queue: PQueue = new PQueue({
-    concurrency: 1,
-    throwOnTimeout: true
-  });
+  private _config: FTPConfig;
 
   constructor(config: FTPConfig) {
     super();
-    this.config = config;
+    this._config = config;
     window.addEventListener("unload", (() => {
-      this.client.close();
-      this.pool.clear();
+      this.disconnect();
     }).bind(this));
   }
 
-  private convertFileType(type: BasicType): FileType {
-    switch (type) {
-      case BasicType.Unknown:
-        return FileType.UNKNOWN;
-      case BasicType.Directory:
-        return FileType.DIR;
-      case BasicType.SymbolicLink:
-        return FileType.SYMBOLIC;
-      case BasicType.File:
-        return FileType.FILE;
-      default:
-        return FileType.UNKNOWN;
-    }
+  get config(): FTPConfig {
+    return this._config;
   }
 
-  async connect(): Promise<void> {
-    await this.client.access(this.config);
-    this._pwd = await this.client.pwd();
+  connect(callback: (data: FTPResponse) => void, config?: FTPConfig): void {
+    const socket = Client.connect('localhost:15000');
+    this.socket = socket;
+    this._config = config || this._config;
+
+    socket.once('connect', () => {
+      socket.emit('ftp', this._config)
+
+      socket.on('ftp:data', (res: FTPResponse) => {
+        if (res.type === FTPResponseType.LIST) {
+          res.data.files = res.data.files.map(f => ({ ...f, date: new Date(f.date) }))
+        }
+        callback(res)
+      });
+    })
+      .on('error', (err: any) => {
+        callback({ type: FTPResponseType.ERROR, data: err.message })
+      })
   }
 
-  private async _reconnect(): Promise<void> {
-    try {
-      const pwd = this._pwd;
-      await this.queue.add(() => this.client.access(this.config));
-      await this.queue.add(() => this.client.cd(pwd));
-    } catch (e) {
-      return Promise.reject("not connected")
-    }
+  private _reconnect(): void {
+    //
+  }
+
+  private emit(req: FTPRequest) {
+    this.socket?.emit("ftp:data", req);
   }
 
   async pwd(): Promise<string> {
-    if (this.client.closed) {
-      await this._reconnect();
-    }
-
-    this._pwd = await this.queue.add(() => this.client.pwd());
-    return this._pwd;
+    return new Promise((resolve) => {
+      this.socket.once('ftp:pwd', (res: string) => {
+        this._pwd = res;
+        resolve(res);
+      })
+      this.emit({
+        type: ReqT.PWD
+      })
+    })
   }
 
-  private convertFiles(files: FileInfo[]): FileI[] {
-
-    return files
-      .map((v) => ({
-        type: this.convertFileType(v.type),
-        date: v.modifiedAt,
-        name: v.name,
-        size: v.size,
-      } as FileI))
-      .sort((a, b) => {
-        if (a.type === b.type) {
-          return a.name.localeCompare(b.name);
-        }
-        if (a.type === FileType.DIR) {
-          return -1;
-        }
-        return 1;
-      });
-  }
-
-  async list(dir?: string): Promise<FileI[]> {
-    if (this.client.closed) {
-      await this._reconnect();
-    }
-
-    return this.convertFiles(await this.queue.add(() => this.client.list(dir)));
+  list(dir?: string): void {
+    this.emit({
+      type: ReqT.LIST,
+      data: {
+        dir
+      }
+    });
   }
 
   disconnect(): void {
     try {
-      !this.client.closed && this.client.close();
+      this.socket?.close();
     } catch (e) {
       //
     }
   }
 
-  async cd(dir: string, noEmit = false): Promise<void> {
-    if (this.client.closed) {
-      await this._reconnect();
-    }
-
-    await this.queue.add(() => this.client.cd(dir));
-    await this.pwd();
-    !noEmit && this.emit("ftp-event", { details: "all" });
+  cd(dir: string): Promise<void> {
+    return new Promise((resolve) => {
+      this.socket.once('ftp:cd', () => {
+        resolve();
+      })
+      this.emit({
+        type: ReqT.CD,
+        data: {
+          dir
+        }
+      })
+    })
   }
 
-  async get(
+  get(
     remoteFile: string,
     localPath: string,
-    startAt?: number
-  ): Promise<void> {
-    const pwd = this._pwd;
-    const c = await this.pool.acquire();
-    await c.access(this.config);
-    await c.cd(pwd);
-    await c.downloadTo(localPath, remoteFile, startAt);
-    this.pool.release(c);
-  }
-
-  async getFolder(remoteFolder: FileI, localFolder: string): Promise<void> {
-    const pwd = this._pwd;
-    const c = await this.pool.acquire();
-    await c.access(this.config);
-    await c.cd(pwd);
-    await this._getFolder(c, remoteFolder, localFolder);
-    // await c.downloadToDir(localFolder, remoteFolder); // this apparently does not work
-    this.pool.release(c);
-  }
-
-  private async _getFolder(c: Client, file: FileI, path: string): Promise<void> {
-    if (file.type === FileType.DIR) {
-      try {
-        mkdirSync(join(path, file.name));
-      } catch (e) {
-        //folder already exists, who cares..
+  ): void {
+    this.emit({
+      type: ReqT.GET,
+      data: {
+        localPath,
+        remotePath: remoteFile
       }
-      const items = (await c.list(file.name))
-        .map((v) => ({
-          type: this.convertFileType(v.type),
-          date: v.modifiedAt,
-          name: v.name,
-          size: v.size,
-        } as FileI));
-
-      await Promise.all(items.map(i => {
-        i.name = join(file.name, i.name);
-        return this._getFolder(c, i, path);
-      }))
-    } else if (file.type === FileType.FILE) {
-      await this.get(file.name, join(path, file.name));
-    }
+    })
   }
 
-  async put(source: string, destPath: string, noEmit = false): Promise<void> {
-    const pwd = this._pwd;
-    const c = await this.pool.acquire();
-    await c.access(this.config);
-    await c.cd(pwd);
-    await c.uploadFrom(source, destPath);
-    !noEmit && this.emit("ftp-event", { details: "all" });
-    this.pool.release(c);
+  getFolder(remoteFolder: FileI, localFolder: string): void {
+    this.emit({
+      type: ReqT.GET_FOLDER,
+      data: {
+        localPath: localFolder,
+        remoteFolder: remoteFolder
+      }
+    })
   }
 
-  async mkdir(path: string): Promise<void> {
-    const pwd = this._pwd;
-    const c = await this.pool.acquire();
-    await c.access(this.config);
-    await c.cd(pwd);
-    await c.ensureDir(path);
-    this.emit("ftp-event", { details: "all" });
-    this.pool.release(c);
+  // private async _getFolder(c: Client, file: FileI, path: string): void {
+  //   if (file.type === FileType.DIR) {
+  //     try {
+  //       mkdirSync(join(path, file.name));
+  //     } catch (e) {
+  //       //folder already exists, who cares..
+  //     }
+  //     const items = (await c.list(file.name))
+  //       .map((v) => ({
+  //         type: this.convertFileType(v.type),
+  //         date: v.modifiedAt,
+  //         name: v.name,
+  //         size: v.size,
+  //       } as FileI));
+
+  //     await Promise.all(items.map(i => {
+  //       i.name = join(file.name, i.name);
+  //       return this._getFolder(c, i, path);
+  //     }))
+  //   } else if (file.type === FileType.FILE) {
+  //     await this.get(file.name, join(path, file.name));
+  //   }
+  // }
+
+  put(source: string, destPath: string): void {
+    this.emit({
+      type: ReqT.PUT,
+      data: {
+        localPath: source,
+        remotePath: destPath
+      }
+    })
   }
 
-  async deleteFile(file: string): Promise<void> {
-    const pwd = this._pwd;
-    const c = await this.pool.acquire();
-    await c.access(this.config);
-    await c.cd(pwd);
-    await c.remove(file, true);
-    this.emit("ftp-event", { details: "all" })
-    this.pool.release(c);
+  mkdir(path: string): void {
+    this.emit({
+      type: ReqT.MKDIR,
+      data: {
+        path
+      }
+    })
   }
 
-  async rmdir(path: string): Promise<void> {
-    const pwd = this._pwd;
-    const c = await this.pool.acquire();
-    await c.access(this.config);
-    await c.cd(pwd);
-    await c.removeDir(path);
-    this.emit("ftp-event", { details: "all" });
-    this.pool.release(c);
+  deleteFile(file: string): void {
+    this.emit({
+      type: ReqT.DELETE,
+      data: {
+        file
+      }
+    })
   }
 
-  async rename(oldPath: string, newPath: string): Promise<void> {
-    const pwd = this._pwd;
-    const c = await this.pool.acquire();
-    await c.access(this.config);
-    await c.cd(pwd);
-    await c.rename(oldPath, newPath);
-    this.emit("ftp-event", { details: "all" });
-    this.pool.release(c);
+  rmdir(path: string): void {
+    this.emit({
+      type: ReqT.RMDIR,
+      data: {
+        path
+      }
+    })
   }
 
-  async putFolder(source: string, destPath: string, noEmit = false): Promise<void> {
-    const pwd = this._pwd;
-    const c = await this.pool.acquire();
-    await c.access(this.config);
-    await c.cd(pwd);
-    await c.uploadFromDir(source, destPath);
-    !noEmit && this.emit("ftp-event", { details: "all" });
-    this.pool.release(c);
+  rename(oldPath: string, newPath: string): void {
+    this.emit({
+      type: ReqT.RENAME,
+      data: {
+        destPath: newPath,
+        srcPath: oldPath
+      }
+    })
   }
 
-  async putFiles(files: string[]): Promise<void> {
-    await Promise.all(files.map(f => this.put(f, basename(f), true)))
-    this.emit("ftp-event", { details: "all" });
+  putFolder(source: string, destPath: string): void {
+    this.emit({
+      type: ReqT.PUT_FOLDER,
+      data: {
+        localPath: source,
+        remotePath: destPath
+      }
+    })
   }
 
-  async putFolders(folders: string[]): Promise<void> {
-    await Promise.all(
-      folders.map((f) => this.putFolder(f, basename(f), true))
-    );
-    this.emit("ftp-event", { details: "all" })
+  putFiles(files: string[]): void {
+    this.emit({
+      type: ReqT.PUT_FILES,
+      data: {
+        files
+      }
+    })
   }
 
-  get connected(): boolean { return !this.client.closed }
-
-  forceUpdate(): void {
-    this.emit("ftp-event", { details: "all" })
+  putFolders(folders: string[]): void {
+    this.emit({
+      type: ReqT.PUT_FOLDERS,
+      data: {
+        folders
+      }
+    })
   }
+
+  get connected(): boolean { return !this.socket?.disconnected }
 }
 
 export default FTP;

@@ -1,4 +1,5 @@
 import { Bubbles, Header, Loading, Prompt, Settings } from "@components";
+import { SFTP } from "@lib";
 import { FileManager, Login, Main, Register, ToS, Welcome } from "@pages";
 import { IPCGetKeyReply, IPCGetKeyRequest } from "@shared/models";
 import { setAutoLoggedIn } from "@store/app";
@@ -69,23 +70,18 @@ export function App(): JSX.Element {
     //   },
     //   term
     // );
-    /*
-    const sftp: SFTP = new SFTP();
-    sftp.connect(
-      {
-        host: "195.144.107.198",
-        port: 22,
-        username: "demo",
-        password: "password",
-        keepaliveInterval: 20000,
-        readyTimeout: 20000,
-        debug: console.log,
-      },
-      (res) => console.log(res)
-    );
-    setTimeout(() => sftp.cd("aspnet_client"), 5000);
-    setTimeout(() => sftp.cd("system_web"), 8000);
-    setTimeout(() => sftp.cd(".."), 10000);*/
+    // const sftp: SFTP = new SFTP({
+    //   host: "10.0.0.47",
+    //   port: 22,
+    //   username: "sammy",
+    //   password: "sammy",
+    //   keepaliveInterval: 20000,
+    //   readyTimeout: 20000,
+    //   debug: console.log,
+    // });
+    // sftp.connect((res) => console.log(res));
+    // setTimeout(() => sftp.cd("test"), 1000);
+    // setTimeout(() => sftp.put("D:\\temp\\terry.m4a", ""), 5000);
   }, []);
 
   return (

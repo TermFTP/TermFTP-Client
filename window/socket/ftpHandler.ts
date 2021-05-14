@@ -26,18 +26,23 @@ export const FTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => async 
   }
 
   socket.emit("ftp:data", {
-    type: Res.LIST,
-    data: {
-      files: await ftp.list(),
-      pwd: await ftp.pwd()
-    }
+    type: Res.INIT,
+    data: await ftp.pwd()
+  })
+
+  socket.on("disconnect", () => {
+    ftp.disconnect();
   })
 
   socket.on("ftp:data", async (req) => {
     try {
       switch (req.type) {
+        case Req.PWD:
+          socket.emit('ftp:pwd', await ftp.pwd());
+          break;
         case Req.CD:
           await ftp.cd(req.data.dir);
+          socket.emit('ftp:cd')
           ftpReadDir(socket, ftp);
           break;
         case Req.DELETE:
@@ -67,21 +72,25 @@ export const FTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => async 
           ftpReadDir(socket, ftp);
           break;
         case Req.GET_FOLDER:
-          ftp.getFolder(req.data.remotePath, req.data.localPath);
+          ftp.getFolder(req.data.remoteFolder, req.data.localPath);
           break;
         case Req.PUT_FILES:
-          ftp.putFiles(req.data.files);
+          await ftp.putFiles(req.data.files);
+          ftpReadDir(socket, ftp)
           break;
         case Req.PUT_FOLDER:
-          ftp.putFolder(req.data.localPath, req.data.remotePath);
+          await ftp.putFolder(req.data.localPath, req.data.remotePath);
+          ftpReadDir(socket, ftp)
           break;
         case Req.PUT_FOLDERS:
-          ftp.putFolders(req.data.folders);
+          await ftp.putFolders(req.data.folders);
+          ftpReadDir(socket, ftp)
           break;
         default:
           return;
       }
     } catch (e) {
+      // console.log(e)
       ftpErr(socket, e);
     }
   })
@@ -132,10 +141,6 @@ export class FTP {
     this.config = config;
     this.handler = handler;
     this.addTracker(this.client);
-    window.addEventListener("unload", (() => {
-      this.client.close();
-      this.pool.clear();
-    }).bind(this));
   }
 
   private convertFileType(type: BasicType): FileType {
@@ -182,7 +187,6 @@ export class FTP {
   }
 
   private convertFiles(files: FileInfo[]): FileI[] {
-
     return files
       .map((v) => ({
         type: this.convertFileType(v.type),
@@ -222,7 +226,11 @@ export class FTP {
       await this._reconnect();
     }
 
+    // try {
     await this.queue.add(() => this.client.cd(dir));
+    // } catch (e) {
+    // console.log(`error: ${JSON.stringify(e)}`)
+    // }
     await this.pwd();
   }
 
@@ -254,7 +262,7 @@ export class FTP {
       try {
         mkdirSync(join(path, file.name));
       } catch (e) {
-        //folder already exists, who cares..
+        //oflder already exists, who cares..
       }
       const items = (await c.list(file.name))
         .map((v) => ({
@@ -265,7 +273,7 @@ export class FTP {
         } as FileI));
 
       await Promise.all(items.map(i => {
-        i.name = join(file.name, i.name);
+        i.name = [file.name, i.name].join("/");
         return this._getFolder(c, i, path);
       }))
     } else if (file.type === FileType.FILE) {

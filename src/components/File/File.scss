@@ -14,6 +14,7 @@
       background: var(--dark-bg-2);
     }
   }
+  user-select: none;
 }
 
 .file {
@@ -44,6 +45,7 @@
   .file-name {
     width: 100%;
     text-align: left;
+    user-select: text;
   }
 
   .file-last {

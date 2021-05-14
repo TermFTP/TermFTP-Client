@@ -1,13 +1,15 @@
 import { FileI } from "./file";
-import { FileEntry } from "ssh2-streams"
 
 export enum FTPResponseType {
   LIST = "list",
   ERROR = "error",
   TRANSFER_UPDATE = "transferupdate",
+  PWD = "pwd",
+  INIT = "init",
 }
 
 export enum FTPRequestType {
+  PWD = "pwd",
   LIST = "list",
   GET = "get",
   PUT = "put",
@@ -23,6 +25,10 @@ export enum FTPRequestType {
 }
 
 const Req = FTPRequestType;
+
+export interface FTPReqPWD {
+  type: typeof Req.PWD,
+}
 
 export interface FTPReqCD {
   type: typeof Req.CD;
@@ -86,7 +92,7 @@ export interface FTPReqRmDIR {
 export interface FTPReqGetFolder {
   type: typeof Req.GET_FOLDER,
   data: {
-    remotePath: FileI;
+    remoteFolder: FileI;
     localPath: string;
   }
 }
@@ -118,7 +124,8 @@ export interface FTPError {
   data: string;
 }
 
-export type FTPRequest = FTPReqCD
+export type FTPRequest = FTPReqPWD
+  | FTPReqCD
   | FTPReqList
   | FTPReqGet
   | FTPReqPut
@@ -131,6 +138,11 @@ export type FTPRequest = FTPReqCD
   | FTPReqPutFolder
   | FTPReqPutFolders
   | FTPReqPutFiles;
+
+export interface FTPResPWD {
+  type: typeof FTPResponseType.PWD,
+  data: string;
+}
 
 export interface FTPResTransfer {
   type: typeof FTPResponseType.TRANSFER_UPDATE,
@@ -150,9 +162,14 @@ export interface FTPResError {
 export interface FTPResList {
   type: typeof FTPResponseType.LIST,
   data: {
-    files: FileI[] | FileEntry[]
+    files: FileI[]
     pwd?: string;
   },
 }
 
-export type FTPResponse = FTPResTransfer | FTPResError | FTPResList;
+export interface FTPResInit {
+  type: typeof FTPResponseType.INIT,
+  data: string;
+}
+
+export type FTPResponse = FTPResTransfer | FTPResError | FTPResList | FTPResPWD | FTPResInit;

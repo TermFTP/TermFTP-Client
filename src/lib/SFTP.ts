@@ -1,54 +1,71 @@
-import { Socket, connect } from 'socket.io-client';
+import Client from 'socket.io-client';
 import { ConnectConfig } from 'ssh2';
-import { FTPResponse, FTPResponseType, FTPRequestType } from '@shared';
+import { FTPResponse, FTPResponseType, FTPRequestType, FileI, FTPRequest } from '@shared';
+import { BaseFTP, FTPConfig } from './BaseFTP';
 
-export class SFTP {
-  private socket?: typeof Socket;
+const ReqT = FTPRequestType;
+
+export class SFTP extends BaseFTP {
   private cwd: string;
+  private _config: ConnectConfig;
 
-  //https://github.com/mscdex/ssh2/blob/master/SFTP.md
-
-  constructor() {
+  constructor(config: ConnectConfig) {
+    super();
     this.cwd = "";
+    this._config = config;
   }
 
-  connect(config: ConnectConfig, callback: (data: FTPResponse) => void): void {
-    const socket = connect('localhost:15000');
-    this.socket = socket;
+  get config(): FTPConfig {
+    return {
+      ...this._config,
+      sshPort: this._config.port
+    }
+  }
 
-    socket.on('connect', () => {
-      socket.emit('sftp', config);
+  connect(callback: (data: FTPResponse) => void, config?: ConnectConfig): void {
+    const socket = Client.connect('localhost:15000');
+    this.socket = socket;
+    this._config = config || this._config;
+
+    socket.once('connect', () => {
+      socket.emit('sftp', this._config);
 
       socket.on('sftp:data', (res: FTPResponse) => {
-        callback(res);
+        if (res.type === FTPResponseType.LIST) {
+          res.data.files = res.data.files.map(f => ({ ...f, date: new Date(f.date) }))
+        }
+        callback(res)
       });
-
     })
       .on('error', (err: any) => {
         callback({ type: FTPResponseType.ERROR, data: err.message });
       });
+  }
 
+  private emit(req: FTPRequest): void {
+    this.socket?.emit('sftp:data', req);
+  }
+
+  disconnect(): void {
+    this.socket?.close();
+    this.cwd = undefined;
   }
 
   cd(dir: string): void {
-    if (dir == '..') {
-      this.cwd = this.cwd.split('/').slice(0, -2).join('/');
-    }
-    else
-      this.cwd += dir;
-
-    this.cwd += "/";
-
-    this.socket.emit('sftp:data', {
-      type: FTPRequestType.LIST,
+    this.emit({
+      type: ReqT.CD,
       data: {
-        dir: this.cwd,
+        dir
       }
     })
   }
 
+  pwd(): Promise<string> {
+    return Promise.resolve(this.cwd);
+  }
+
   list(dir?: string): void {
-    this.socket.emit('sftp:data', {
+    this.emit({
       type: FTPRequestType.LIST,
       data: {
         dir: dir || '',
@@ -57,7 +74,7 @@ export class SFTP {
   }
 
   get(remoteFile: string, localPath: string): void {
-    this.socket.emit('sftp:data', {
+    this.emit({
       type: FTPRequestType.GET,
       data: {
         remotePath: remoteFile,
@@ -65,19 +82,19 @@ export class SFTP {
       }
     })
   }
-
+  /*
   put(source: string, destPath: string): void {
-    this.socket.emit('sftp:data', {
+    this.emit({
       type: FTPRequestType.PUT,
       data: {
         localPath: source,
         remotePath: destPath,
       }
     })
-  }
+  }*/
 
   rename(oldPath: string, newPath: string): void {
-    this.socket.emit('sftp:data', {
+    this.emit({
       type: FTPRequestType.RENAME,
       data: {
         srcPath: oldPath,
@@ -87,7 +104,7 @@ export class SFTP {
   }
 
   deleteFile(file: string): void {
-    this.socket.emit('sftp:data', {
+    this.emit({
       type: FTPRequestType.DELETE,
       data: {
         file,
@@ -96,7 +113,7 @@ export class SFTP {
   }
 
   mkdir(path: string): void {
-    this.socket.emit('sftp:data', {
+    this.emit({
       type: FTPRequestType.MKDIR,
       data: {
         path,
@@ -105,7 +122,7 @@ export class SFTP {
   }
 
   rmdir(path: string): void {
-    this.socket.emit('sftp:data', {
+    this.emit({
       type: FTPRequestType.RMDIR,
       data: {
         path,
@@ -113,6 +130,47 @@ export class SFTP {
     });
   }
 
+  getFolder(remoteFolder: FileI, localFolder: string): void {
+    this.emit({
+      type: ReqT.GET_FOLDER,
+      data: {
+        localPath: localFolder,
+        remoteFolder
+      }
+    });
+  }
+
+  putFolder(source: string, destPath: string): void {
+    this.emit({
+      type: ReqT.PUT_FOLDER,
+      data: {
+        localPath: source,
+        remotePath: destPath
+      }
+    })
+  }
+
+  putFolders(folders: string[]): void {
+    this.emit({
+      type: ReqT.PUT_FOLDERS,
+      data: {
+        folders
+      }
+    })
+  }
+
+  putFiles(files: string[]): void {
+    this.emit({
+      type: ReqT.PUT_FILES,
+      data: {
+        files
+      }
+    })
+  }
+
+  get connected(): boolean {
+    return this.socket?.connected;
+  }
 }
 
 

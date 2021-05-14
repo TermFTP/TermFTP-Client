@@ -18,6 +18,9 @@ export type Response<T> = Error | Success<T>;
 export interface ServerEvents {
   "ftp:data": (res: FTPResponse) => void;
   "ftp:track": (info: ProgressInfo) => void;
+  "ftp:pwd": (data: string) => void;
+  "ftp:cd": () => void;
+
   "ssh:init": () => void;
   "ssh:data": (data: string) => void;
   "ssh:disconnect": () => void;

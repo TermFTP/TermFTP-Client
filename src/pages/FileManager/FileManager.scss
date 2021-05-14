@@ -130,6 +130,7 @@
   transition: var(--dur) bottom ease;
   height: var(--plus-height);
   width: var(--plus-height);
+  z-index: 5;
 
   #file-manager-plus-btn {
     height: var(--plus-height);

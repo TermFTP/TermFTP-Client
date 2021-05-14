@@ -7,9 +7,9 @@ import {
   faUpload,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { FTPEventDetails, normalizeURL } from "@lib";
+import { normalizeURL } from "@lib";
 import { BubbleModel, HistoryReq } from "@models";
-import { FileI } from "@shared";
+import { FileI, FTPResponse, FTPResponseType } from "@shared";
 import { DefaultDispatch, RootState } from "@store";
 import { addBubble, setSettings } from "@store/app";
 import {
@@ -26,7 +26,7 @@ import "./FileManager.scss";
 import fs from "fs";
 import { HotKeys } from "react-hotkeys";
 import { SearchBox } from "@components";
-import { push } from "connected-react-router";
+import { goBack, push, replace } from "connected-react-router";
 import { Files } from "./Files";
 import { setFiles } from "@store/ftp";
 
@@ -51,6 +51,8 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   setFMLoading: (loading: boolean) => dispatch(setFMLoading(loading)),
   push: (path: string) => dispatch(push(path)),
   setFiles: (files: FileI[]) => dispatch(setFiles(files)),
+  back: () => dispatch(goBack()),
+  replace: (p: string) => dispatch(replace(p)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -75,7 +77,7 @@ export class FileManagerUI extends Component<Props, State> {
       plusOpen: false,
       dragging: false,
       searching: false,
-      pwd: "/",
+      pwd: undefined,
     };
     (window as any).refreshFTP = this.onConnected;
 
@@ -91,25 +93,24 @@ export class FileManagerUI extends Component<Props, State> {
         });
       },
       RELOAD: () => {
-        this.onChange();
+        this.props.setFMLoading(true);
+        this.props.client.list();
       },
     };
   }
   componentDidMount(): void {
     if (this.props.client) {
-      this.props.client
-        .connect()
-        .then(this.onConnected)
-        .catch((e: Error) => {
-          this.props.addBubble("connect-error", {
-            title: `failed to connect to ${
-              this.props.client.config.host || ""
-            }`,
-            type: "ERROR",
-            message: e.message,
-          });
-          this.props.push("/main");
-        });
+      this.props.client.connect(this.onChange);
+      // .catch((e: Error) => {
+      //   this.props.addBubble("connect-error", {
+      //     title: `failed to connect to ${
+      //       this.props.client.config.host || ""
+      //     }`,
+      //     type: "ERROR",
+      //     message: e.message,
+      //   });
+      //   this.props.push("/main");
+      // });
     }
   }
 
@@ -120,36 +121,68 @@ export class FileManagerUI extends Component<Props, State> {
     const url = normalizeURL(
       window.location.pathname.replace("/file-manager", "")
     );
-    if (this.state.pwd != url && url != "/main" && !this.props.loading) {
+    if (
+      this.state.pwd !== undefined &&
+      this.state.pwd != url &&
+      url != "/main" &&
+      !this.props.loading
+    ) {
       this.props.setFMLoading(true);
       await this.props.client.cd(url);
-      this.onChange();
     }
   }
 
   componentWillUnmount(): void {
     this.props.client?.disconnect();
-    this.props.client?.removeAllListeners();
+    // this.props.client?.removeAllListeners();
+    this.props.setFiles([]);
   }
 
   // eslint-disable-next-line
-  onChange = async (args?: FTPEventDetails): Promise<void> => {
-    const pwd = normalizeURL(await this.props.client.pwd());
-    const list = await this.props.client.list(undefined);
-    this.setState({ pwd });
-    this.props.setFiles(list);
-    this.props.setFMLoading(false);
+  onChange = async (res: FTPResponse): Promise<void> => {
+    // const list = await this.props.client.list(undefined);
+    switch (res.type) {
+      case FTPResponseType.INIT: {
+        const pwd = normalizeURL(res.data);
+        this.props.push(`/file-manager${pwd}`);
+        this.setState({ pwd: "" });
+        break;
+      }
+      case FTPResponseType.LIST: {
+        const pwd =
+          normalizeURL(res.data.pwd) ||
+          normalizeURL(await this.props.client.pwd());
+        // this.props.push(`/file-manager${pwd}`);
+        this.setState({ pwd });
+        this.props.setFiles(res.data.files);
+        this.props.setFMLoading(false);
+        break;
+      }
+      case FTPResponseType.ERROR: {
+        this.props.addBubble("ftp-error", {
+          title: "Error occured",
+          type: "ERROR",
+          message: res.data,
+        });
+        this.props.replace(`/file-manager${this.state.pwd}`);
+        this.props.setFMLoading(false);
+        break;
+      }
+      case FTPResponseType.TRANSFER_UPDATE: {
+        console.log("transfer", res);
+        // TODO add something
+        break;
+      }
+    }
   };
 
   onConnected = (): void => {
     // this.forceUpdate();
-    this.props.client.on("ftp-event", this.onChange);
     // this.props.historyItem({
     //   ...this.props.client.config,
     //   device: hostname(),
     //   ip: this.props.client.config.host,
     // }); // TODO FIX history
-    this.onChange(undefined);
   };
 
   onPlus = (): void => {
@@ -251,7 +284,7 @@ export class FileManagerUI extends Component<Props, State> {
         <div id="file-manager-top">
           <button
             className="file-manager-btn file-manager-reload"
-            onClick={() => this.onChange()}
+            onClick={() => this.props.client.list()}
           >
             <FontAwesomeIcon icon={faSync}></FontAwesomeIcon>
           </button>

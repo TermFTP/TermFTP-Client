@@ -155,13 +155,14 @@ const ContextMenuUI = ({
       fieldName: "Folder name",
       initial: file.name,
       callback: (val) => {
-        client.rename(file.name, val).catch(() =>
-          addBubble("rename-error", {
-            title: "Could not rename folder",
-            type: "ERROR",
-            message: `renaming of ${file.name} failed`,
-          })
-        );
+        client.rename(file.name, val);
+        // .catch(() =>
+        //   addBubble("rename-error", {
+        //     title: "Could not rename folder",
+        //     type: "ERROR",
+        //     message: `renaming of ${file.name} failed`,
+        //   })
+        // );
       },
     });
   }
@@ -171,13 +172,14 @@ const ContextMenuUI = ({
       fieldName: "File name",
       initial: file.name,
       callback: (val) => {
-        client.rename(file.name, val).catch(() =>
-          addBubble("rename-error", {
-            title: "Could not rename folder",
-            type: "ERROR",
-            message: `renaming of ${file.name} failed`,
-          })
-        );
+        client.rename(file.name, val);
+        // .catch(() =>
+        // addBubble("rename-error", {
+        // title: "Could not rename folder",
+        // type: "ERROR",
+        // message: `renaming of ${file.name} failed`,
+        // })
+        // );
       },
     });
   }
@@ -220,13 +222,14 @@ const ContextMenuUI = ({
       initial: "",
       callback: (value: string) => {
         setPrompt(undefined);
-        client.mkdir(value, false).catch((err) => {
-          addBubble("mkdir-error", {
-            title: err.title || "Failed to create directory",
-            message: err.message,
-            type: "ERROR",
-          });
-        });
+        client.mkdir(value);
+        // .catch((err) => {
+        // addBubble("mkdir-error", {
+        // title: err.title || "Failed to create directory",
+        // message: err.message,
+        // type: "ERROR",
+        // });
+        // });
       },
     });
   }
@@ -256,23 +259,25 @@ const ContextMenuUI = ({
   }
 
   function onFileDelete(): void {
-    client.deleteFile(file.name).catch(() => {
-      addBubble("delete-error", {
-        title: `Could not delete file`,
-        type: "ERROR",
-        message: `failed on: ${file.name}`,
-      });
-    });
+    client.deleteFile(file.name);
+    // .catch(() => {
+    //   addBubble("delete-error", {
+    //     title: `Could not delete file`,
+    //     type: "ERROR",
+    //     message: `failed on: ${file.name}`,
+    //   });
+    // });
   }
 
   function onFolderDelete(): void {
-    client.rmdir(file.name).catch(() => {
-      addBubble("delete-error", {
-        title: `Could not delete folder`,
-        type: "ERROR",
-        message: `failed on: ${file.name}`,
-      });
-    });
+    client.rmdir(file.name);
+    // .catch(() => {
+    // addBubble("delete-error", {
+    // title: `Could not delete folder`,
+    // type: "ERROR",
+    // message: `failed on: ${file.name}`,
+    // });
+    // });
   }
 
   return (
