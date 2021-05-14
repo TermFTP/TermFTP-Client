@@ -151,7 +151,7 @@ export interface FTPResTransfer {
     transferred: number;
     chunk: number;
     total: number;
-  }
+  } | any
 }
 
 export interface FTPResError {
@@ -173,3 +173,9 @@ export interface FTPResInit {
 }
 
 export type FTPResponse = FTPResTransfer | FTPResError | FTPResList | FTPResPWD | FTPResInit;
+
+export enum FTPConnectTypes {
+  FTP,
+  FTPS,
+  SFTP,
+}

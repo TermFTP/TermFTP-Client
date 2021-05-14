@@ -3,7 +3,6 @@ import { Socket } from "socket.io";
 import { Client, ConnectConfig, SFTPWrapper } from "ssh2";
 import { ClientEvents, ServerEvents, FTPRequest, FTPRequestType, FTPResponse, FTPResponseType, FileI, FileType } from "../../src/shared";
 import { FileEntry } from "ssh2-streams";
-import { join } from "path";
 
 export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshConfig: ConnectConfig): void => {
   const ssh = new Client();
@@ -23,7 +22,8 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
       if (err) socket.emit('sftp:data', { type: FTPResponseType.ERROR, data: err.message });
 
       //default listdir after connection established
-      sftpReadDir(socket, sftp, cwd);
+      // sftpReadDir(socket, sftp, cwd);
+      socket.emit("sftp:data", { type: FTPResponseType.INIT, data: cwd })
 
       socket.on('sftp:data', (req: FTPRequest) => {
         switch (req.type) {
@@ -37,11 +37,18 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
             if (req.data.dir == '..') {
               cwd = cwd.split('/').slice(0, -2).join('/');
             }
+            else if (req.data.dir.startsWith("/")) {
+              cwd = req.data.dir
+            }
             else
               cwd += req.data.dir;
 
-            cwd += "/";
+            if (cwd.endsWith("/")) {
+              cwd = cwd.substring(0, cwd.length - 1);
+            }
 
+            cwd += "/";
+            sftpReadDir(socket, sftp, cwd);
             break;
 
           // DOWNLOAD FILE

@@ -13,7 +13,15 @@ const Res = FTPResponseType;
 const Req = FTPRequestType;
 
 export const FTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => async (config: FTPConfig): Promise<void> => {
-  const ftp = new FTP(config, (info) => socket.emit("ftp:track", info));
+  const ftp = new FTP(config, (info) => socket.emit("ftp:data", {
+    type: FTPResponseType.TRANSFER_UPDATE, data: {
+      chunk: info.bytes,
+      total: info.bytesOverall,
+      name: info.name,
+      transferred: info.bytesOverall,
+      type: info.type
+    }
+  }));
   try {
     await ftp.connect();
   } catch {

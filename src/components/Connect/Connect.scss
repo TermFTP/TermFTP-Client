@@ -102,13 +102,47 @@
   }
 
   .connect-form {
+    $pad: 0.5em;
     padding: calc(var(--box-radius) * 1.5) var(--box-radius);
     width: 30em;
     display: grid;
-    grid-template: "ip ip ftp ssh" "user user pw pw" "btn btn btn btn" / 1fr 0.6fr 0.6fr 0.6fr;
+    grid-template: "t t t t" "ip ip ftp ssh" "user user pw pw" "btn btn btn btn" / 1fr 0.6fr 0.6fr 0.6fr;
     gap: 25px 20px;
     height: min-content;
     margin: auto;
+
+    &.connect-form-sftp {
+      .connect-ftp-port {
+        opacity: 0;
+      }
+    }
+
+    .connect-type {
+      grid-area: t;
+      display: flex;
+      gap: 30px;
+      height: 2em;
+      line-height: 2;
+
+      [type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+      }
+
+      label {
+        flex-grow: 1;
+        flex-shrink: 0;
+        transition: var(--dur) background ease, var(--dur) font-weight ease;
+        border-radius: var(--radius);
+        cursor: pointer;
+      }
+
+      .connect-type-chosen {
+        background: var(--dark-bg-2);
+        color: var(--color);
+      }
+    }
 
     .connect-ip {
       grid-area: ip;
@@ -116,6 +150,7 @@
 
     .connect-ftp-port {
       grid-area: ftp;
+      transition: var(--dur) opacity ease;
     }
 
     .connect-ssh-port {

@@ -51,12 +51,15 @@ export class SFTP extends BaseFTP {
     this.cwd = undefined;
   }
 
-  cd(dir: string): void {
-    this.emit({
-      type: ReqT.CD,
-      data: {
-        dir
-      }
+  cd(dir: string): Promise<void> {
+    return new Promise((resolve) => {
+      this.socket.once("sftp:cd", () => resolve())
+      this.emit({
+        type: ReqT.CD,
+        data: {
+          dir
+        }
+      })
     })
   }
 

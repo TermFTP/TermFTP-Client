@@ -1,6 +1,7 @@
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Server } from "@models";
+import { FTPConnectTypes } from "@shared";
 import { DefaultDispatch } from "@store";
 import { changeEditServer } from "@store/lists";
 import React, { MouseEvent } from "react";
@@ -26,6 +27,7 @@ export interface ConnectDetails {
   ftpPort: number;
   password: string;
   sshPort: number;
+  type: FTPConnectTypes;
 }
 
 export function ServerItemUI({

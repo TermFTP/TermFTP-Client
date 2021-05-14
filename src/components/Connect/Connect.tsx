@@ -6,7 +6,7 @@ import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Lists } from "@components";
 import { setPrompt, setSettings } from "@store/app";
-import { FTP } from "@lib";
+import { BaseFTP, FTP, SFTP } from "@lib";
 import {
   editServer,
   fetchGroups,
@@ -17,6 +17,14 @@ import { EditReq, SaveReq, Server } from "@models";
 import { ConnectDetails } from "./Lists/ServerItem/ServerItem";
 import { PromptProps } from "@components/Prompt/Prompt";
 import { goToFTPClient } from "@store/ftp";
+import { FTPConnectTypes } from "@shared";
+
+type CKey = keyof typeof FTPConnectTypes;
+
+const enumValues: Array<CKey> = [];
+for (const value in FTPConnectTypes) {
+  if (!isNaN(Number(value))) enumValues.push(value as CKey);
+}
 
 const mapState = ({ listReducer: { currentlyEdited } }: RootState) => ({
   currentlyEdited,
@@ -27,7 +35,7 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   setPrompt: (prompt: PromptProps) => dispatch(setPrompt(prompt)),
   save: (req: SaveReq) => dispatch(saveServer(req)),
   fetchGroups: () => dispatch(fetchGroups()),
-  goToFTP: (client: FTP) => dispatch(goToFTPClient(client)),
+  goToFTP: (client: BaseFTP) => dispatch(goToFTPClient(client)),
   edit: (server: EditReq) => dispatch(editServer(server)),
   changeEditServer: (server: Server) => dispatch(changeEditServer(server)),
 });
@@ -46,6 +54,7 @@ interface State {
   password: string;
   canConnect: boolean;
   serverID: string;
+  type: FTPConnectTypes;
 }
 
 enum Change {
@@ -68,6 +77,7 @@ export class ConnectUI extends Component<Props, State> {
       canConnect: false,
       sshPort: 22,
       serverID: undefined,
+      type: FTPConnectTypes.SFTP,
     };
   }
   componentDidMount(): void {
@@ -115,16 +125,39 @@ export class ConnectUI extends Component<Props, State> {
     e: MouseEvent<HTMLInputElement>,
     details: ConnectDetails = undefined
   ): void => {
-    const { username, ip, password, ftpPort, sshPort } = details || this.state;
-    this.props.goToFTP(
-      new FTP({
-        user: username,
-        password,
-        host: ip,
-        port: ftpPort || 21,
-        sshPort: sshPort || 22,
-      })
-    );
+    const { username, ip, password, ftpPort, sshPort, type } =
+      details || this.state;
+    if (Number(type) === FTPConnectTypes.FTP) {
+      this.props.goToFTP(
+        new FTP({
+          user: username,
+          password,
+          host: ip,
+          port: ftpPort || 21,
+          sshPort: sshPort || 22,
+        })
+      );
+    } else if (Number(type) === FTPConnectTypes.FTPS) {
+      this.props.goToFTP(
+        new FTP({
+          user: username,
+          password,
+          host: ip,
+          port: ftpPort || 21,
+          sshPort: sshPort || 22,
+          secure: true,
+        })
+      );
+    } else {
+      this.props.goToFTP(
+        new SFTP({
+          username,
+          password,
+          host: ip,
+          port: sshPort || 22,
+        })
+      );
+    }
   };
 
   onSave = (): void => {
@@ -194,14 +227,8 @@ export class ConnectUI extends Component<Props, State> {
   componentDidUpdate(): void {
     const { currentlyEdited } = this.props;
     if (currentlyEdited && currentlyEdited.serverID !== this.state.serverID) {
-      const {
-        ftpPort,
-        ip,
-        password,
-        sshPort,
-        username,
-        serverID,
-      } = currentlyEdited;
+      const { ftpPort, ip, password, sshPort, username, serverID } =
+        currentlyEdited;
       this.setState({
         canConnect: true,
         ftpPort,
@@ -215,6 +242,10 @@ export class ConnectUI extends Component<Props, State> {
       this.setState({ serverID: undefined });
     }
   }
+
+  changeFTPType = (type: CKey): void => {
+    this.setState({ type: type as unknown as FTPConnectTypes });
+  };
 
   render(): JSX.Element {
     const {
@@ -245,7 +276,40 @@ export class ConnectUI extends Component<Props, State> {
           <div className="connect-list-wrapper">
             <Lists connect={onConnect}></Lists>
           </div>
-          <form className="connect-form" onSubmit={(e) => e.preventDefault()}>
+          <form
+            className={`connect-form ${
+              Number(this.state.type) === FTPConnectTypes.SFTP
+                ? "connect-form-sftp"
+                : ""
+            }`}
+            onSubmit={(e) => e.preventDefault()}
+          >
+            <div
+              className="connect-type"
+              data-info="type"
+              style={
+                {
+                  "--k": this.state.type,
+                } as React.CSSProperties
+              }
+            >
+              {enumValues.map((k) => (
+                <label
+                  key={k}
+                  htmlFor={`t${k}`}
+                  data-txt={FTPConnectTypes[k]}
+                  className={
+                    k == (this.state.type as unknown as CKey)
+                      ? "connect-type-chosen"
+                      : ""
+                  }
+                  onClick={() => this.changeFTPType(k)}
+                >
+                  <input type="radio" name="ftptype" id={`t${k}`} />
+                  {FTPConnectTypes[k]}
+                </label>
+              ))}
+            </div>
             <span className="connect-ip" data-info="ip/domain">
               <input
                 type="text"

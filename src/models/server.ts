@@ -1,3 +1,5 @@
+import { FTPConnectTypes } from "@shared";
+
 export interface Group {
   groupID: string;
   name: string;
@@ -15,6 +17,7 @@ export interface Server {
   password: string;
   name: string;
   when?: Date;
+  type: FTPConnectTypes
 }
 
 export interface HistoryServer extends Server {

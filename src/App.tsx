@@ -1,5 +1,4 @@
 import { Bubbles, Header, Loading, Prompt, Settings } from "@components";
-import { SFTP } from "@lib";
 import { FileManager, Login, Main, Register, ToS, Welcome } from "@pages";
 import { IPCGetKeyReply, IPCGetKeyRequest } from "@shared/models";
 import { setAutoLoggedIn } from "@store/app";

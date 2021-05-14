@@ -36,7 +36,7 @@ input {
   color: var(--color);
   background-color: var(--dark-bg-2);
   border-radius: var(--radius);
-  transition: var(--dur) background ease;
+  transition: var(--dur) background ease, var(--dur) opacity ease;
 
   &:focus {
     outline: none;
