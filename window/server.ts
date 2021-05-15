@@ -31,5 +31,4 @@ io.on('connection', function (socket) {
   socket.on('ftp', FTPHandler(socket))
 });
 
-
 server.listen(15000, "localhost");

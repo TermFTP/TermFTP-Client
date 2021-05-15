@@ -109,6 +109,10 @@ export class FTP extends BaseFTP {
     })
   }
 
+  getFiles(files: string[], localPath: string): void {
+    // TODO: implement @TheCrether
+  }
+
   getFolder(remoteFolder: FileI, localFolder: string): void {
     this.emit({
       type: ReqT.GET_FOLDER,

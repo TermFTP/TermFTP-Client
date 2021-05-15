@@ -89,6 +89,17 @@ export class SFTP extends BaseFTP {
       }
     })
   }
+
+  getFiles(files: string[], localPath: string): void {
+    this.emit({
+      type: FTPRequestType.GET_FILES,
+      data: {
+        files,
+        localPath
+      }
+    })
+  }
+
   /*
   put(source: string, destPath: string): void {
     this.emit({
@@ -147,6 +158,7 @@ export class SFTP extends BaseFTP {
     });
   }
 
+  /*
   putFolder(source: string, destPath: string): void {
     this.emit({
       type: ReqT.PUT_FOLDER,
@@ -156,6 +168,7 @@ export class SFTP extends BaseFTP {
       }
     })
   }
+  */
 
   putFolders(folders: string[]): void {
     this.emit({

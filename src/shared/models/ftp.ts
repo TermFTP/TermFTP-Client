@@ -13,6 +13,7 @@ export enum FTPRequestType {
   PWD = "pwd",
   LIST = "list",
   GET = "get",
+  GET_FILES = "get-files",
   PUT = "put",
   CD = "cd",
   RENAME = "rename",
@@ -49,6 +50,14 @@ export interface FTPReqGet {
   type: typeof Req.GET;
   data: {
     remotePath: string;
+    localPath: string;
+  }
+}
+
+export interface FTPReqGetFiles {
+  type: typeof Req.GET_FILES;
+  data: {
+    files: string[];
     localPath: string;
   }
 }
@@ -129,6 +138,7 @@ export type FTPRequest = FTPReqPWD
   | FTPReqCD
   | FTPReqList
   | FTPReqGet
+  | FTPReqGetFiles
   | FTPReqPut
   | FTPReqRename
   | FTPReqDelete

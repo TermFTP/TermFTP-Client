@@ -22,13 +22,17 @@ export abstract class BaseFTP {
     localPath: string,
     startAt?: number
   ): void;
+  abstract getFiles(
+    files: string[],
+    localPath: string
+  ): void;
   abstract getFolder(remoteFolder: FileI, localFolder: string): void;
   // abstract put(source: string, destPath: string): void;
   abstract mkdir(path: string): void;
   abstract deleteFile(file: string): void;
   abstract rmdir(dir: string, recursive?: boolean): void;
   abstract rename(oldPath: string, newPath: string): void;
-  abstract putFolder(source: string, destPath: string): void;
+  // abstract putFolder(source: string, destPath: string): void;
   abstract putFolders(folders: string[]): void;
   abstract putFiles(files: string[]): void;
 
