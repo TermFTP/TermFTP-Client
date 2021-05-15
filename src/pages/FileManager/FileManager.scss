@@ -56,11 +56,25 @@
   position: relative;
   flex-direction: column;
   overflow-y: scroll;
-  height: calc(100% - var(--top-height) - var(--bottom-height));
-  max-height: calc(100% - var(--top-height) - var(--bottom-height));
+  height: calc(
+    100% - var(--top-height) - var(--bottom-height) - var(--terminalClosed)
+  );
+  max-height: calc(
+    100% - var(--top-height) - var(--bottom-height) - var(--terminalClosed)
+  );
+  outline: none;
+
+  &:focus {
+    outline: none;
+  }
 
   & > div {
     height: 100%;
+    outline: none;
+
+    &:focus {
+      outline: none;
+    }
   }
 }
 
@@ -71,6 +85,7 @@
   display: flex;
   place-items: center flex-start;
   flex-direction: row;
+  margin-top: var(--terminalClosed);
 
   #file-manager-status {
     --color: 255, 255, 255;
@@ -116,11 +131,19 @@
 }
 
 #file-manager-files {
-  padding: 1em;
-  // flex-grow: 1;
   background-color: var(--background);
   position: relative;
   height: 100%;
+  user-select: none;
+  outline: none;
+
+  &:focus {
+    outline: none;
+  }
+
+  & > *:last-child {
+    margin-bottom: 1em;
+  }
 }
 
 #file-manager-plus {

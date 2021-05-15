@@ -8,7 +8,9 @@ import { setPrompt, addBubble } from "@store/app";
 import { BubbleModel } from "@models";
 import { remote } from "electron";
 import {
+  faDownload,
   faFileDownload,
+  faFileUpload,
   faFolder,
   faFolderOpen,
   faFolderPlus,
@@ -17,11 +19,15 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { FileType } from "@shared";
+import { basename, join } from "path";
 
 const mapState = ({
   fmReducer: { menu },
-  ftpReducer: { client },
-}: RootState) => ({ menu, client });
+  ftpReducer: {
+    client,
+    selection: { selected },
+  },
+}: RootState) => ({ menu, client, selected });
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   setContextMenu: (contextMenu: ContextMenuProps) =>
@@ -42,6 +48,7 @@ const ContextMenuUI = ({
   setContextMenu,
   setPrompt,
   addBubble,
+  selected,
 }: Props) => {
   const ownRef = useRef<HTMLDivElement>();
   const [listening, setListening] = useState<boolean>(false);
@@ -56,7 +63,7 @@ const ContextMenuUI = ({
       label: "Upload file(s)",
       func: onFileUpload,
       name: "context-upload-file",
-      icon: faFileDownload,
+      icon: faFileUpload,
     },
     {
       label: "Upload folder(s)",
@@ -65,7 +72,23 @@ const ContextMenuUI = ({
       icon: faFolderPlus,
     },
   ];
-  if (file?.type === FileType.DIR) {
+  if (selected.size > 1) {
+    items = [
+      ...items,
+      {
+        label: "Download Files/Folders",
+        func: onFilesDownload,
+        icon: faDownload,
+        name: "context-download-files",
+      },
+      {
+        label: "Delete Files/Folders",
+        func: onFilesDelete,
+        icon: faDownload,
+        name: "context-delete-files",
+      },
+    ];
+  } else if (file?.type === FileType.DIR) {
     items = [
       ...items,
       {
@@ -76,7 +99,7 @@ const ContextMenuUI = ({
       },
       {
         label: "Rename folder",
-        func: onFolderRename,
+        func: onRename("folder name"),
         name: "context-rename",
         icon: faICursor,
       },
@@ -98,7 +121,7 @@ const ContextMenuUI = ({
       },
       {
         label: "Rename file",
-        func: onFileRename,
+        func: onRename("file name"),
         name: "context-rename",
         icon: faICursor,
       },
@@ -150,38 +173,16 @@ const ContextMenuUI = ({
     }
   });
 
-  function onFolderRename(): void {
-    setPrompt({
-      fieldName: "Folder name",
-      initial: file.name,
-      callback: (val) => {
-        client.rename(file.name, val);
-        // .catch(() =>
-        //   addBubble("rename-error", {
-        //     title: "Could not rename folder",
-        //     type: "ERROR",
-        //     message: `renaming of ${file.name} failed`,
-        //   })
-        // );
-      },
-    });
-  }
-
-  function onFileRename(): void {
-    setPrompt({
-      fieldName: "File name",
-      initial: file.name,
-      callback: (val) => {
-        client.rename(file.name, val);
-        // .catch(() =>
-        // addBubble("rename-error", {
-        // title: "Could not rename folder",
-        // type: "ERROR",
-        // message: `renaming of ${file.name} failed`,
-        // })
-        // );
-      },
-    });
+  function onRename(field: string): () => void {
+    return () => {
+      setPrompt({
+        fieldName: field,
+        initial: file.name,
+        callback: (val) => {
+          client.rename(file.name, val);
+        },
+      });
+    };
   }
 
   async function onFolderUpload(): Promise<void> {
@@ -223,13 +224,6 @@ const ContextMenuUI = ({
       callback: (value: string) => {
         setPrompt(undefined);
         client.mkdir(value);
-        // .catch((err) => {
-        // addBubble("mkdir-error", {
-        // title: err.title || "Failed to create directory",
-        // message: err.message,
-        // type: "ERROR",
-        // });
-        // });
       },
     });
   }
@@ -259,25 +253,42 @@ const ContextMenuUI = ({
   }
 
   function onFileDelete(): void {
+    if (!file) return;
     client.deleteFile(file.name);
-    // .catch(() => {
-    //   addBubble("delete-error", {
-    //     title: `Could not delete file`,
-    //     type: "ERROR",
-    //     message: `failed on: ${file.name}`,
-    //   });
-    // });
   }
 
   function onFolderDelete(): void {
+    if (!file) return;
     client.rmdir(file.name);
-    // .catch(() => {
-    // addBubble("delete-error", {
-    // title: `Could not delete folder`,
-    // type: "ERROR",
-    // message: `failed on: ${file.name}`,
-    // });
-    // });
+  }
+
+  function onFilesDownload(): void {
+    if (selected.size === 0) return;
+    remote.dialog
+      .showOpenDialog({
+        properties: ["createDirectory", "openDirectory"],
+      })
+      .then((res) => {
+        if (res.canceled || res.filePaths.length == 0) return;
+        for (const f of selected) {
+          if (f.type === FileType.DIR) {
+            client.getFolder(f, res.filePaths[0]);
+          } else {
+            client.get(f.name, join(res.filePaths[0], basename(f.name)));
+          }
+        }
+      });
+  }
+
+  function onFilesDelete(): void {
+    if (selected.size === 0) return;
+    for (const f of selected) {
+      if (f.type === FileType.DIR) {
+        client.rmdir(f.name);
+      } else {
+        client.deleteFile(f.name);
+      }
+    }
   }
 
   return (

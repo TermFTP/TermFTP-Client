@@ -110,7 +110,6 @@ class TerminalUI extends React.Component<Props> {
     e.preventDefault();
     // this.fitAddon?.fit();
     this.resize();
-    console.log(this.fitAddon?.proposeDimensions());
     this.props.setTerminalHeight(data.size.height);
   };
 
