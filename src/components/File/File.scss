@@ -30,6 +30,8 @@
   grid-template-columns: var(--file-height) auto 5em 6em;
   align-items: center;
   gap: 5px;
+  border: 1px solid transparent;
+  box-sizing: content-box;
   // transition: var(--dur) background ease;
 
   .file-icon {
@@ -63,6 +65,13 @@
 
 .file-highlight {
   .file {
-    background-color: rgba(166, 255, 0, 1);
+    background-color: rgba(167, 235, 43, 0.473);
+  }
+}
+
+.file-dragover {
+  .file {
+    border: 1px solid white;
+    background-color: var(--dark-bg-1);
   }
 }

@@ -9,7 +9,7 @@ import {
   shiftSelection,
 } from "@store/ftp";
 import { push } from "connected-react-router";
-import React from "react";
+import React, { useState } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./File.scss";
 import FileIcon from "./FileIcon";
@@ -46,6 +46,11 @@ function FileUI({
   removeSelection,
   shiftSelection,
 }: Props): JSX.Element {
+  let counter = 0;
+  const [dragOver, setDragOver] = useState({
+    over: false,
+    shouldBeHighlighted: false,
+  });
   function handleClick(ev: React.MouseEvent<HTMLDivElement>) {
     if (file.name === "..") return;
 
@@ -80,9 +85,53 @@ function FileUI({
     }
   }
 
+  function onDragStart(e: React.DragEvent<HTMLDivElement>) {
+    // e.stopPropagation();
+    // e.preventDefault();
+    if (!selected.has(file)) selectFile(file);
+    const s: FileI[] = [];
+    for (const f of selected.values()) {
+      s.push(f);
+    }
+    e.dataTransfer.setData("app/file-transfer", JSON.stringify(s));
+    e.dataTransfer.dropEffect = "move";
+  }
+
+  function onDragOver(e: React.DragEvent<HTMLDivElement>) {
+    if (!dragOver.over && e.dataTransfer.types.includes("app/file-transfer")) {
+      e.stopPropagation();
+      e.preventDefault();
+      counter++;
+      setDragOver({ over: true, shouldBeHighlighted: !selected.has(file) });
+    }
+  }
+
+  function onDrop(e: React.DragEvent<HTMLDivElement>) {
+    if (e.dataTransfer.types.includes("app/file-transfer")) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log("aaa", e.dataTransfer.getData("app/file-transfer"));
+      setDragOver({ over: false, shouldBeHighlighted: false });
+    } else if (e.dataTransfer.types.includes("Files")) {
+      e.preventDefault();
+      e.stopPropagation();
+      // TODO make dragging files from outside into a folder
+    }
+  }
+
+  function onDragLeave() {
+    counter--;
+    if (counter <= 0) {
+      counter = 0;
+      setDragOver({ over: false, shouldBeHighlighted: false });
+    }
+  }
+
   return (
     <div
-      className="file-wrapper"
+      className={`file-wrapper ${
+        dragOver.shouldBeHighlighted ? "file-dragover" : ""
+      }`}
       data-name={file.name.toLowerCase()}
       onDoubleClick={async () => {
         if (file.type === FileType.DIR) {
@@ -91,6 +140,12 @@ function FileUI({
       }}
       onContextMenuCapture={onContextMenu}
       onClick={handleClick}
+      draggable={true}
+      // onDragOver={(e) => e.preventDefault()}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
     >
       <div
         className={`file file-${file.type} ${

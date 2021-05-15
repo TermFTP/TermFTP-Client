@@ -215,6 +215,7 @@ export class FileManagerUI extends Component<Props, State> {
   };
 
   onDragEnter = (e: React.DragEvent<HTMLDivElement>): void => {
+    if (!e.dataTransfer.types.includes("Files")) return;
     e.preventDefault();
     e.stopPropagation();
     this.counter++;
@@ -222,6 +223,7 @@ export class FileManagerUI extends Component<Props, State> {
   };
 
   onDragLeave = (e: React.DragEvent<HTMLDivElement>): void => {
+    if (!e.dataTransfer.types.includes("Files")) return;
     e.preventDefault();
     e.stopPropagation();
     this.counter--;
@@ -232,6 +234,7 @@ export class FileManagerUI extends Component<Props, State> {
   };
 
   onDrop = async (event: React.DragEvent<HTMLDivElement>): Promise<void> => {
+    if (!event.dataTransfer.types.includes("Files")) return;
     event.preventDefault();
     event.stopPropagation();
     this.counter = 0;
