@@ -26,9 +26,9 @@ import "./FileManager.scss";
 import fs from "fs";
 import { HotKeys } from "react-hotkeys";
 import { SearchBox } from "@components";
-import { goBack, push, replace } from "connected-react-router";
+import { push, replace } from "connected-react-router";
 import { Files } from "./Files";
-import { setFiles } from "@store/ftp";
+import { clearSelection, setFiles } from "@store/ftp";
 
 const mapState = ({
   ftpReducer: { client },
@@ -51,8 +51,8 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   setFMLoading: (loading: boolean) => dispatch(setFMLoading(loading)),
   push: (path: string) => dispatch(push(path)),
   setFiles: (files: FileI[]) => dispatch(setFiles(files)),
-  back: () => dispatch(goBack()),
   replace: (p: string) => dispatch(replace(p)),
+  clearSelection: () => dispatch(clearSelection()),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -164,7 +164,8 @@ export class FileManagerUI extends Component<Props, State> {
           type: "ERROR",
           message: res.data,
         });
-        this.props.replace(`/file-manager${this.state.pwd}`);
+        if (!this.state.pwd) this.props.replace("/main");
+        else this.props.replace(`/file-manager${this.state.pwd}`);
         this.props.setFMLoading(false);
         break;
       }
@@ -275,6 +276,14 @@ export class FileManagerUI extends Component<Props, State> {
     results.forEach((e) => e.classList.add("file-highlight"));
   };
 
+  onFilesClick = (ev: React.MouseEvent<HTMLDivElement>): void => {
+    if (!this.props.menu.isOpen) {
+      ev.stopPropagation();
+      ev.preventDefault();
+      this.props.clearSelection();
+    }
+  };
+
   render(): JSX.Element {
     const connected = Boolean(this.props.client?.connected);
     const { searching } = this.state;
@@ -324,7 +333,11 @@ export class FileManagerUI extends Component<Props, State> {
             />
             {connected && (
               <>
-                <div id="file-manager-files" onContextMenu={this.onContextMenu}>
+                <div
+                  id="file-manager-files"
+                  onContextMenu={this.onContextMenu}
+                  onClick={this.onFilesClick}
+                >
                   <Files></Files>
 
                   {this.props.loading && (

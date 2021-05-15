@@ -98,7 +98,7 @@ $terminalDur: 400ms;
   display: none;
 
   &.custom-handle-n {
-    width: calc(100% - var(--terminalClosed) * 2);
+    width: 100%;
     top: calc(var(--handle-size) / 2 * -1);
     left: 0;
     cursor: ns-resize;
