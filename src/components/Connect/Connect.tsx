@@ -21,11 +21,6 @@ import { FTPConnectTypes } from "@shared";
 
 type CKey = keyof typeof FTPConnectTypes;
 
-const enumValues: Array<CKey> = [];
-for (const value in FTPConnectTypes) {
-  if (!isNaN(Number(value))) enumValues.push(value as CKey);
-}
-
 const mapState = ({ listReducer: { currentlyEdited } }: RootState) => ({
   currentlyEdited,
 });
@@ -54,7 +49,7 @@ interface State {
   password: string;
   canConnect: boolean;
   serverID: string;
-  type: FTPConnectTypes;
+  ftpType: FTPConnectTypes;
 }
 
 enum Change {
@@ -77,7 +72,7 @@ export class ConnectUI extends Component<Props, State> {
       canConnect: false,
       sshPort: 22,
       serverID: undefined,
-      type: FTPConnectTypes.SFTP,
+      ftpType: FTPConnectTypes.SFTP,
     };
   }
   componentDidMount(): void {
@@ -125,9 +120,9 @@ export class ConnectUI extends Component<Props, State> {
     e: MouseEvent<HTMLInputElement>,
     details: ConnectDetails = undefined
   ): void => {
-    const { username, ip, password, ftpPort, sshPort, type } =
+    const { username, ip, password, ftpPort, sshPort, ftpType } =
       details || this.state;
-    if (Number(type) === FTPConnectTypes.FTP) {
+    if (ftpType === FTPConnectTypes.FTP) {
       this.props.goToFTP(
         new FTP({
           user: username,
@@ -137,7 +132,7 @@ export class ConnectUI extends Component<Props, State> {
           sshPort: sshPort || 22,
         })
       );
-    } else if (Number(type) === FTPConnectTypes.FTPS) {
+    } else if (ftpType === FTPConnectTypes.FTPS) {
       this.props.goToFTP(
         new FTP({
           user: username,
@@ -161,7 +156,7 @@ export class ConnectUI extends Component<Props, State> {
   };
 
   onSave = (): void => {
-    const { ip, username, ftpPort, password, sshPort } = this.state;
+    const { ip, username, ftpPort, password, sshPort, ftpType } = this.state;
     this.props.setPrompt({
       fieldName: "Server Name",
       callback: (value: string) => {
@@ -173,13 +168,14 @@ export class ConnectUI extends Component<Props, State> {
           ftpPort,
           sshPort,
           name: value,
+          ftpType,
         });
       },
     });
   };
 
   onFavourite = (): void => {
-    const { ip, username, ftpPort, password, sshPort } = this.state;
+    const { ip, username, ftpPort, password, sshPort, ftpType } = this.state;
     this.props.setPrompt({
       fieldName: "Server Name",
       callback: (value: string) => {
@@ -191,6 +187,7 @@ export class ConnectUI extends Component<Props, State> {
           ftpPort,
           sshPort,
           name: value,
+          ftpType,
         });
       },
     });
@@ -243,8 +240,8 @@ export class ConnectUI extends Component<Props, State> {
     }
   }
 
-  changeFTPType = (type: CKey): void => {
-    this.setState({ type: type as unknown as FTPConnectTypes });
+  changeFTPType = (type: FTPConnectTypes): void => {
+    this.setState({ ftpType: type });
   };
 
   render(): JSX.Element {
@@ -278,37 +275,32 @@ export class ConnectUI extends Component<Props, State> {
           </div>
           <form
             className={`connect-form ${
-              Number(this.state.type) === FTPConnectTypes.SFTP
+              this.state.ftpType === FTPConnectTypes.SFTP
                 ? "connect-form-sftp"
                 : ""
             }`}
             onSubmit={(e) => e.preventDefault()}
           >
-            <div
-              className="connect-type"
-              data-info="type"
-              style={
-                {
-                  "--k": this.state.type,
-                } as React.CSSProperties
-              }
-            >
-              {enumValues.map((k) => (
-                <label
-                  key={k}
-                  htmlFor={`t${k}`}
-                  data-txt={FTPConnectTypes[k]}
-                  className={
-                    k == (this.state.type as unknown as CKey)
-                      ? "connect-type-chosen"
-                      : ""
-                  }
-                  onClick={() => this.changeFTPType(k)}
-                >
-                  <input type="radio" name="ftptype" id={`t${k}`} />
-                  {FTPConnectTypes[k]}
-                </label>
-              ))}
+            <div className="connect-type" data-info="type">
+              {Object.keys(FTPConnectTypes).map((k) => {
+                const key = k as CKey;
+                return (
+                  <label
+                    key={key}
+                    htmlFor={`t${key}`}
+                    data-txt={key}
+                    className={
+                      key == (this.state.ftpType as unknown as CKey)
+                        ? "connect-type-chosen"
+                        : ""
+                    }
+                    onClick={() => this.changeFTPType(FTPConnectTypes[key])}
+                  >
+                    <input type="radio" name="ftptype" id={`t${k}`} />
+                    {key}
+                  </label>
+                );
+              })}
             </div>
             <span className="connect-ip" data-info="ip/domain">
               <input

@@ -36,7 +36,7 @@ export class SSH {
 
     const socket = connect("localhost:15000");
     this.socket = socket;
-    socket.on("connect", () => {
+    socket.once("connect", () => {
       socket.emit("ssh", config)
       this.connected = true;
       // term.write("\r\n*** Connected to backend***\r\n");

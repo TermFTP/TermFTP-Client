@@ -21,10 +21,25 @@
       "ip ftp" 2em
       "user ssh" 2em
       "lc lc" 2em
+      "t t" 2em
       / 2fr 0.8fr;
     gap: 10px;
     width: 15em;
     pointer-events: none;
+
+    & > * {
+      position: relative;
+      &::before {
+        position: absolute;
+        top: -1.05em;
+        left: var(--padding);
+        content: attr(class);
+        font-size: 0.75em;
+        font-variant: small-caps;
+        transition: var(--dur) opacity ease;
+        opacity: var(--hint-opacity);
+      }
+    }
   }
 
   .connect-hover {
@@ -51,14 +66,6 @@
   }
 }
 
-.ip,
-.ftp-port,
-.ssh-port,
-.username,
-.last-connection {
-  position: relative;
-}
-
 .ip {
   grid-area: ip;
 }
@@ -79,19 +86,8 @@
   grid-area: lc;
 }
 
-.ip::before,
-.ftp-port::before,
-.ssh-port::before,
-.username::before,
-.last-connection::before {
-  position: absolute;
-  top: -1.05em;
-  left: var(--padding);
-  content: attr(class);
-  font-size: 0.75em;
-  font-variant: small-caps;
-  transition: var(--dur) opacity ease;
-  opacity: var(--hint-opacity);
+.ftp-type {
+  grid-area: t;
 }
 
 .connect-server-edit {

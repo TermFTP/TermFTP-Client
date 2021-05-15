@@ -17,7 +17,7 @@ export interface Server {
   password: string;
   name: string;
   when?: Date;
-  type: FTPConnectTypes
+  ftpType: FTPConnectTypes
 }
 
 export interface HistoryServer extends Server {

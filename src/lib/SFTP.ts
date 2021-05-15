@@ -18,7 +18,11 @@ export class SFTP extends BaseFTP {
   get config(): FTPConfig {
     return {
       ...this._config,
-      sshPort: this._config.port
+      sshPort: this._config.port,
+      user: this._config.username,
+      host: this._config.host,
+      password: this._config.password,
+      port: this._config.port,
     }
   }
 

@@ -74,6 +74,7 @@ class TerminalUI extends React.Component<Props> {
           username: config.user,
           keepaliveInterval: 20000,
           readyTimeout: 20000,
+          tryKeyboard: true,
         },
         this.xtermRef.current.getTerminal(),
         this.xtermRef.current.container.current

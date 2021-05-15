@@ -49,50 +49,7 @@ export function App(): JSX.Element {
     autoLogin();
   }, [state.autoLoggedIn]);
 
-  // const inputRef: React.RefObject<XTerm> = React.createRef();
-
-  useEffect(() => {
-    //TEST SSH
-    // const term = inputRef.current.getTerminal();
-    // term.resize(50, 50);
-    // term.write("adslkjflöasjdföljaskldfasf");
-    // const ssh: SSH = new SSH();
-    // ssh.connect(
-    //   {
-    //     host: "195.144.107.198",
-    //     port: 22,
-    //     username: "demo",
-    //     password: "password",
-    //     keepaliveInterval: 20000,
-    //     readyTimeout: 20000,
-    //     debug: console.log,
-    //   },
-    //   term
-    // );
-    // const sftp: SFTP = new SFTP({
-    //   host: "10.0.0.47",
-    //   port: 22,
-    //   username: "sammy",
-    //   password: "sammy",
-    //   keepaliveInterval: 20000,
-    //   readyTimeout: 20000,
-    //   debug: console.log,
-    // });
-    // sftp.connect((res) => console.log(res));
-    // setTimeout(() => sftp.cd("test"), 1000);
-    // setTimeout(() => sftp.put("D:\\temp\\terry.m4a", ""), 5000);
-  }, []);
-
   return (
-    // <XTerm ref={inputRef}
-    //   addons={[new FitAddon(), new WebLinksAddon()]}
-    //   style={{
-    //     overflow: 'hidden',
-    //     position: 'relative',
-    //     width: '100%',
-    //     height: '100%'
-    //   }} />
-
     <div id="app">
       <Header></Header>
       <div id="app-wrapper">

@@ -27,7 +27,7 @@ export interface ConnectDetails {
   ftpPort: number;
   password: string;
   sshPort: number;
-  type: FTPConnectTypes;
+  ftpType: FTPConnectTypes;
 }
 
 export function ServerItemUI({
@@ -58,6 +58,7 @@ export function ServerItemUI({
         <div className="last-connection">
           {server.lastConnection?.toDateString() || server.when?.toDateString()}
         </div>
+        <div className="ftp-type">{server.ftpType}</div>
       </div>
     </div>
   );

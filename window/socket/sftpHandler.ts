@@ -3,6 +3,7 @@ import { Socket } from "socket.io";
 import { Client, ConnectConfig, SFTPWrapper } from "ssh2";
 import { ClientEvents, ServerEvents, FTPRequest, FTPRequestType, FTPResponse, FTPResponseType, FileI, FileType } from "../../src/shared";
 import { FileEntry } from "ssh2-streams";
+import { ProgressType } from "basic-ftp/dist/ProgressTracker";
 
 export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshConfig: ConnectConfig): void => {
   const ssh = new Client();
@@ -54,7 +55,7 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
           // DOWNLOAD FILE
           case FTPRequestType.GET:
             sftp.fastGet([cwd, req.data.remotePath].join('/'), req.data.localPath, {
-              step: (transferred: number, chunk: number, total: number) => sftpStep(socket, basename(req.data.remotePath), transferred, chunk, total),
+              step: (transferred: number, chunk: number, total: number) => sftpStep(socket, basename(req.data.remotePath), transferred, chunk, total, "download"),
             }, (err) => {
               if (err) sftpErr(socket, err);
             });
@@ -68,6 +69,7 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
             break;
           */
 
+          // UPLOAD FILES
           case FTPRequestType.PUT_FILES:
             for (const file of req.data.files) {
               upload(socket, sftp, file, cwd);
@@ -106,6 +108,8 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
             });
             break;
 
+
+
         }
       });
 
@@ -119,18 +123,18 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
 
 const upload = (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper, localPath: string, cwd: string) => {
   sftp.fastPut(localPath, [cwd, basename(localPath)].join(''), {
-    step: (transferred: number, chunk: number, total: number) => sftpStep(socket, basename(localPath), transferred, chunk, total),
+    step: (transferred: number, chunk: number, total: number) => sftpStep(socket, basename(localPath), transferred, chunk, total, "upload"),
   }, (err) => {
     if (err) return sftpErr(socket, err);
     sftpReadDir(socket, sftp, cwd);
   });
 }
 
-const sftpStep = (socket: Socket<ClientEvents, ServerEvents>, name: string, transferred: number, chunk: number, total: number) => {
+const sftpStep = (socket: Socket<ClientEvents, ServerEvents>, name: string, transferred: number, chunk: number, total: number, type: ProgressType) => {
   socket.emit('sftp:data', {
     type: FTPResponseType.TRANSFER_UPDATE,
     data: {
-      name, transferred, chunk, total,
+      name, transferred, chunk, total, type
     }
   } as FTPResponse)
 }

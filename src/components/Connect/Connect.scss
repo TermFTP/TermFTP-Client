@@ -107,7 +107,7 @@
     width: 30em;
     display: grid;
     grid-template: "t t t t" "ip ip ftp ssh" "user user pw pw" "btn btn btn btn" / 1fr 0.6fr 0.6fr 0.6fr;
-    gap: 25px 20px;
+    gap: 30px 20px;
     height: min-content;
     margin: auto;
 
@@ -122,7 +122,6 @@
       display: flex;
       gap: 30px;
       height: 2em;
-      line-height: 2;
 
       [type="radio"] {
         position: absolute;
@@ -131,16 +130,20 @@
       }
 
       label {
+        line-height: 1.9;
         flex-grow: 1;
         flex-shrink: 0;
-        transition: var(--dur) background ease, var(--dur) font-weight ease;
+        transition: var(--dur) background ease, var(--dur) border-color ease,
+          var(--dur) color ease;
         border-radius: var(--radius);
         cursor: pointer;
+        border: 1px solid transparent;
       }
 
       .connect-type-chosen {
         background: var(--dark-bg-2);
-        color: var(--color);
+        color: var(--green);
+        border: 1px solid var(--green);
       }
     }
 
@@ -184,7 +187,7 @@
 
       &::before {
         position: absolute;
-        top: -1.3em;
+        top: -1.4em;
         font-size: 0.6em;
         font-variant: small-caps;
         left: 0;

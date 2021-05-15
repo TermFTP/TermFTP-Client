@@ -27,6 +27,7 @@ export interface SaveReq {
   username?: string;
   password?: string;
   lastConnection?: string;
+  ftpType: string;
 }
 
 export interface EditReq {
