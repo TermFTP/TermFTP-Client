@@ -15,6 +15,7 @@ export const Files = (): JSX.Element => {
   const dotdotExists = files.filter((f) => f.name == "..").length > 0;
 
   const filtered = files.filter((f) => !(f.name == ".." || f.name == "."));
+
   return (
     <>
       <div className="file-wrapper">

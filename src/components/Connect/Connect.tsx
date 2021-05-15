@@ -16,13 +16,17 @@ import {
 import { EditReq, SaveReq, Server } from "@models";
 import { ConnectDetails } from "./Lists/ServerItem/ServerItem";
 import { PromptProps } from "@components/Prompt/Prompt";
-import { goToFTPClient } from "@store/ftp";
+import { goToFTPClient, setFTPType } from "@store/ftp";
 import { FTPConnectTypes } from "@shared";
 
 type CKey = keyof typeof FTPConnectTypes;
 
-const mapState = ({ listReducer: { currentlyEdited } }: RootState) => ({
+const mapState = ({
+  listReducer: { currentlyEdited },
+  ftpReducer: { ftpType },
+}: RootState) => ({
   currentlyEdited,
+  ftpType,
 });
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
@@ -33,6 +37,7 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   goToFTP: (client: BaseFTP) => dispatch(goToFTPClient(client)),
   edit: (server: EditReq) => dispatch(editServer(server)),
   changeEditServer: (server: Server) => dispatch(changeEditServer(server)),
+  setFTPType: (type: FTPConnectTypes) => dispatch(setFTPType(type)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -49,7 +54,6 @@ interface State {
   password: string;
   canConnect: boolean;
   serverID: string;
-  ftpType: FTPConnectTypes;
 }
 
 enum Change {
@@ -72,7 +76,6 @@ export class ConnectUI extends Component<Props, State> {
       canConnect: false,
       sshPort: 22,
       serverID: undefined,
-      ftpType: FTPConnectTypes.SFTP,
     };
   }
   componentDidMount(): void {
@@ -120,8 +123,8 @@ export class ConnectUI extends Component<Props, State> {
     e: MouseEvent<HTMLInputElement>,
     details: ConnectDetails = undefined
   ): void => {
-    const { username, ip, password, ftpPort, sshPort, ftpType } =
-      details || this.state;
+    const { username, ip, password, ftpPort, sshPort } = details || this.state;
+    const { ftpType } = details || this.props;
     if (ftpType === FTPConnectTypes.FTP) {
       this.props.goToFTP(
         new FTP({
@@ -156,7 +159,8 @@ export class ConnectUI extends Component<Props, State> {
   };
 
   onSave = (): void => {
-    const { ip, username, ftpPort, password, sshPort, ftpType } = this.state;
+    const { ip, username, ftpPort, password, sshPort } = this.state;
+    const { ftpType } = this.props;
     this.props.setPrompt({
       fieldName: "Server Name",
       callback: (value: string) => {
@@ -175,7 +179,8 @@ export class ConnectUI extends Component<Props, State> {
   };
 
   onFavourite = (): void => {
-    const { ip, username, ftpPort, password, sshPort, ftpType } = this.state;
+    const { ip, username, ftpPort, password, sshPort } = this.state;
+    const { ftpType } = this.props;
     this.props.setPrompt({
       fieldName: "Server Name",
       callback: (value: string) => {
@@ -241,7 +246,7 @@ export class ConnectUI extends Component<Props, State> {
   }
 
   changeFTPType = (type: FTPConnectTypes): void => {
-    this.setState({ ftpType: type });
+    this.props.setFTPType(type);
   };
 
   render(): JSX.Element {
@@ -275,7 +280,7 @@ export class ConnectUI extends Component<Props, State> {
           </div>
           <form
             className={`connect-form ${
-              this.state.ftpType === FTPConnectTypes.SFTP
+              this.props.ftpType === FTPConnectTypes.SFTP
                 ? "connect-form-sftp"
                 : ""
             }`}
@@ -290,7 +295,7 @@ export class ConnectUI extends Component<Props, State> {
                     htmlFor={`t${key}`}
                     data-txt={key}
                     className={
-                      key == (this.state.ftpType as unknown as CKey)
+                      key == (this.props.ftpType as unknown as CKey)
                         ? "connect-type-chosen"
                         : ""
                     }

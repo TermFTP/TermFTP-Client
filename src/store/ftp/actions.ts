@@ -1,6 +1,6 @@
 import { BaseFTP } from "@lib";
 import { DefaultReturn } from "@models";
-import { FileI } from "@shared";
+import { FileI, FTPConnectTypes } from "@shared";
 import { push } from "connected-react-router";
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
@@ -29,4 +29,33 @@ export const goToFTPClient: FTPThunk = (client: BaseFTP) => {
 export const setFiles = (files: FileI[]): Ret => ({
   type: FTPActionTypes.SET_FILES,
   payload: files
+})
+
+export const addSelection = (file: FileI): Ret => ({
+  type: FTPActionTypes.ADD_SELECTION,
+  payload: file
+})
+
+export const selectFile = (file: FileI): Ret => ({
+  type: FTPActionTypes.SELECT_FILE,
+  payload: file
+})
+
+export const shiftSelection = (file: FileI): Ret => ({
+  type: FTPActionTypes.SHIFT_SELECTION,
+  payload: file
+})
+
+export const clearSelection = (): Ret => ({
+  type: FTPActionTypes.CLEAR_SELECTION,
+})
+
+export const removeSelection = (file: FileI): Ret => ({
+  type: FTPActionTypes.REMOVE_SELECTION,
+  payload: file
+})
+
+export const setFTPType = (ftpType: FTPConnectTypes): Ret => ({
+  type: FTPActionTypes.SET_FTP_TYPE,
+  payload: ftpType
 })

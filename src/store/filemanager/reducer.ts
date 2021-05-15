@@ -1,4 +1,4 @@
-import { FMState, FMTypes } from "./types";
+import { FMState, FMActions } from "./types";
 import { Reducer } from "redux";
 
 export const initialState: FMState = {
@@ -7,12 +7,12 @@ export const initialState: FMState = {
   },
   loading: false,
   terminalOpen: false,
-  terminalHeight: 300
+  terminalHeight: 300,
 };
 
 export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
   switch (action.type) {
-    case FMTypes.SET_CONTEXT_MENU:
+    case FMActions.SET_CONTEXT_MENU:
       return {
         ...state,
         menu: {
@@ -20,12 +20,12 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
           ...action.payload,
         },
       };
-    case FMTypes.SET_FM_LOADING:
+    case FMActions.SET_FM_LOADING:
       return {
         ...state,
         loading: action.payload
       }
-    case FMTypes.SET_TERMINAL:
+    case FMActions.SET_TERMINAL:
       switch (action.payload) {
         case "OPEN":
           return {
@@ -44,7 +44,7 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
           }
         default: return state;
       }
-    case FMTypes.SET_TERMINAL_HEIGHT:
+    case FMActions.SET_TERMINAL_HEIGHT:
       return {
         ...state,
         terminalHeight: action.payload

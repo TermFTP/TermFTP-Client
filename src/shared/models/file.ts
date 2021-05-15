@@ -1,8 +1,8 @@
 export enum FileType {
-  UNKNOWN = 0,
-  FILE = 1,
-  DIR = 2,
-  SYMBOLIC = 3,
+  UNKNOWN = "unknown",
+  FILE = "file",
+  DIR = "dir",
+  SYMBOLIC = "symbolic",
 }
 
 export interface FileI {
