@@ -83,7 +83,7 @@ export const FTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => async 
           ftp.getFolder(req.data.remoteFolder, req.data.localPath);
           break;
         case Req.PUT_FILES:
-          await ftp.putFiles(req.data.files);
+          await ftp.putFiles(req.data.files, req.data.basePath);
           ftpReadDir(socket, ftp)
           break;
         case Req.PUT_FOLDER:
@@ -91,7 +91,7 @@ export const FTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => async 
           ftpReadDir(socket, ftp)
           break;
         case Req.PUT_FOLDERS:
-          await ftp.putFolders(req.data.folders);
+          await ftp.putFolders(req.data.folders, req.data.basePath);
           ftpReadDir(socket, ftp)
           break;
         default:
@@ -343,13 +343,13 @@ export class FTP {
     this.pool.release(c);
   }
 
-  async putFiles(files: string[]): Promise<void> {
-    await Promise.all(files.map(f => this.put(f, basename(f))))
+  async putFiles(files: string[], basePath?: string): Promise<void> {
+    await Promise.all(files.map(f => this.put(f, (basePath ? basePath + "/" : "") + basename(f))))
   }
 
-  async putFolders(folders: string[]): Promise<void> {
+  async putFolders(folders: string[], basePath?: string): Promise<void> {
     await Promise.all(
-      folders.map((f) => this.putFolder(f, basename(f)))
+      folders.map((f) => this.putFolder(f, (basePath ? basePath + "/" : "") + basename(f)))
     );
   }
 

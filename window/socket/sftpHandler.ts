@@ -72,7 +72,7 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
           // UPLOAD FILES
           case FTPRequestType.PUT_FILES:
             for (const file of req.data.files) {
-              upload(socket, sftp, file, cwd);
+              upload(socket, sftp, file, cwd, req.data.basePath);
             }
             break;
 
@@ -121,8 +121,8 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
 
 }
 
-const upload = (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper, localPath: string, cwd: string) => {
-  sftp.fastPut(localPath, [cwd, basename(localPath)].join(''), {
+const upload = (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper, localPath: string, cwd: string, basePath?: string) => {
+  sftp.fastPut(localPath, [cwd, basePath ? basePath + "/" : "", basename(localPath)].join(''), {
     step: (transferred: number, chunk: number, total: number) => sftpStep(socket, basename(localPath), transferred, chunk, total, "upload"),
   }, (err) => {
     if (err) return sftpErr(socket, err);

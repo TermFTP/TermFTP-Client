@@ -215,6 +215,15 @@ export class FileManagerUI extends Component<Props, State> {
   };
 
   onDragEnter = (e: React.DragEvent<HTMLDivElement>): void => {
+    const actual = document.elementFromPoint(e.pageX, e.pageY);
+    if (
+      e.dataTransfer.types.includes("app/file-transfer") ||
+      actual.closest(".file-wrapper")
+    ) {
+      this.setState({ dragging: false });
+      this.counter = 1;
+      return;
+    }
     if (!e.dataTransfer.types.includes("Files")) return;
     e.preventDefault();
     e.stopPropagation();
@@ -223,6 +232,15 @@ export class FileManagerUI extends Component<Props, State> {
   };
 
   onDragLeave = (e: React.DragEvent<HTMLDivElement>): void => {
+    const actual = document.elementFromPoint(e.pageX, e.pageY);
+    if (
+      e.dataTransfer.types.includes("app/file-transfer") ||
+      actual.closest(".file-wrapper")
+    ) {
+      this.counter = 1;
+      this.setState({ dragging: false });
+      return;
+    }
     if (!e.dataTransfer.types.includes("Files")) return;
     e.preventDefault();
     e.stopPropagation();
@@ -233,15 +251,23 @@ export class FileManagerUI extends Component<Props, State> {
     }
   };
 
-  onDrop = async (event: React.DragEvent<HTMLDivElement>): Promise<void> => {
-    if (!event.dataTransfer.types.includes("Files")) return;
-    event.preventDefault();
-    event.stopPropagation();
+  onDrop = async (e: React.DragEvent<HTMLDivElement>): Promise<void> => {
+    const actual = document.elementFromPoint(e.pageX, e.pageY);
+    if (
+      e.dataTransfer.types.includes("app/file-transfer") ||
+      actual.closest(".file-wrapper")
+    ) {
+      this.setState({ dragging: false });
+      return;
+    }
+    if (!e.dataTransfer.types.includes("Files")) return;
+    e.preventDefault();
+    e.stopPropagation();
     this.counter = 0;
     this.setState({ dragging: false });
     const files = [];
     const folders = [];
-    for (const file of event.dataTransfer.files) {
+    for (const file of e.dataTransfer.files) {
       const p = file.path;
 
       if (fs.statSync(p).isDirectory()) {

@@ -110,6 +110,7 @@ export interface FTPReqPutFolders {
   type: typeof Req.PUT_FOLDERS,
   data: {
     folders: string[];
+    basePath?: string;
   }
 }
 
@@ -117,6 +118,7 @@ export interface FTPReqPutFiles {
   type: typeof Req.PUT_FILES;
   data: {
     files: string[];
+    basePath?: string;
   }
 }
 

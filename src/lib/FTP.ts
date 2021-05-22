@@ -200,20 +200,22 @@ export class FTP extends BaseFTP {
     })
   }
 
-  putFiles(files: string[]): void {
+  putFiles(files: string[], basePath?: string): void {
     this.emit({
       type: ReqT.PUT_FILES,
       data: {
-        files
+        files,
+        basePath
       }
     })
   }
 
-  putFolders(folders: string[]): void {
+  putFolders(folders: string[], basePath: string): void {
     this.emit({
       type: ReqT.PUT_FOLDERS,
       data: {
-        folders
+        folders,
+        basePath
       }
     })
   }

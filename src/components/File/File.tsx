@@ -9,6 +9,7 @@ import {
   shiftSelection,
 } from "@store/ftp";
 import { push } from "connected-react-router";
+import { statSync } from "fs";
 import React, { useState } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./File.scss";
@@ -17,8 +18,9 @@ import FileIcon from "./FileIcon";
 const mapState = ({
   ftpReducer: {
     selection: { selected },
+    client,
   },
-}: RootState) => ({ selected });
+}: RootState) => ({ selected, client });
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   setContextMenu: (contextMenu: ContextMenuProps) =>
     dispatch(setContextMenu(contextMenu)),
@@ -45,6 +47,7 @@ function FileUI({
   addSelection,
   removeSelection,
   shiftSelection,
+  client,
 }: Props): JSX.Element {
   let counter = 0;
   const [dragOver, setDragOver] = useState({
@@ -98,7 +101,19 @@ function FileUI({
   }
 
   function onDragOver(e: React.DragEvent<HTMLDivElement>) {
+    if (
+      e.dataTransfer.types.includes("app/file-transfer") ||
+      e.dataTransfer.types.includes("Files")
+    ) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
     if (!dragOver.over && e.dataTransfer.types.includes("app/file-transfer")) {
+      e.stopPropagation();
+      e.preventDefault();
+      counter++;
+      setDragOver({ over: true, shouldBeHighlighted: !selected.has(file) });
+    } else if (!dragOver.over && e.dataTransfer.types.includes("Files")) {
       e.stopPropagation();
       e.preventDefault();
       counter++;
@@ -110,13 +125,30 @@ function FileUI({
     if (e.dataTransfer.types.includes("app/file-transfer")) {
       e.preventDefault();
       e.stopPropagation();
-      console.log("aaa", e.dataTransfer.getData("app/file-transfer"));
-      setDragOver({ over: false, shouldBeHighlighted: false });
+      const data: FileI[] = JSON.parse(
+        e.dataTransfer.getData("app/file-transfer")
+      );
+      for (const mFile of data) {
+        client.rename(mFile.name, file.name + "/" + mFile.name);
+      }
     } else if (e.dataTransfer.types.includes("Files")) {
       e.preventDefault();
       e.stopPropagation();
-      // TODO make dragging files from outside into a folder
+      const files = [];
+      const folders = [];
+      for (const file of e.dataTransfer.files) {
+        const p = file.path;
+
+        if (statSync(p).isDirectory()) {
+          folders.push(p);
+        } else if (statSync(p).isFile()) {
+          files.push(p);
+        }
+      }
+      client.putFolders(folders, file.name);
+      client.putFiles(files, file.name);
     }
+    setDragOver({ over: false, shouldBeHighlighted: false });
   }
 
   function onDragLeave() {

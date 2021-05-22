@@ -29,8 +29,8 @@ export abstract class BaseFTP {
   abstract rmdir(dir: string, recursive?: boolean): void;
   abstract rename(oldPath: string, newPath: string): void;
   abstract putFolder(source: string, destPath: string): void;
-  abstract putFolders(folders: string[]): void;
-  abstract putFiles(files: string[]): void;
+  abstract putFolders(folders: string[], basePath?: string): void;
+  abstract putFiles(files: string[], basePath?: string): void;
 
   abstract get connected(): boolean;
   abstract get config(): FTPConfig;
