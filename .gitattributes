@@ -1,2 +1,3 @@
 scripts/* linguist-vendored
 config/* linguist-vendored
+config/jest/* linguist-vendored
