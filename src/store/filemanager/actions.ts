@@ -1,7 +1,7 @@
 import { DefaultReturn } from "@models";
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { ContextMenuProps, FMState, FMActions, TerminalActions } from "./types";
+import { ContextMenuProps, FMState, FMActions, TerminalActions, SearchProps } from "./types";
 
 export type FTPThunk<ReturnType = void> = ActionCreator<
   ThunkAction<ReturnType, FMState, unknown, Action<string>>
@@ -29,4 +29,9 @@ export const setTerminal = (action: TerminalActions): Ret => ({
 export const setTerminalHeight = (height: number): Ret => ({
   type: FMActions.SET_TERMINAL_HEIGHT,
   payload: height
+})
+
+export const doSearch = (search: SearchProps): Ret => ({
+  type: FMActions.SEARCH,
+  payload: search,
 })

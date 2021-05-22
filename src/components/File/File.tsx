@@ -18,7 +18,10 @@ const mapState = ({
   ftpReducer: {
     selection: { selected },
   },
-}: RootState) => ({ selected });
+  fmReducer: {
+    search
+  }
+}: RootState) => ({ selected, search });
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   setContextMenu: (contextMenu: ContextMenuProps) =>
     dispatch(setContextMenu(contextMenu)),
@@ -45,7 +48,12 @@ function FileUI({
   addSelection,
   removeSelection,
   shiftSelection,
+  search,
 }: Props): JSX.Element {
+
+  if(search.searching && search.query && !file.name.toLowerCase().includes(search.query))
+    return <></>
+
   function handleClick(ev: React.MouseEvent<HTMLDivElement>) {
     if (file.name === "..") return;
 

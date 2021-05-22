@@ -8,6 +8,9 @@ export const initialState: FMState = {
   loading: false,
   terminalOpen: false,
   terminalHeight: 300,
+  search: {
+    searching: false,
+  }
 };
 
 export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
@@ -48,6 +51,11 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
       return {
         ...state,
         terminalHeight: action.payload
+      }
+    case FMActions.SEARCH:
+      return {
+        ...state,
+        search: action.payload
       }
     default:
       return state;

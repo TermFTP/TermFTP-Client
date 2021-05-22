@@ -14,6 +14,8 @@ import { DefaultDispatch, RootState } from "@store";
 import { addBubble, setSettings } from "@store/app";
 import {
   ContextMenuProps,
+  doSearch,
+  SearchProps,
   setContextMenu,
   setFMLoading,
 } from "@store/filemanager";
@@ -32,13 +34,14 @@ import { clearSelection, setFiles } from "@store/ftp";
 
 const mapState = ({
   ftpReducer: { client },
-  fmReducer: { menu, loading },
+  fmReducer: { menu, loading, search },
   router: { location },
 }: RootState) => ({
   client,
   menu,
   loading,
   location,
+  search,
 });
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
@@ -53,6 +56,7 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   setFiles: (files: FileI[]) => dispatch(setFiles(files)),
   replace: (p: string) => dispatch(replace(p)),
   clearSelection: () => dispatch(clearSelection()),
+  doSearch: (search: SearchProps) => dispatch(doSearch(search)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -63,7 +67,6 @@ type Props = PropsFromState;
 interface State {
   plusOpen: boolean;
   dragging: boolean;
-  searching: boolean;
   pwd: string;
 }
 
@@ -76,7 +79,6 @@ export class FileManagerUI extends Component<Props, State> {
     this.state = {
       plusOpen: false,
       dragging: false,
-      searching: false,
       pwd: undefined,
     };
     (window as any).refreshFTP = this.onConnected;
@@ -88,9 +90,7 @@ export class FileManagerUI extends Component<Props, State> {
 
     this.handlers = {
       SEARCH: () => {
-        this.setState({
-          searching: true,
-        });
+        this.props.doSearch({searching: true})
       },
       RELOAD: () => {
         this.props.setFMLoading(true);
@@ -136,6 +136,7 @@ export class FileManagerUI extends Component<Props, State> {
     this.props.client?.disconnect();
     // this.props.client?.removeAllListeners();
     this.props.setFiles([]);
+    this.props.doSearch({searching: false})
   }
 
   // eslint-disable-next-line
@@ -252,28 +253,12 @@ export class FileManagerUI extends Component<Props, State> {
   };
 
   onSearch = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    //search item and scroll to it and hightlight it?
     const query = event.target.value;
 
-    const highlighted = document.getElementsByClassName("file-highlight");
-
-    const results = document.querySelectorAll(
-      `[data-name*="${query.toLowerCase()}"]`
-    ) as NodeListOf<HTMLElement>;
-
-    [...highlighted].forEach((hs) => {
-      if (
-        !hs.getAttribute("data-name").includes(query.toLowerCase()) ||
-        query.length == 0
-      ) {
-        hs.classList.remove("file-highlight");
-      }
-    });
-
-    if (results.length == 0) return;
-
-    results[0].scrollIntoView(true);
-    results.forEach((e) => e.classList.add("file-highlight"));
+    // put matches in store
+    // if no matches, show nothing
+    // on search-box close: show all again
+    this.props.doSearch({ searching: true, query });
   };
 
   onFilesClick = (ev: React.MouseEvent<HTMLDivElement>): void => {
@@ -286,7 +271,6 @@ export class FileManagerUI extends Component<Props, State> {
 
   render(): JSX.Element {
     const connected = Boolean(this.props.client?.connected);
-    const { searching } = this.state;
 
     return (
       <div id="file-manager">
@@ -328,8 +312,8 @@ export class FileManagerUI extends Component<Props, State> {
           >
             <SearchBox
               onSearch={this.onSearch}
-              searching={searching}
-              setSearching={(s) => this.setState({ searching: s })}
+              searching={this.props.search.searching}
+              setSearching={(s) => this.props.doSearch({searching: false})}
             />
             {connected && (
               <>

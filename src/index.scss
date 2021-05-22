@@ -40,10 +40,13 @@ input {
 
   &:focus {
     outline: none;
-    box-shadow: -1px -1px 1px var(--green), -1px 0 1px var(--green),
-      0 -1px 1px var(--green), 1px 0 1px var(--green), 0 1px 1px var(--green),
-      1px 1px 1px var(--green), 0 0 1px var(--green);
   }
+}
+
+input:focus {
+  box-shadow: -1px -1px 1px var(--green), -1px 0 1px var(--green),
+    0 -1px 1px var(--green), 1px 0 1px var(--green), 0 1px 1px var(--green),
+    1px 1px 1px var(--green), 0 0 1px var(--green);
 }
 
 button,
