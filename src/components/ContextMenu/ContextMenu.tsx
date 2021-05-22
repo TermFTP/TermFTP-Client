@@ -19,7 +19,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { FileType } from "@shared";
-import { basename, join } from "path";
+import { dirname } from "path";
 
 const mapState = ({
   fmReducer: { menu },
@@ -85,7 +85,7 @@ const ContextMenuUI = ({
         label: "Delete Files/Folders",
         func: onFilesDelete,
         icon: faDownload,
-        name: "context-delete-files",
+        name: "context-delete",
       },
     ];
   } else if (file?.type === FileType.DIR) {
@@ -236,7 +236,7 @@ const ContextMenuUI = ({
       })
       .then((path) => {
         if (path && !path.canceled) {
-          client.get(file.name, path.filePath);
+          client.getFiles([file.name], dirname(path.filePath));
         }
       });
   }
@@ -248,7 +248,7 @@ const ContextMenuUI = ({
       })
       .then((res) => {
         if (res.canceled) return;
-        client.getFolder(file, res.filePaths[0]);
+        client.getFolders([file], res.filePaths[0]);
       });
   }
 
@@ -270,13 +270,17 @@ const ContextMenuUI = ({
       })
       .then((res) => {
         if (res.canceled || res.filePaths.length == 0) return;
+        const folders = [];
+        const files = [];
         for (const f of selected) {
           if (f.type === FileType.DIR) {
-            client.getFolder(f, res.filePaths[0]);
+            folders.push(f);
           } else {
-            client.get(f.name, join(res.filePaths[0], basename(f.name)));
+            files.push(f.name);
           }
         }
+        client.getFolders(folders, res.filePaths[0]);
+        client.getFiles(files, res.filePaths[0]);
       });
   }
 

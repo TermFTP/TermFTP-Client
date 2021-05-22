@@ -96,29 +96,35 @@ export class FTP extends BaseFTP {
     })
   }
 
-  get(
-    remoteFile: string,
-    localPath: string,
-  ): void {
+  // get(
+  //   remoteFile: string,
+  //   localPath: string,
+  // ): void {
+  //   this.emit({
+  //     type: ReqT.GET,
+  //     data: {
+  //       localPath,
+  //       remotePath: remoteFile
+  //     }
+  //   })
+  // }
+
+  getFiles(files: string[], localPath: string): void {
     this.emit({
-      type: ReqT.GET,
+      type: ReqT.GET_FILES,
       data: {
-        localPath,
-        remotePath: remoteFile
+        files,
+        localPath
       }
     })
   }
 
-  getFiles(files: string[], localPath: string): void {
-    // TODO: implement @TheCrether
-  }
-
-  getFolder(remoteFolder: FileI, localFolder: string): void {
+  getFolders(remoteFolders: FileI[], localFolder: string): void {
     this.emit({
-      type: ReqT.GET_FOLDER,
+      type: ReqT.GET_FOLDERS,
       data: {
         localPath: localFolder,
-        remoteFolder: remoteFolder
+        remoteFolders
       }
     })
   }
@@ -194,30 +200,22 @@ export class FTP extends BaseFTP {
     })
   }
 
-  putFolder(source: string, destPath: string): void {
-    this.emit({
-      type: ReqT.PUT_FOLDER,
-      data: {
-        localPath: source,
-        remotePath: destPath
-      }
-    })
-  }
-
-  putFiles(files: string[]): void {
+  putFiles(files: string[], basePath?: string): void {
     this.emit({
       type: ReqT.PUT_FILES,
       data: {
-        files
+        files,
+        basePath
       }
     })
   }
 
-  putFolders(folders: string[]): void {
+  putFolders(folders: string[], basePath: string): void {
     this.emit({
       type: ReqT.PUT_FOLDERS,
       data: {
-        folders
+        folders,
+        basePath
       }
     })
   }

@@ -5,7 +5,7 @@ import { ClientEvents, ServerEvents, FTPRequest, FTPRequestType, FTPResponse, FT
 import { FileEntry } from "ssh2-streams";
 import { ProgressType } from "basic-ftp/dist/ProgressTracker";
 import fs from 'fs';
-import {join} from 'path';
+import { join } from 'path';
 
 export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshConfig: ConnectConfig): void => {
   const ssh = new Client();
@@ -54,18 +54,29 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
             sftpReadDir(socket, sftp, cwd);
             break;
 
-          // DOWNLOAD FILE
-          case FTPRequestType.GET:
-            download(socket, sftp, cwd, req.data.remotePath, req.data.localPath);
-            break;
+          // // DOWNLOAD FILE
+          // case FTPRequestType.GET:
+          //   download(socket, sftp, cwd, req.data.remotePath, req.data.localPath);
+          //   break;
 
           // DOWNLOAD FILES
           case FTPRequestType.GET_FILES:
-            for(const file of req.data.files) {
+            for (const file of req.data.files) {
               download(socket, sftp, cwd, file, join(req.data.localPath, basename(file)))
             }
             break;
-          
+
+          // TODO @0Adiber get folders
+          case FTPRequestType.GET_FOLDERS:
+            for (const folder of req.data.remoteFolders) {
+              try {
+                downloadFolders(socket, sftp, cwd, folder, join(req.data.localPath, folder.name), folder.name);
+              } catch (err) {
+                sftpErr(socket, { name: "Error uploading " + folder.name, message: err })
+              }
+            }
+            break;
+
           // UPLOAD FILE
           /*
           case FTPRequestType.PUT:
@@ -77,7 +88,7 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
           // UPLOAD FILES
           case FTPRequestType.PUT_FILES:
             for (const file of req.data.files) {
-              upload(socket, sftp, file, cwd);
+              upload(socket, sftp, file, cwd + (req.data.basePath ? req.data.basePath + "/" : ""));
             }
             break;
 
@@ -113,9 +124,9 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
           // PUT FOLDERS
           case FTPRequestType.PUT_FOLDERS:
 
-            for(const path of req.data.folders) {
-              createDir(socket, sftp, cwd, path.match(/([^\/]*)\/*$/)[1])
-              uploadFolders(socket, sftp, cwd, path, '')
+            for (const path of req.data.folders) {
+              createDir(socket, sftp, cwd + (req.data.basePath ? req.data.basePath + "/" : ""), basename(path))
+              uploadFolders(socket, sftp, cwd + (req.data.basePath ? req.data.basePath + "/" : ""), path, '', req.data.basePath)
             }
 
             break;
@@ -139,20 +150,37 @@ const download = (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper,
   });
 }
 
-const uploadFolders = (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper, cwd: string, dirPath: string, relativePath: string, ) => {
+const downloadFolders = async (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper, cwd: string, folder: FileI, localPath: string, relativePath: string) => {
+  const files = await readDir(sftp, [cwd, relativePath].join('/'));
+
+  if (!fs.existsSync(localPath))
+    fs.mkdirSync(localPath)
+
+  for (const f of files) {
+    if (f.type === FileType.DIR) {
+      downloadFolders(socket, sftp, cwd, f, join(localPath, f.name), [relativePath, f.name].join('/'));
+    } else {
+      download(socket, sftp, cwd, [relativePath, f.name].join('/'), join(localPath, f.name));
+    }
+  }
+
+}
+
+const uploadFolders = (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper, cwd: string, dirPath: string, relativePath: string, basePath?: string) => {
   const files = fs.readdirSync(dirPath);
 
-  for(const f of files) {
-    if(fs.statSync(join(dirPath,f)).isDirectory()) {
+  for (const f of files) {
+    if (fs.statSync(join(dirPath, f)).isDirectory()) {
       createDir(socket, sftp, cwd, [relativePath, f].join('/'));
-      uploadFolders(socket, sftp, cwd, join(dirPath, f), [relativePath,f].join('/'));
-    } else 
-      upload(socket, sftp, join(dirPath, f), [cwd, relativePath].join(''))
+      uploadFolders(socket, sftp, cwd, join(dirPath, f), [relativePath, f].join('/'));
+    } else
+      upload(socket, sftp, join(dirPath, f), [cwd, basePath ? basePath + "/" : "", relativePath].join(''))
   }
 
 }
 
 const createDir = (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper, cwd: string, path: string) => {
+  console.log(cwd, path)
   sftp.mkdir([cwd, path].join('/'), (err) => {
     if (err) return sftpErr(socket, err);
     sftpReadDir(socket, sftp, cwd);
@@ -218,4 +246,22 @@ const sftpReadDir = (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapp
       },
     } as FTPResponse);
   });
+}
+
+const readDir = async (sftp: SFTPWrapper, dir: string): Promise<FileI[]> => {
+  return new Promise((resolve, reject) => {
+    sftp.readdir(dir, (err, list) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      const oldList = list;
+      const l: FileI[] = oldList.map(convertSftpFile).sort((a, b) => {
+        if (a.type === b.type) return a.name.localeCompare(b.name);
+        if (a.type === FileType.DIR) return -1;
+        return 1;
+      })
+      resolve(l);
+    });
+  })
 }

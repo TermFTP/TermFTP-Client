@@ -12,7 +12,6 @@ export enum FTPResponseType {
 export enum FTPRequestType {
   PWD = "pwd",
   LIST = "list",
-  GET = "get",
   GET_FILES = "get-files",
   PUT = "put",
   CD = "cd",
@@ -20,8 +19,7 @@ export enum FTPRequestType {
   DELETE = "delete",
   MKDIR = "mkdir",
   RMDIR = "rmdir",
-  GET_FOLDER = "get-folder",
-  PUT_FOLDER = "put-folder",
+  GET_FOLDERS = "get-folders",
   PUT_FOLDERS = "put-folders",
   PUT_FILES = "put-files"
 }
@@ -43,14 +41,6 @@ export interface FTPReqList {
   type: typeof Req.LIST;
   data: {
     dir: string;
-  }
-}
-
-export interface FTPReqGet {
-  type: typeof Req.GET;
-  data: {
-    remotePath: string;
-    localPath: string;
   }
 }
 
@@ -100,18 +90,10 @@ export interface FTPReqRmDIR {
 }
 
 export interface FTPReqGetFolder {
-  type: typeof Req.GET_FOLDER,
+  type: typeof Req.GET_FOLDERS,
   data: {
-    remoteFolder: FileI;
+    remoteFolders: FileI[];
     localPath: string;
-  }
-}
-
-export interface FTPReqPutFolder {
-  type: typeof Req.PUT_FOLDER,
-  data: {
-    localPath: string;
-    remotePath: string;
   }
 }
 
@@ -119,6 +101,7 @@ export interface FTPReqPutFolders {
   type: typeof Req.PUT_FOLDERS,
   data: {
     folders: string[];
+    basePath?: string;
   }
 }
 
@@ -126,6 +109,7 @@ export interface FTPReqPutFiles {
   type: typeof Req.PUT_FILES;
   data: {
     files: string[];
+    basePath?: string;
   }
 }
 
@@ -137,7 +121,6 @@ export interface FTPError {
 export type FTPRequest = FTPReqPWD
   | FTPReqCD
   | FTPReqList
-  | FTPReqGet
   | FTPReqGetFiles
   | FTPReqPut
   | FTPReqRename
@@ -146,7 +129,6 @@ export type FTPRequest = FTPReqPWD
   | FTPReqRmDIR
   | FTPError
   | FTPReqGetFolder
-  | FTPReqPutFolder
   | FTPReqPutFolders
   | FTPReqPutFiles;
 

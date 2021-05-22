@@ -1,7 +1,7 @@
 #search-box {
   position: absolute;
-  top: 0.1em;
-  right: 10px;
+  top: var(--top-height);
+  right: 1em;
   transition: var(--dur) transform ease;
   transform: translateY(-300%);
   display: inline;

@@ -57,8 +57,8 @@ export const FTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => async 
           await ftp.deleteFile(req.data.file);
           ftpReadDir(socket, ftp);
           break;
-        case Req.GET:
-          await ftp.get(req.data.remotePath, req.data.localPath);
+        case Req.GET_FILES:
+          ftp.getFiles(req.data.files, req.data.localPath);
           break;
         case Req.LIST:
           ftpReadDir(socket, ftp);
@@ -79,19 +79,15 @@ export const FTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => async 
           await ftp.rmdir(req.data.path);
           ftpReadDir(socket, ftp);
           break;
-        case Req.GET_FOLDER:
-          ftp.getFolder(req.data.remoteFolder, req.data.localPath);
+        case Req.GET_FOLDERS:
+          ftp.getFolders(req.data.remoteFolders, req.data.localPath);
           break;
         case Req.PUT_FILES:
-          await ftp.putFiles(req.data.files);
-          ftpReadDir(socket, ftp)
-          break;
-        case Req.PUT_FOLDER:
-          await ftp.putFolder(req.data.localPath, req.data.remotePath);
+          await ftp.putFiles(req.data.files, req.data.basePath);
           ftpReadDir(socket, ftp)
           break;
         case Req.PUT_FOLDERS:
-          await ftp.putFolders(req.data.folders);
+          await ftp.putFolders(req.data.folders, req.data.basePath);
           ftpReadDir(socket, ftp)
           break;
         default:
@@ -252,21 +248,28 @@ export class FTP {
     await c.access(this.config);
     await c.cd(pwd);
     await c.downloadTo(localPath, remoteFile, startAt);
-    this.pool.release(c);
+    await this.pool.release(c);
   }
 
-  async getFolder(remoteFolder: FileI, localFolder: string): Promise<void> {
-    const pwd = this._pwd;
-    const c = await this.pool.acquire();
-    await c.access(this.config);
-    await c.cd(pwd);
-    await this._getFolder(c, remoteFolder, localFolder);
+  async getFiles(
+    files: string[],
+    localPath: string
+  ): Promise<void> {
+    await Promise.all(files.map(f => this.get(f, join(localPath, f))))
+  }
+
+  async getFolders(folders: FileI[], localFolder: string): Promise<void> {
+    // TODO implement preemptive file tree (fetch everything from the beginning)
+    await Promise.all(folders.map(f => this._getFolder(f, localFolder)));
     // await c.downloadToDir(localFolder, remoteFolder); // this apparently does not work
-    this.pool.release(c);
   }
 
-  private async _getFolder(c: Client, file: FileI, path: string): Promise<void> {
+  private async _getFolder(file: FileI, path: string): Promise<void> {
     if (file.type === FileType.DIR) {
+      const pwd = this._pwd;
+      const c = await this.pool.acquire();
+      await c.access(this.config);
+      await c.cd(pwd);
       try {
         mkdirSync(join(path, file.name));
       } catch (e) {
@@ -279,10 +282,11 @@ export class FTP {
           name: v.name,
           size: v.size,
         } as FileI));
+      await this.pool.release(c);
 
       await Promise.all(items.map(i => {
         i.name = [file.name, i.name].join("/");
-        return this._getFolder(c, i, path);
+        return this._getFolder(i, path);
       }))
     } else if (file.type === FileType.FILE) {
       await this.get(file.name, join(path, file.name));
@@ -295,7 +299,7 @@ export class FTP {
     await c.access(this.config);
     await c.cd(pwd);
     await c.uploadFrom(source, destPath);
-    this.pool.release(c);
+    await this.pool.release(c);
   }
 
   async mkdir(path: string): Promise<void> {
@@ -304,7 +308,7 @@ export class FTP {
     await c.access(this.config);
     await c.cd(pwd);
     await c.ensureDir(path);
-    this.pool.release(c);
+    await this.pool.release(c);
   }
 
   async deleteFile(file: string): Promise<void> {
@@ -313,7 +317,7 @@ export class FTP {
     await c.access(this.config);
     await c.cd(pwd);
     await c.remove(file, true);
-    this.pool.release(c);
+    await this.pool.release(c);
   }
 
   async rmdir(path: string): Promise<void> {
@@ -322,7 +326,7 @@ export class FTP {
     await c.access(this.config);
     await c.cd(pwd);
     await c.removeDir(path);
-    this.pool.release(c);
+    await this.pool.release(c);
   }
 
   async rename(oldPath: string, newPath: string): Promise<void> {
@@ -331,7 +335,7 @@ export class FTP {
     await c.access(this.config);
     await c.cd(pwd);
     await c.rename(oldPath, newPath);
-    this.pool.release(c);
+    await this.pool.release(c);
   }
 
   async putFolder(source: string, destPath: string): Promise<void> {
@@ -340,16 +344,16 @@ export class FTP {
     await c.access(this.config);
     await c.cd(pwd);
     await c.uploadFromDir(source, destPath);
-    this.pool.release(c);
+    await this.pool.release(c);
   }
 
-  async putFiles(files: string[]): Promise<void> {
-    await Promise.all(files.map(f => this.put(f, basename(f))))
+  async putFiles(files: string[], basePath?: string): Promise<void> {
+    await Promise.all(files.map(f => this.put(f, (basePath ? basePath + "/" : "") + basename(f))))
   }
 
-  async putFolders(folders: string[]): Promise<void> {
+  async putFolders(folders: string[], basePath?: string): Promise<void> {
     await Promise.all(
-      folders.map((f) => this.putFolder(f, basename(f)))
+      folders.map((f) => this.putFolder(f, (basePath ? basePath + "/" : "") + basename(f)))
     );
   }
 

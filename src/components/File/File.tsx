@@ -9,7 +9,8 @@ import {
   shiftSelection,
 } from "@store/ftp";
 import { push } from "connected-react-router";
-import React from "react";
+import { statSync } from "fs";
+import React, { useState } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import "./File.scss";
 import FileIcon from "./FileIcon";
@@ -17,11 +18,10 @@ import FileIcon from "./FileIcon";
 const mapState = ({
   ftpReducer: {
     selection: { selected },
+    client,
   },
-  fmReducer: {
-    search
-  }
-}: RootState) => ({ selected, search });
+  fmReducer: { search },
+}: RootState) => ({ selected, search, client });
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   setContextMenu: (contextMenu: ContextMenuProps) =>
     dispatch(setContextMenu(contextMenu)),
@@ -49,11 +49,20 @@ function FileUI({
   removeSelection,
   shiftSelection,
   search,
+  client,
 }: Props): JSX.Element {
+  if (
+    search.searching &&
+    search.query &&
+    !file.name.toLowerCase().includes(search.query)
+  )
+    return <></>;
 
-  if(search.searching && search.query && !file.name.toLowerCase().includes(search.query))
-    return <></>
-
+  let counter = 0;
+  const [dragOver, setDragOver] = useState({
+    over: false,
+    shouldBeHighlighted: false,
+  });
   function handleClick(ev: React.MouseEvent<HTMLDivElement>) {
     if (file.name === "..") return;
 
@@ -88,9 +97,83 @@ function FileUI({
     }
   }
 
+  function onDragStart(e: React.DragEvent<HTMLDivElement>) {
+    // e.stopPropagation();
+    // e.preventDefault();
+    if (!selected.has(file)) selectFile(file);
+    const s: FileI[] = [];
+    for (const f of selected.values()) {
+      s.push(f);
+    }
+    e.dataTransfer.setData("app/file-transfer", JSON.stringify(s));
+    e.dataTransfer.dropEffect = "move";
+  }
+
+  function onDragOver(e: React.DragEvent<HTMLDivElement>) {
+    if (
+      e.dataTransfer.types.includes("app/file-transfer") ||
+      e.dataTransfer.types.includes("Files")
+    ) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    if (!dragOver.over && e.dataTransfer.types.includes("app/file-transfer")) {
+      e.stopPropagation();
+      e.preventDefault();
+      counter++;
+      setDragOver({ over: true, shouldBeHighlighted: !selected.has(file) });
+    } else if (!dragOver.over && e.dataTransfer.types.includes("Files")) {
+      e.stopPropagation();
+      e.preventDefault();
+      counter++;
+      setDragOver({ over: true, shouldBeHighlighted: !selected.has(file) });
+    }
+  }
+
+  function onDrop(e: React.DragEvent<HTMLDivElement>) {
+    if (e.dataTransfer.types.includes("app/file-transfer")) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (selected.has(file)) return;
+      const data: FileI[] = JSON.parse(
+        e.dataTransfer.getData("app/file-transfer")
+      );
+      for (const mFile of data) {
+        client.rename(mFile.name, file.name + "/" + mFile.name);
+      }
+    } else if (e.dataTransfer.types.includes("Files")) {
+      e.preventDefault();
+      e.stopPropagation();
+      const files = [];
+      const folders = [];
+      for (const file of e.dataTransfer.files) {
+        const p = file.path;
+
+        if (statSync(p).isDirectory()) {
+          folders.push(p);
+        } else if (statSync(p).isFile()) {
+          files.push(p);
+        }
+      }
+      client.putFolders(folders, file.name);
+      client.putFiles(files, file.name);
+    }
+    setDragOver({ over: false, shouldBeHighlighted: false });
+  }
+
+  function onDragLeave() {
+    counter--;
+    if (counter <= 0) {
+      counter = 0;
+      setDragOver({ over: false, shouldBeHighlighted: false });
+    }
+  }
+
   return (
     <div
-      className="file-wrapper"
+      className={`file-wrapper ${
+        dragOver.shouldBeHighlighted ? "file-dragover" : ""
+      }`}
       data-name={file.name.toLowerCase()}
       onDoubleClick={async () => {
         if (file.type === FileType.DIR) {
@@ -99,6 +182,12 @@ function FileUI({
       }}
       onContextMenuCapture={onContextMenu}
       onClick={handleClick}
+      draggable={true}
+      // onDragOver={(e) => e.preventDefault()}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
     >
       <div
         className={`file file-${file.type} ${

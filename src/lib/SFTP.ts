@@ -80,15 +80,15 @@ export class SFTP extends BaseFTP {
     })
   }
 
-  get(remoteFile: string, localPath: string): void {
-    this.emit({
-      type: FTPRequestType.GET,
-      data: {
-        remotePath: remoteFile,
-        localPath,
-      }
-    })
-  }
+  // get(remoteFile: string, localPath: string): void {
+  //   this.emit({
+  //     type: FTPRequestType.GET,
+  //     data: {
+  //       remotePath: remoteFile,
+  //       localPath,
+  //     }
+  //   })
+  // }
 
   getFiles(files: string[], localPath: string): void {
     this.emit({
@@ -148,12 +148,12 @@ export class SFTP extends BaseFTP {
     });
   }
 
-  getFolder(remoteFolder: FileI, localFolder: string): void {
+  getFolders(remoteFolders: FileI[], localFolder: string): void {
     this.emit({
-      type: ReqT.GET_FOLDER,
+      type: ReqT.GET_FOLDERS,
       data: {
         localPath: localFolder,
-        remoteFolder
+        remoteFolders
       }
     });
   }
@@ -170,20 +170,22 @@ export class SFTP extends BaseFTP {
   }
   */
 
-  putFolders(folders: string[]): void {
+  putFolders(folders: string[], basePath?: string): void {
     this.emit({
       type: ReqT.PUT_FOLDERS,
       data: {
-        folders
+        folders,
+        basePath
       }
     })
   }
 
-  putFiles(files: string[]): void {
+  putFiles(files: string[], basePath?: string): void {
     this.emit({
       type: ReqT.PUT_FILES,
       data: {
-        files
+        files,
+        basePath
       }
     })
   }
