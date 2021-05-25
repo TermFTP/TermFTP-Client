@@ -22,10 +22,17 @@ export enum FMActions {
   SEARCH = "fm/search",
 }
 
+export interface DownloadFile {
+  name: string;
+  total: number;
+  progress: number;
+}
+
 export interface FMState {
   menu: ContextMenuProps;
   loading: boolean;
   terminalOpen: boolean;
   terminalHeight: number;
   search: SearchProps;
+  downloads: DownloadFile[];
 }
