@@ -27,7 +27,7 @@ import isDev from "electron-is-dev";
 export class Endpoints implements IRawParams {
   [k: string]: any;
 
-  baseURL = isDev ? "http://localhost:8080/api/v1" : "TO BE DETERMINED";
+  baseURL = isDev ? "http://localhost:8080/api/v1" : "http://localhost:8080/api/v1"; // TODO get domain and server
   headers: AuthHeaders = {};
   private static _instance: Endpoints;
 

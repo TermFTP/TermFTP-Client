@@ -122,6 +122,7 @@
   "build": {
     "publish": null,
     "appId": "at.termftp.client",
+    "productName": "TermFTP",
     "files": [
       "build/**/*",
       "node_modules/**/*",
@@ -129,6 +130,12 @@
     ],
     "directories": {
       "buildResources": "assets"
+    },
+    "win": {
+      "icon": "assets/logo.ico"
+    },
+    "linux": {
+      "icon": "assets/logo.png"
     }
   },
   "jest": {
