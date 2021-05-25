@@ -144,7 +144,7 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
 
 const download = (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper, cwd: string, remotePath: string, localPath: string) => {
   sftp.fastGet([cwd, remotePath].join(''), localPath, {
-    step: (transferred: number, chunk: number, total: number) => sftpStep(socket, basename(remotePath), transferred, chunk, total, "download"),
+    step: (transferred: number, chunk: number, total: number) => sftpStep(socket, [cwd, remotePath].join(''), basename(remotePath), transferred, chunk, total, "download"),
   }, (err) => {
     if (err) sftpErr(socket, err);
   });
@@ -189,18 +189,18 @@ const createDir = (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper
 
 const upload = (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper, localPath: string, cwd: string) => {
   sftp.fastPut(localPath, [cwd, basename(localPath)].join(''), {
-    step: (transferred: number, chunk: number, total: number) => sftpStep(socket, basename(localPath), transferred, chunk, total, "upload"),
+    step: (transferred: number, chunk: number, total: number) => sftpStep(socket, cwd, basename(localPath), transferred, chunk, total, "upload"),
   }, (err) => {
     if (err) return sftpErr(socket, err);
     sftpReadDir(socket, sftp, cwd);
   });
 }
 
-const sftpStep = (socket: Socket<ClientEvents, ServerEvents>, name: string, transferred: number, chunk: number, total: number, type: ProgressType) => {
+const sftpStep = (socket: Socket<ClientEvents, ServerEvents>, cwd: string, name: string, transferred: number, chunk: number, total: number, type: ProgressType) => {
   socket.emit('sftp:data', {
     type: FTPResponseType.TRANSFER_UPDATE,
     data: {
-      name, transferred, chunk, total, type
+      cwd, name, transferred, chunk, total, type
     }
   } as FTPResponse)
 }

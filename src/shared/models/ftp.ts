@@ -1,5 +1,5 @@
 import { ProgressType } from "basic-ftp/dist/ProgressTracker";
-import { FileI } from "./file";
+import { FileI, FileType } from "./file";
 
 export enum FTPResponseType {
   LIST = "list",
@@ -144,7 +144,8 @@ export interface FTPResTransfer {
     transferred: number;
     chunk: number;
     total: number;
-    type: ProgressType
+    type: ProgressType;
+    cwd: string;
   }
 }
 

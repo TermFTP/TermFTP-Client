@@ -8,3 +8,4 @@ export * from "./Settings/Settings";
 export * from "./ContextMenu/ContextMenu";
 export * from "./SearchBox/SearchBox";
 export * from "./Terminal/Terminal";
+export * from "./ProgressTracker/ProgressTracker";

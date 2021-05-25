@@ -1,5 +1,6 @@
-import { FMState, FMActions } from "./types";
+import { FMState, FMActions, ProgressFileI } from "./types";
 import { Reducer } from "redux";
+import { FileType } from "@shared";
 
 export const initialState: FMState = {
   menu: {
@@ -10,7 +11,8 @@ export const initialState: FMState = {
   terminalHeight: 300,
   search: {
     searching: false,
-  }
+  },
+  progressFiles: new Map<string, ProgressFileI>([["yo", { cwd: "dd", fileType: FileType.FILE, name: "dd", progress: 2, progressType: "download", total: 3 }]]),
 };
 
 export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
@@ -57,6 +59,36 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
         ...state,
         search: action.payload
       }
+    case FMActions.ADD_PROGRESS_FILES: {
+      const copy = new Map(state.progressFiles);
+      for (const file of action.payload) {
+        copy.set(file.pwd + file.name, file);
+      }
+      return {
+        ...state,
+        progressFiles: copy
+      }
+    }
+    case FMActions.UPDATE_PROGRESS_FILE: {
+      const copy = new Map(state.progressFiles);
+      copy.set(action.payload.pwd + action.payload.name, action.payload);
+      return {
+        ...state,
+        progressFiles: copy
+      }
+    }
+    case FMActions.REMOVE_PROGRESS_FILES: {
+      const copy = new Map(state.progressFiles);
+
+      for (const p of action.payload) {
+        copy.delete(p.pwd + p.name);
+      }
+
+      return {
+        ...state,
+        progressFiles: copy
+      }
+    }
     default:
       return state;
   }

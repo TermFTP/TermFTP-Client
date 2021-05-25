@@ -27,7 +27,7 @@ import { connect, ConnectedProps } from "react-redux";
 import "./FileManager.scss";
 import fs from "fs";
 import { HotKeys } from "react-hotkeys";
-import { SearchBox } from "@components";
+import { SearchBox, ProgressTracker } from "@components";
 import { push, replace } from "connected-react-router";
 import { Files } from "./Files";
 import { clearSelection, setFiles } from "@store/ftp";
@@ -375,6 +375,7 @@ export class FileManagerUI extends Component<Props, State> {
                   </button>
                   <ContextMenu></ContextMenu>
                 </div>
+                <ProgressTracker></ProgressTracker>
               </>
             )}
           </HotKeys>

@@ -1,7 +1,7 @@
 import { DefaultReturn } from "@models";
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { ContextMenuProps, FMState, FMActions, TerminalActions, SearchProps } from "./types";
+import { ContextMenuProps, FMState, FMActions, TerminalActions, SearchProps, ProgressFileI } from "./types";
 
 export type FTPThunk<ReturnType = void> = ActionCreator<
   ThunkAction<ReturnType, FMState, unknown, Action<string>>
@@ -34,4 +34,19 @@ export const setTerminalHeight = (height: number): Ret => ({
 export const doSearch = (search: SearchProps): Ret => ({
   type: FMActions.SEARCH,
   payload: search,
+})
+
+export const addProgressFiles = (files: ProgressFileI[]): Ret => ({
+  type: FMActions.ADD_PROGRESS_FILES,
+  payload: files,
+});
+
+export const updateProgressFile = (file: ProgressFileI): Ret => ({
+  type: FMActions.UPDATE_PROGRESS_FILE,
+  payload: file
+})
+
+export const removeProgressFiles = (files: ProgressFileI[]): Ret => ({
+  type: FMActions.REMOVE_PROGRESS_FILES,
+  payload: files
 })
