@@ -296,10 +296,10 @@ const ContextMenuUI = ({
             files.push(f.name);
             progressFiles.push({
               cwd,
-              name: file.name,
+              name: f.name,
               progress: 0,
               progressType: "download",
-              total: file.size,
+              total: f.size,
             });
           }
         }

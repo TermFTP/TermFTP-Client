@@ -32,11 +32,11 @@ export function getProgressDir(cwd: string, dir: string): ProgressFileI[] {
     const stat = statSync(file);
     if (stat && stat.isDirectory()) {
       /* Recurse into a subdirectory */
-      results = results.concat(getProgressDir(cwd, file));
+      results = results.concat(getProgressDir(cwd + basename(dir) + "/", file));
     } else {
       /* Is a file */
       results.push({
-        cwd,
+        cwd: cwd + basename(dir) + "/",
         name: basename(file),
         progress: 0,
         progressType: "upload",

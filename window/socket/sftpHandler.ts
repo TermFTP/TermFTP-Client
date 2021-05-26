@@ -14,6 +14,10 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
 
     let cwd = "";
 
+    const giveCwd = (): string => {
+      return cwd;
+    }
+
     ssh.exec('pwd', (err, stream) => {
       stream.on('data', (data: Buffer) => {
         cwd = data.toString().trim() + '/';
@@ -31,7 +35,7 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
         switch (req.type) {
           // LIST DIRECTORY
           case FTPRequestType.LIST:
-            sftpReadDir(socket, sftp, [cwd, req.data.dir].join('/'));
+            sftpReadDir(socket, sftp, [cwd, req.data.dir].join(''));
             break;
 
           // CHANGE DIRECOTRY
@@ -92,7 +96,7 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
 
           // RENAME / MOVE
           case FTPRequestType.RENAME:
-            sftp.rename([cwd, req.data.srcPath].join('/'), [cwd, req.data.destPath].join('/'), (err) => {
+            sftp.rename([cwd, req.data.srcPath].join(''), [cwd, req.data.destPath].join('/'), (err) => {
               if (err) return sftpErr(socket, err);
               sftpReadDir(socket, sftp, cwd);
             });
@@ -100,7 +104,7 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
 
           // DELETE
           case FTPRequestType.DELETE:
-            sftp.unlink([cwd, req.data.file].join('/'), (err) => {
+            sftp.unlink([cwd, req.data.file].join(''), (err) => {
               if (err) return sftpErr(socket, err);
               sftpReadDir(socket, sftp, cwd);
             });
@@ -108,10 +112,17 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
 
           // RMDIR
           case FTPRequestType.RMDIR:
-            sftp.rmdir([cwd, req.data.path].join('/'), (err) => {
+            /*sftp.rmdir([cwd, req.data.path].join(''), (err) => {
               if (err) return sftpErr(socket, err);
               sftpReadDir(socket, sftp, cwd);
-            });
+            });*/
+
+            try {
+              rmDir(socket, sftp, cwd, req.data.path, giveCwd);
+            } catch (err) {
+              sftpErr(socket, { name: "Error deleting " + req.data.path, message: err })
+            }
+
             break;
 
           // MKDIR
@@ -124,7 +135,7 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
 
             for (const path of req.data.folders) {
               createDir(socket, sftp, cwd + (req.data.basePath ? req.data.basePath + "/" : ""), basename(path))
-              uploadFolders(socket, sftp, cwd + (req.data.basePath ? req.data.basePath + "/" : ""), path, '', req.data.basePath)
+              uploadFolders(socket, sftp, cwd + (req.data.basePath ? req.data.basePath + "/" : ""), path, basename(path))
             }
 
             break;
@@ -143,9 +154,30 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
 
 }
 
+const rmDir = async (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper, cwd: string, relativePath: string, giveCwd?: () => string) => {
+  const files = await readDir(sftp, [cwd, relativePath].join('/'));
+
+  for (const f of files) {
+    if (f.type === FileType.DIR) {
+      await rmDir(socket, sftp, cwd, [relativePath, f.name].join('/'));
+    } else {
+      sftp.unlink([cwd, relativePath, f.name].join('/'), (err) => {
+        if (err) return sftpErr(socket, err);
+      });
+    }
+  }
+
+  sftp.rmdir([cwd, relativePath].join(''), (err) => {
+    if (err) return sftpErr(socket, err);
+    if (giveCwd && giveCwd() === cwd) {
+      sftpReadDir(socket, sftp, cwd);
+    }
+  });
+}
+
 const download = (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper, cwd: string, remotePath: string, localPath: string) => {
   sftp.fastGet([cwd, remotePath].join(''), localPath, {
-    step: (transferred: number, chunk: number, total: number) => sftpStep(socket, [cwd, remotePath].join(''), basename(remotePath), transferred, chunk, total, "download"),
+    step: (transferred: number, chunk: number, total: number) => sftpStep(socket, [cwd, remotePath.split('/').slice(0, -1).join('/')].join(''), basename(remotePath), transferred, chunk, total, "download"),
   }, (err) => {
     if (err) sftpErr(socket, err);
   });
@@ -167,7 +199,7 @@ const downloadFolders = async (socket: Socket<ClientEvents, ServerEvents>, sftp:
 
 }
 
-const uploadFolders = (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper, cwd: string, dirPath: string, relativePath: string, basePath?: string) => {
+const uploadFolders = (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper, cwd: string, dirPath: string, relativePath: string) => {
   const files = fs.readdirSync(dirPath);
 
   for (const f of files) {
@@ -175,13 +207,12 @@ const uploadFolders = (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWra
       createDir(socket, sftp, cwd, [relativePath, f].join('/'));
       uploadFolders(socket, sftp, cwd, join(dirPath, f), [relativePath, f].join('/'));
     } else
-      upload(socket, sftp, join(dirPath, f), [cwd, basePath ? basePath + "/" : "", relativePath].join(''))
+      upload(socket, sftp, join(dirPath, f), [cwd, relativePath + "/"].join(''))
   }
 
 }
 
 const createDir = (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper, cwd: string, path: string) => {
-  console.log(cwd, path)
   sftp.mkdir([cwd, path].join('/'), (err) => {
     if (err) return sftpErr(socket, err);
     sftpReadDir(socket, sftp, cwd);

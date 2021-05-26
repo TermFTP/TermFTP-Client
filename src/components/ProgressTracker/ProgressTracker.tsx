@@ -28,14 +28,20 @@ type PropsFromState = ConnectedProps<typeof connector>;
 type Props = PropsFromState;
 
 function ProgressTrackerUI({ progressFiles }: Props): JSX.Element {
-  const uploads = [];
-  const downloads = [];
+  // console.groupCollapsed(progressFiles.size);
+  // for (const f of progressFiles.keys()) {
+  //   console.log(f);
+  // }
+  // console.groupEnd();
+  const uploads: ProgressFileI[] = [];
+  const downloads: ProgressFileI[] = [];
   for (const file of progressFiles.values()) {
     if (file.progressType === "download") downloads.push(file);
     else if (file.progressType === "upload") uploads.push(file);
   }
   const [downOpen, setDownOpen] = useState(false);
   const [upOpen, setUpOpen] = useState(false);
+  const dispatch = useDispatch();
   useEffect(() => {
     if (upOpen && uploads.length == 0) setUpOpen(false);
   }, [uploads.length]);
@@ -45,54 +51,64 @@ function ProgressTrackerUI({ progressFiles }: Props): JSX.Element {
 
   return (
     <div className="progress-tracker">
-      <div className={`progress-part ${downOpen ? "progress-open" : ""}`}>
-        <button
-          className="progress-tracker-btn"
-          onClick={() => setDownOpen(true)}
-        >
-          <FontAwesomeIcon icon={faDownload}></FontAwesomeIcon>
-        </button>
-        <div className="progress-content-wrapper">
-          <div className="progress-content">
-            <div className="progress-part-header">
-              <p>Downloads</p>
-              <button onClick={() => setDownOpen(false)}>
-                <FontAwesomeIcon icon={faAngleDown}></FontAwesomeIcon>
-              </button>
-              <button className="progress-part-cancel">
-                <FontAwesomeIcon icon={faTimes}></FontAwesomeIcon>
-              </button>
+      {downloads.length > 0 && (
+        <div className={`progress-part ${downOpen ? "progress-open" : ""}`}>
+          <button
+            className="progress-tracker-btn"
+            onClick={() => setDownOpen(true)}
+          >
+            <FontAwesomeIcon icon={faDownload}></FontAwesomeIcon>
+          </button>
+          <div className="progress-content-wrapper">
+            <div className="progress-content">
+              <div className="progress-part-header">
+                <p>Downloads</p>
+                <button onClick={() => setDownOpen(false)}>
+                  <FontAwesomeIcon icon={faAngleDown}></FontAwesomeIcon>
+                </button>
+                <button
+                  className="progress-part-cancel"
+                  onClick={() => dispatch(removeProgressFiles(downloads))}
+                >
+                  <FontAwesomeIcon icon={faTimes}></FontAwesomeIcon>
+                </button>
+              </div>
+              {downloads.map((f) => (
+                <ProgressFile file={f} key={f.cwd + f.name}></ProgressFile>
+              ))}
             </div>
-            {downloads.map((f) => (
-              <ProgressFile file={f} key={f.cwd + f.name}></ProgressFile>
-            ))}
           </div>
         </div>
-      </div>
-      <div className={`progress-part ${upOpen ? "progress-open" : ""}`}>
-        <button
-          className="progress-tracker-btn"
-          onClick={() => setUpOpen(true)}
-        >
-          <FontAwesomeIcon icon={faUpload}></FontAwesomeIcon>
-        </button>
-        <div className="progress-content-wrapper">
-          <div className="progress-content">
-            <div className="progress-part-header">
-              <p>Uploads</p>
-              <button onClick={() => setUpOpen(false)}>
-                <FontAwesomeIcon icon={faAngleDown}></FontAwesomeIcon>
-              </button>
-              <button className="progress-part-cancel">
-                <FontAwesomeIcon icon={faTimes}></FontAwesomeIcon>
-              </button>
+      )}
+      {uploads.length > 0 && (
+        <div className={`progress-part ${upOpen ? "progress-open" : ""}`}>
+          <button
+            className="progress-tracker-btn"
+            onClick={() => setUpOpen(true)}
+          >
+            <FontAwesomeIcon icon={faUpload}></FontAwesomeIcon>
+          </button>
+          <div className="progress-content-wrapper">
+            <div className="progress-content">
+              <div className="progress-part-header">
+                <p>Uploads</p>
+                <button onClick={() => setUpOpen(false)}>
+                  <FontAwesomeIcon icon={faAngleDown}></FontAwesomeIcon>
+                </button>
+                <button
+                  className="progress-part-cancel"
+                  onClick={() => dispatch(removeProgressFiles(uploads))}
+                >
+                  <FontAwesomeIcon icon={faTimes}></FontAwesomeIcon>
+                </button>
+              </div>
+              {uploads.map((f) => (
+                <ProgressFile file={f} key={f.cwd + f.name}></ProgressFile>
+              ))}
             </div>
-            {uploads.map((f) => (
-              <ProgressFile file={f} key={f.cwd + f.name}></ProgressFile>
-            ))}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
