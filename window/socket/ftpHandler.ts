@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { ClientEvents, ServerEvents, FileI, FileType, FTPResponse, FTPResponseType, FTPRequestType } from "../../src/shared";
+import { ClientEvents, ServerEvents, FileI, FileType, FTPResponse, FTPResponseType, FTPRequestType, ProgressType } from "../../src/shared";
 import { FileType as BasicType, Client, FileInfo } from "basic-ftp";
 import { FTPConfig } from "../../src/lib/BaseFTP";
 import PQueue from "p-queue";
@@ -7,21 +7,13 @@ import { Factory, createPool, Options, Pool } from "generic-pool";
 import { basename } from "path";
 import { mkdirSync } from "fs-extra";
 import { join } from "path";
-import { ProgressHandler } from "basic-ftp/dist/ProgressTracker";
+import { statSync } from "fs";
 
 const Res = FTPResponseType;
 const Req = FTPRequestType;
 
 export const FTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => async (config: FTPConfig): Promise<void> => {
-  const ftp = new FTP(config, (info) => socket.emit("ftp:data", {
-    type: FTPResponseType.TRANSFER_UPDATE, data: {
-      chunk: info.bytes,
-      total: info.bytesOverall,
-      name: info.name,
-      transferred: info.bytesOverall,
-      type: info.type
-    }
-  }));
+  const ftp = new FTP(config, socket);
   try {
     await ftp.connect();
   } catch {
@@ -119,13 +111,9 @@ const ftpReadDir = async (socket: Socket<ClientEvents, ServerEvents>, ftp: FTP, 
 
 export class FTP {
   config: FTPConfig;
-  private _pwd: string = undefined;
+  private _cwd: string = undefined;
   private factory: Factory<Client> = {
-    create: (() => {
-      const c = new Client();
-      this.addTracker(c);
-      return Promise.resolve(c);
-    }).bind(this),
+    create: (() => Promise.resolve(new Client())).bind(this),
     validate: (c) => Promise.resolve(c.closed),
     destroy: (c) => Promise.resolve(c.close())
   }
@@ -139,12 +127,11 @@ export class FTP {
     concurrency: 1,
     throwOnTimeout: true
   });
-  private handler: ProgressHandler;
+  private socket: Socket<ClientEvents, ServerEvents>;
 
-  constructor(config: FTPConfig, handler: ProgressHandler) {
+  constructor(config: FTPConfig, socket: Socket<ClientEvents, ServerEvents>) {
     this.config = config;
-    this.handler = handler;
-    this.addTracker(this.client);
+    this.socket = socket;
   }
 
   private convertFileType(type: BasicType): FileType {
@@ -162,18 +149,14 @@ export class FTP {
     }
   }
 
-  addTracker(client: Client): void {
-    client.trackProgress(this.handler)
-  }
-
   async connect(): Promise<void> {
     await this.client.access(this.config);
-    this._pwd = await this.client.pwd();
+    this._cwd = await this.client.pwd();
   }
 
   private async _reconnect(): Promise<void> {
     try {
-      const pwd = this._pwd;
+      const pwd = this._cwd;
       await this.queue.add(() => this.client.access(this.config));
       await this.queue.add(() => this.client.cd(pwd));
     } catch (e) {
@@ -186,8 +169,9 @@ export class FTP {
       await this._reconnect();
     }
 
-    this._pwd = await this.queue.add(() => this.client.pwd());
-    return this._pwd;
+    this._cwd = await this.queue.add(() => this.client.pwd());
+    if (!this._cwd.endsWith("/")) this._cwd += "/";
+    return this._cwd;
   }
 
   private convertFiles(files: FileInfo[]): FileI[] {
@@ -207,6 +191,22 @@ export class FTP {
         }
         return 1;
       });
+  }
+
+  private addSpecificTracker(client: Client, cwd: string, progressType: ProgressType, total?: number): void {
+    client.trackProgress((i) => {
+      if (i.type === "list") return;
+      this.socket.emit("ftp:data", {
+        type: FTPResponseType.TRANSFER_UPDATE,
+        data: {
+          cwd,
+          name: i.name,
+          progress: i.bytes,
+          progressType,
+          total
+        }
+      })
+    })
   }
 
   async list(dir?: string): Promise<FileI[]> {
@@ -243,10 +243,12 @@ export class FTP {
     localPath: string,
     startAt?: number
   ): Promise<void> {
-    const pwd = this._pwd;
+    const pwd = this._cwd;
     const c = await this.pool.acquire();
     await c.access(this.config);
     await c.cd(pwd);
+    const total = await c.size(remoteFile)
+    this.addSpecificTracker(c, pwd, "download", total)
     await c.downloadTo(localPath, remoteFile, startAt);
     await this.pool.release(c);
   }
@@ -266,7 +268,7 @@ export class FTP {
 
   private async _getFolder(file: FileI, path: string): Promise<void> {
     if (file.type === FileType.DIR) {
-      const pwd = this._pwd;
+      const pwd = this._cwd;
       const c = await this.pool.acquire();
       await c.access(this.config);
       await c.cd(pwd);
@@ -294,16 +296,18 @@ export class FTP {
   }
 
   async put(source: string, destPath: string): Promise<void> {
-    const pwd = this._pwd;
+    const pwd = this._cwd;
     const c = await this.pool.acquire();
     await c.access(this.config);
     await c.cd(pwd);
+    const stats = statSync(source);
+    this.addSpecificTracker(c, pwd, "upload", stats.size)
     await c.uploadFrom(source, destPath);
     await this.pool.release(c);
   }
 
   async mkdir(path: string): Promise<void> {
-    const pwd = this._pwd;
+    const pwd = this._cwd;
     const c = await this.pool.acquire();
     await c.access(this.config);
     await c.cd(pwd);
@@ -312,7 +316,7 @@ export class FTP {
   }
 
   async deleteFile(file: string): Promise<void> {
-    const pwd = this._pwd;
+    const pwd = this._cwd;
     const c = await this.pool.acquire();
     await c.access(this.config);
     await c.cd(pwd);
@@ -321,7 +325,7 @@ export class FTP {
   }
 
   async rmdir(path: string): Promise<void> {
-    const pwd = this._pwd;
+    const pwd = this._cwd;
     const c = await this.pool.acquire();
     await c.access(this.config);
     await c.cd(pwd);
@@ -330,7 +334,7 @@ export class FTP {
   }
 
   async rename(oldPath: string, newPath: string): Promise<void> {
-    const pwd = this._pwd;
+    const pwd = this._cwd;
     const c = await this.pool.acquire();
     await c.access(this.config);
     await c.cd(pwd);
@@ -339,10 +343,11 @@ export class FTP {
   }
 
   async putFolder(source: string, destPath: string): Promise<void> {
-    const pwd = this._pwd;
+    const pwd = this._cwd;
     const c = await this.pool.acquire();
     await c.access(this.config);
     await c.cd(pwd);
+    this.addSpecificTracker(c, pwd, "upload", undefined);
     await c.uploadFromDir(source, destPath);
     await this.pool.release(c);
   }

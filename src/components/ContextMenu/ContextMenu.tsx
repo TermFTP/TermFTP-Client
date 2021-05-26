@@ -2,7 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import "./ContextMenu.scss";
 import { DefaultDispatch, RootState } from "@store";
 import { connect, ConnectedProps } from "react-redux";
-import { ContextMenuProps, setContextMenu } from "@store/filemanager";
+import {
+  addProgressFiles,
+  ContextMenuProps,
+  setContextMenu,
+} from "@store/filemanager";
 import { PromptProps } from "@components/Prompt/Prompt";
 import { setPrompt, addBubble } from "@store/app";
 import { BubbleModel } from "@models";
@@ -18,8 +22,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
-import { FileType } from "@shared";
-import { dirname } from "path";
+import { FileType, ProgressFileI } from "@shared";
+import { statSync } from "fs";
+import { basename } from "path";
+import { getProgressDir } from "@lib";
 
 const mapState = ({
   fmReducer: { menu },
@@ -35,6 +41,8 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   setPrompt: (prompt: PromptProps) => dispatch(setPrompt(prompt)),
   addBubble: (key: string, bubble: BubbleModel) =>
     dispatch(addBubble(key, bubble)),
+  addProgressFiles: (files: ProgressFileI[]) =>
+    dispatch(addProgressFiles(files)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -49,6 +57,7 @@ const ContextMenuUI = ({
   setPrompt,
   addBubble,
   selected,
+  addProgressFiles,
 }: Props) => {
   const ownRef = useRef<HTMLDivElement>();
   const [listening, setListening] = useState<boolean>(false);
@@ -115,7 +124,7 @@ const ContextMenuUI = ({
       ...items,
       {
         label: "Download file",
-        func: onFileDownload,
+        func: onFilesDownload,
         name: "context-download-file",
         icon: faFileDownload,
       },
@@ -191,6 +200,12 @@ const ContextMenuUI = ({
         properties: ["openDirectory", "multiSelections"],
       });
       if (res.canceled) return;
+      const cwd = await client.pwd();
+      const progressFiles: ProgressFileI[] = [];
+      for (const path of res.filePaths) {
+        progressFiles.push(...getProgressDir(cwd, path));
+      }
+      addProgressFiles(progressFiles);
       client.putFolders(res.filePaths);
     } catch (err) {
       addBubble("upload-error", {
@@ -207,6 +222,19 @@ const ContextMenuUI = ({
         properties: ["openFile", "multiSelections"],
       });
       if (res.canceled) return;
+      const cwd = await client.pwd();
+      const progressFiles: ProgressFileI[] = [];
+      for (const path of res.filePaths) {
+        const stats = statSync(path);
+        progressFiles.push({
+          cwd,
+          name: basename(path),
+          progress: 0,
+          progressType: "upload",
+          total: stats.size,
+        });
+      }
+      addProgressFiles(progressFiles);
       client.putFiles(res.filePaths);
     } catch (err) {
       addBubble("upload-error", {
@@ -226,19 +254,6 @@ const ContextMenuUI = ({
         client.mkdir(value);
       },
     });
-  }
-
-  function onFileDownload(): void {
-    remote.dialog
-      .showSaveDialog({
-        defaultPath: file.name,
-        properties: ["createDirectory"],
-      })
-      .then((path) => {
-        if (path && !path.canceled) {
-          client.getFiles([file.name], dirname(path.filePath));
-        }
-      });
   }
 
   function onFolderDownload(): void {
@@ -268,17 +283,27 @@ const ContextMenuUI = ({
       .showOpenDialog({
         properties: ["createDirectory", "openDirectory"],
       })
-      .then((res) => {
+      .then(async (res) => {
         if (res.canceled || res.filePaths.length == 0) return;
         const folders = [];
         const files = [];
+        const cwd = await client.pwd();
+        const progressFiles: ProgressFileI[] = [];
         for (const f of selected) {
           if (f.type === FileType.DIR) {
             folders.push(f);
           } else {
             files.push(f.name);
+            progressFiles.push({
+              cwd,
+              name: f.name,
+              progress: 0,
+              progressType: "download",
+              total: f.size,
+            });
           }
         }
+        addProgressFiles(progressFiles);
         client.getFolders(folders, res.filePaths[0]);
         client.getFiles(files, res.filePaths[0]);
       });

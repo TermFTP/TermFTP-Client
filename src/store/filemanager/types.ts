@@ -1,4 +1,4 @@
-import { FileI } from "@shared";
+import { FileI, ProgressFileI } from "@shared";
 
 export type TerminalActions = "OPEN" | "CLOSE" | "TOGGLE";
 
@@ -20,13 +20,11 @@ export enum FMActions {
   SET_TERMINAL = "fm/set-terminal",
   SET_TERMINAL_HEIGHT = "fm/set-terminal-height",
   SEARCH = "fm/search",
+  ADD_PROGRESS_FILES = "fm/add-progress-files",
+  UPDATE_PROGRESS_FILE = "fm/update-progress-file",
+  REMOVE_PROGRESS_FILES = "fm/remove-progress-files"
 }
 
-export interface DownloadFile {
-  name: string;
-  total: number;
-  progress: number;
-}
 
 export interface FMState {
   menu: ContextMenuProps;
@@ -34,5 +32,5 @@ export interface FMState {
   terminalOpen: boolean;
   terminalHeight: number;
   search: SearchProps;
-  downloads: DownloadFile[];
+  progressFiles: Map<string, ProgressFileI>;
 }

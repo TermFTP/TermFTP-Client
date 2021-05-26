@@ -16,6 +16,7 @@
   // --file-width: 4em;
   --bottom-height: 2em;
   --top-height: 4em;
+  --r-padding: 12px;
   height: 100%;
   width: 100%;
   position: relative;
@@ -148,8 +149,8 @@
 
 #file-manager-plus {
   position: fixed;
-  right: 8px;
-  bottom: calc(8px + var(--bottom-height) + var(--terminalClosed));
+  right: var(--r-padding);
+  bottom: calc(var(--r-padding) + var(--bottom-height) + var(--terminalClosed));
   transition: var(--dur) bottom ease;
   height: var(--plus-height);
   width: var(--plus-height);

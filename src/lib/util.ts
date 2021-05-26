@@ -1,4 +1,7 @@
 import { Group } from "@models";
+import { ProgressFileI } from "@shared";
+import { readdirSync, statSync } from "fs";
+import { basename } from "path";
 
 export function getNumOfItems(group: Group): number {
   let sum = 0;
@@ -19,4 +22,27 @@ export function normalizeURL(url: string): string {
     url = "/" + url;
   }
   return url;
+}
+
+export function getProgressDir(cwd: string, dir: string): ProgressFileI[] {
+  let results: ProgressFileI[] = [];
+  const list = readdirSync(dir);
+  list.forEach(function (file) {
+    file = dir + "/" + file;
+    const stat = statSync(file);
+    if (stat && stat.isDirectory()) {
+      /* Recurse into a subdirectory */
+      results = results.concat(getProgressDir(cwd + basename(dir) + "/", file));
+    } else {
+      /* Is a file */
+      results.push({
+        cwd: cwd + basename(dir) + "/",
+        name: basename(file),
+        progress: 0,
+        progressType: "upload",
+        total: stat.size,
+      });
+    }
+  })
+  return results;
 }
