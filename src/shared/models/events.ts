@@ -25,6 +25,7 @@ export interface ServerEvents {
   "ssh:data": (data: string) => void;
   "ssh:disconnect": () => void;
   "sftp:data": (res: FTPResponse) => void;
+  "sftp:pwd": (pwd: string) => void;
 }
 
 export interface ClientEvents {

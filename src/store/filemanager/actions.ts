@@ -1,7 +1,8 @@
 import { DefaultReturn } from "@models";
+import { ProgressFileI } from "@shared";
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { ContextMenuProps, FMState, FMActions, TerminalActions, SearchProps, ProgressFileI } from "./types";
+import { ContextMenuProps, FMState, FMActions, TerminalActions, SearchProps } from "./types";
 
 export type FTPThunk<ReturnType = void> = ActionCreator<
   ThunkAction<ReturnType, FMState, unknown, Action<string>>

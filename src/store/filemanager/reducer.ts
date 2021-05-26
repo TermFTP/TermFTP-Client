@@ -1,6 +1,7 @@
-import { FMState, FMActions, ProgressFileI } from "./types";
+import { FMState, FMActions } from "./types";
 import { Reducer } from "redux";
-import { FileType } from "@shared";
+import { ProgressFileI } from "@shared";
+import { basename } from "path";
 
 export const initialState: FMState = {
   menu: {
@@ -12,7 +13,7 @@ export const initialState: FMState = {
   search: {
     searching: false,
   },
-  progressFiles: new Map<string, ProgressFileI>([["yo", { cwd: "dd", fileType: FileType.FILE, name: "dd", progress: 2, progressType: "download", total: 3 }]]),
+  progressFiles: new Map<string, ProgressFileI>(),
 };
 
 export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
@@ -62,7 +63,7 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
     case FMActions.ADD_PROGRESS_FILES: {
       const copy = new Map(state.progressFiles);
       for (const file of action.payload) {
-        copy.set(file.pwd + file.name, file);
+        copy.set(file.cwd + file.name, file);
       }
       return {
         ...state,
@@ -71,7 +72,15 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
     }
     case FMActions.UPDATE_PROGRESS_FILE: {
       const copy = new Map(state.progressFiles);
-      copy.set(action.payload.pwd + action.payload.name, action.payload);
+      let f = copy.get(action.payload.cwd + action.payload.name);
+      if (!f) {
+        f = { ...action.payload, progress: 0, name: basename(action.payload.name) };
+      }
+      if (!action.payload.total) {
+        action.payload.total = f.total;
+      }
+      f.progress += action.payload.progress;
+      copy.set(action.payload.cwd + action.payload.name, action.payload);
       return {
         ...state,
         progressFiles: copy
@@ -81,7 +90,7 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
       const copy = new Map(state.progressFiles);
 
       for (const p of action.payload) {
-        copy.delete(p.pwd + p.name);
+        copy.delete(p.cwd + p.name);
       }
 
       return {

@@ -110,6 +110,7 @@ function FileUI({
   }
 
   function onDragOver(e: React.DragEvent<HTMLDivElement>) {
+    if (file.type !== FileType.DIR) return;
     if (
       e.dataTransfer.types.includes("app/file-transfer") ||
       e.dataTransfer.types.includes("Files")
@@ -117,14 +118,11 @@ function FileUI({
       e.stopPropagation();
       e.preventDefault();
     }
-    if (!dragOver.over && e.dataTransfer.types.includes("app/file-transfer")) {
-      e.stopPropagation();
-      e.preventDefault();
-      counter++;
-      setDragOver({ over: true, shouldBeHighlighted: !selected.has(file) });
-    } else if (!dragOver.over && e.dataTransfer.types.includes("Files")) {
-      e.stopPropagation();
-      e.preventDefault();
+    if (
+      !dragOver.over &&
+      (e.dataTransfer.types.includes("app/file-transfer") ||
+        e.dataTransfer.types.includes("Files"))
+    ) {
       counter++;
       setDragOver({ over: true, shouldBeHighlighted: !selected.has(file) });
     }

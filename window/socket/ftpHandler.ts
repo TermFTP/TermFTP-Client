@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { ClientEvents, ServerEvents, FileI, FileType, FTPResponse, FTPResponseType, FTPRequestType } from "../../src/shared";
+import { ClientEvents, ServerEvents, FileI, FileType, FTPResponse, FTPResponseType, FTPRequestType, ProgressType } from "../../src/shared";
 import { FileType as BasicType, Client, FileInfo } from "basic-ftp";
 import { FTPConfig } from "../../src/lib/BaseFTP";
 import PQueue from "p-queue";
@@ -7,7 +7,6 @@ import { Factory, createPool, Options, Pool } from "generic-pool";
 import { basename } from "path";
 import { mkdirSync } from "fs-extra";
 import { join } from "path";
-import { ProgressType } from "basic-ftp/dist/ProgressTracker";
 import { statSync } from "fs";
 
 const Res = FTPResponseType;
@@ -171,6 +170,7 @@ export class FTP {
     }
 
     this._cwd = await this.queue.add(() => this.client.pwd());
+    if (!this._cwd.endsWith("/")) this._cwd += "/";
     return this._cwd;
   }
 
@@ -193,17 +193,17 @@ export class FTP {
       });
   }
 
-  private addSpecificTracker(client: Client, cwd: string, progressType: ProgressType, total: number): void {
+  private addSpecificTracker(client: Client, cwd: string, progressType: ProgressType, total?: number): void {
     client.trackProgress((i) => {
+      if (i.type === "list") return;
       this.socket.emit("ftp:data", {
         type: FTPResponseType.TRANSFER_UPDATE,
         data: {
           cwd,
-          chunk: i.bytes,
           name: i.name,
-          transferred: i.bytesOverall,
-          type: progressType,
-          total: total
+          progress: i.bytes,
+          progressType,
+          total
         }
       })
     })
@@ -347,7 +347,7 @@ export class FTP {
     const c = await this.pool.acquire();
     await c.access(this.config);
     await c.cd(pwd);
-    this.addSpecificTracker(c, pwd, "upload", 5);
+    this.addSpecificTracker(c, pwd, "upload", undefined);
     await c.uploadFromDir(source, destPath);
     await this.pool.release(c);
   }

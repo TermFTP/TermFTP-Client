@@ -1,9 +1,8 @@
 import { basename } from "path";
 import { Socket } from "socket.io";
 import { Client, ConnectConfig, SFTPWrapper } from "ssh2";
-import { ClientEvents, ServerEvents, FTPRequest, FTPRequestType, FTPResponse, FTPResponseType, FileI, FileType } from "../../src/shared";
+import { ClientEvents, ServerEvents, FTPRequest, FTPRequestType, FTPResponse, FTPResponseType, FileI, FileType, ProgressType } from "../../src/shared";
 import { FileEntry } from "ssh2-streams";
-import { ProgressType } from "basic-ftp/dist/ProgressTracker";
 import fs from 'fs';
 import { join } from 'path';
 
@@ -66,7 +65,6 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
             }
             break;
 
-          // TODO @0Adiber get folders
           case FTPRequestType.GET_FOLDERS:
             for (const folder of req.data.remoteFolders) {
               try {
@@ -131,6 +129,9 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
 
             break;
 
+          case FTPRequestType.PWD:
+            socket.emit("sftp:pwd", cwd);
+            break;
         }
       });
 
@@ -200,7 +201,7 @@ const sftpStep = (socket: Socket<ClientEvents, ServerEvents>, cwd: string, name:
   socket.emit('sftp:data', {
     type: FTPResponseType.TRANSFER_UPDATE,
     data: {
-      cwd, name, transferred, chunk, total, type
+      cwd, name, progress: transferred, total, progressType: type
     }
   } as FTPResponse)
 }

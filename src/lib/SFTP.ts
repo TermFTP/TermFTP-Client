@@ -68,7 +68,15 @@ export class SFTP extends BaseFTP {
   }
 
   pwd(): Promise<string> {
-    return Promise.resolve(this.cwd);
+    return new Promise((resolve) => {
+      this.socket.once('sftp:pwd', (res: string) => {
+        this.cwd = res;
+        resolve(res);
+      })
+      this.emit({
+        type: ReqT.PWD
+      })
+    })
   }
 
   list(dir?: string): void {

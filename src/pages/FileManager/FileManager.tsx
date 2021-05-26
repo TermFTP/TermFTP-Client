@@ -7,17 +7,19 @@ import {
   faUpload,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { normalizeURL } from "@lib";
+import { getProgressDir, normalizeURL } from "@lib";
 import { BubbleModel, HistoryReq } from "@models";
-import { FileI, FTPResponse, FTPResponseType } from "@shared";
+import { FileI, FTPResponse, FTPResponseType, ProgressFileI } from "@shared";
 import { DefaultDispatch, RootState } from "@store";
 import { addBubble, setSettings } from "@store/app";
 import {
+  addProgressFiles,
   ContextMenuProps,
   doSearch,
   SearchProps,
   setContextMenu,
   setFMLoading,
+  updateProgressFile,
 } from "@store/filemanager";
 import { historyItem } from "@store/lists";
 //eslint-disable-next-line
@@ -31,6 +33,8 @@ import { SearchBox, ProgressTracker } from "@components";
 import { push, replace } from "connected-react-router";
 import { Files } from "./Files";
 import { clearSelection, setFiles } from "@store/ftp";
+import { statSync } from "fs";
+import { basename } from "path";
 
 const mapState = ({
   ftpReducer: { client },
@@ -57,6 +61,10 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   replace: (p: string) => dispatch(replace(p)),
   clearSelection: () => dispatch(clearSelection()),
   doSearch: (search: SearchProps) => dispatch(doSearch(search)),
+  updateProgressFile: (file: ProgressFileI) =>
+    dispatch(updateProgressFile(file)),
+  addProgressFiles: (files: ProgressFileI[]) =>
+    dispatch(addProgressFiles(files)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -171,8 +179,7 @@ export class FileManagerUI extends Component<Props, State> {
         break;
       }
       case FTPResponseType.TRANSFER_UPDATE: {
-        console.log("transfer", res);
-        // TODO add something
+        this.props.updateProgressFile(res.data);
         break;
       }
     }
@@ -273,10 +280,26 @@ export class FileManagerUI extends Component<Props, State> {
 
       if (fs.statSync(p).isDirectory()) {
         folders.push(p);
-      } else if (fs.statSync(p).isFile()) {
+      } else if (statSync(p).isFile()) {
         files.push(p);
       }
     }
+    const cwd = await this.props.client.pwd();
+    const progressFiles: ProgressFileI[] = [];
+    for (const path of folders) {
+      progressFiles.push(...getProgressDir(cwd, path));
+    }
+    for (const path of files) {
+      const stats = statSync(path);
+      progressFiles.push({
+        cwd,
+        name: basename(path),
+        progress: 0,
+        progressType: "upload",
+        total: stats.size,
+      });
+    }
+    this.props.addProgressFiles(progressFiles);
     this.props.client.putFolders(folders);
     this.props.client.putFiles(files);
   };
@@ -306,7 +329,7 @@ export class FileManagerUI extends Component<Props, State> {
         <SearchBox
           onSearch={this.onSearch}
           searching={this.props.search.searching}
-          setSearching={(s) => this.props.doSearch({ searching: false })}
+          setSearching={(s) => this.props.doSearch({ searching: s })}
         />
         <div id="file-manager-top">
           <button

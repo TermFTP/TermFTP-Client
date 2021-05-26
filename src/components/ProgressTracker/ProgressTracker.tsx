@@ -3,13 +3,12 @@ import {
   faAngleDown,
   faDownload,
   faTimes,
-  faTimesCircle,
   faUpload,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { FileType } from "@shared";
+import { FileType, ProgressFileI } from "@shared";
 import { DefaultDispatch, RootState } from "@store";
-import { ProgressFileI, removeProgressFiles } from "@store/filemanager";
+import { removeProgressFiles } from "@store/filemanager";
 import React, { useEffect, useState } from "react";
 import { connect, ConnectedProps, useDispatch } from "react-redux";
 import "./ProgressTracker.scss";
@@ -43,7 +42,6 @@ function ProgressTrackerUI({ progressFiles }: Props): JSX.Element {
   useEffect(() => {
     if (downOpen && downloads.length == 0) setDownOpen(false);
   }, [downloads.length]);
-  console.log(downloads);
 
   return (
     <div className="progress-tracker">
@@ -105,7 +103,12 @@ interface ProgressFileProps {
 const ProgressFile = ({ file }: ProgressFileProps) => {
   const dispatch = useDispatch();
   return (
-    <div className="progress-file">
+    <div
+      className="progress-file"
+      style={
+        { "--progress": file.progress / file.total } as React.CSSProperties
+      }
+    >
       <FileIcon
         file={{
           date: new Date(),
@@ -115,14 +118,14 @@ const ProgressFile = ({ file }: ProgressFileProps) => {
         }}
         className="progress-file-type"
       ></FileIcon>
-      <div className="progress-file-name">{file.name}</div>
+      <p className="progress-file-name">{file.name}</p>
       <div className="progress-file-right">
         <div className="progress-status"></div>
         <button
           className="progress-file-cancel"
           onClick={() => dispatch(removeProgressFiles([file]))}
         >
-          <FontAwesomeIcon icon={faTimesCircle}></FontAwesomeIcon>
+          <FontAwesomeIcon icon={faTimes}></FontAwesomeIcon>
         </button>
       </div>
     </div>

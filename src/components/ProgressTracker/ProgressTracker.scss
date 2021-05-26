@@ -1,11 +1,13 @@
 .progress-tracker {
   position: fixed;
-  bottom: calc(8px + var(--plus-height) * 2 + var(--terminalClosed));
-  right: 8px;
+  bottom: calc(
+    var(--r-padding) + var(--plus-height) * 2 + var(--terminalClosed)
+  );
+  right: var(--r-padding);
   // height: calc(var(--plus-height) * 2 + 8px);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--r-padding);
 }
 
 .progress-tracker-btn {
@@ -39,13 +41,13 @@
   transition: var(--dur) height ease;
 
   &.progress-open {
-    height: calc(var(--plus-height) * 3 + 8px);
+    height: calc(var(--plus-height) * 4);
   }
 }
 
 .progress-content-wrapper {
   --content-width: 20em;
-  height: calc(var(--plus-height) * 3 + 8px);
+  height: 100%;
   width: 0;
   transition: var(--dur) height ease, var(--dur) width ease;
   overflow: hidden;
@@ -54,23 +56,31 @@
   bottom: 0;
   z-index: 5;
   background: var(--dark-bg-1);
-  border-radius: calc(var(--plus-height) / 2);
+  border-radius: calc(var(--plus-height) / 3);
 }
 
 .progress-open .progress-content-wrapper {
   width: var(--content-width);
-  box-shadow: 1px 1px 10px 2px black;
-  padding-bottom: 8px;
+  box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.6);
+  // padding-bottom: var(--r-padding);
 }
 
 .progress-content {
   width: var(--content-width);
-  height: calc(var(--plus-height * 3));
+  height: 100%;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 
   .progress-part-header {
     display: flex;
     flex-direction: row;
     background: var(--background);
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1;
 
     p {
       flex-grow: 1;
@@ -103,6 +113,18 @@
   width: 100%;
   flex-direction: row;
   height: var(--plus-height);
+  align-items: center;
+  position: relative;
+
+  &:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    height: 2px;
+    width: calc(100% * var(--progress));
+    background: var(--green);
+    transition: 100ms width ease;
+  }
 
   &:hover {
     background: var(--dark-bg-2);
@@ -113,11 +135,16 @@
 
   .progress-file-name {
     flex-grow: 1;
-    display: grid;
+    max-width: calc(100% - var(--plus-height) * 2);
+    // display: inline-flex;
     place-items: center start;
+    vertical-align: baseline;
     text-align: left;
-    // font-size: 0.9em;
+    font-size: 0.9em;
     text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    height: min-content;
   }
 
   .progress-file-type {
@@ -125,6 +152,7 @@
     width: var(--plus-height);
     display: grid;
     place-items: center;
+    flex-shrink: 0;
 
     img {
       height: 80%;
@@ -135,6 +163,7 @@
     height: var(--plus-height);
     width: var(--plus-height);
     position: relative;
+    flex-shrink: 0;
 
     & > * {
       height: var(--plus-height);

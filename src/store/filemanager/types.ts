@@ -1,4 +1,4 @@
-import { FileI, FileType } from "@shared";
+import { FileI, ProgressFileI } from "@shared";
 
 export type TerminalActions = "OPEN" | "CLOSE" | "TOGGLE";
 
@@ -25,14 +25,6 @@ export enum FMActions {
   REMOVE_PROGRESS_FILES = "fm/remove-progress-files"
 }
 
-export interface ProgressFileI {
-  name: string;
-  total: number;
-  progress: number;
-  fileType: FileType;
-  progressType: "upload" | "download";
-  cwd: string;
-}
 
 export interface FMState {
   menu: ContextMenuProps;
