@@ -36,7 +36,7 @@ export const Files = (): JSX.Element => {
     if (e.key === "Backspace" || e.key === "Delete") {
       e?.preventDefault();
       e?.stopPropagation();
-      console.log("slec", selected);
+      // console.log("slec", selected);
       const files = [];
       for (const f of selected) {
         if (f.type === FileType.DIR) {
