@@ -4,6 +4,7 @@ import { DefaultDispatch, RootState } from "@store";
 import { ContextMenuProps, setContextMenu } from "@store/filemanager";
 import {
   addSelection,
+  clearSelection,
   removeSelection,
   selectFile,
   shiftSelection,
@@ -30,6 +31,7 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   removeSelection: (file: FileI) => dispatch(removeSelection(file)),
   addSelection: (file: FileI) => dispatch(addSelection(file)),
   shiftSelection: (file: FileI) => dispatch(shiftSelection(file)),
+  clearSelection: () => dispatch(clearSelection()),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -50,6 +52,7 @@ function FileUI({
   shiftSelection,
   search,
   client,
+  clearSelection,
 }: Props): JSX.Element {
   if (
     search.searching &&
@@ -176,6 +179,7 @@ function FileUI({
       onDoubleClick={async () => {
         if (file.type === FileType.DIR) {
           push(`${normalizeURL(window.location.pathname)}/${file.name}`);
+          clearSelection();
         }
       }}
       onContextMenuCapture={onContextMenu}
@@ -186,6 +190,7 @@ function FileUI({
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
+      data-dir={file.type === FileType.DIR}
     >
       <div
         className={`file file-${file.type} ${

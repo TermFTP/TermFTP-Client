@@ -29,7 +29,7 @@ export abstract class BaseFTP {
   abstract getFolders(remoteFolders: FileI[], localFolder: string): void;
   // abstract put(source: string, destPath: string): void;
   abstract mkdir(path: string): void;
-  abstract deleteFile(file: string): void;
+  abstract deleteFiles(files: string[]): void;
   abstract rmdir(dir: string, recursive?: boolean): void;
   abstract rename(oldPath: string, newPath: string): void;
   abstract putFolders(folders: string[], basePath?: string): void;

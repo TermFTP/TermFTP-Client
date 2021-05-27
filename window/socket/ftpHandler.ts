@@ -45,8 +45,8 @@ export const FTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => async 
           socket.emit('ftp:cd')
           ftpReadDir(socket, ftp);
           break;
-        case Req.DELETE:
-          await ftp.deleteFile(req.data.file);
+        case Req.DELETEFILES:
+          await ftp.deleteFiles(req.data.files);
           ftpReadDir(socket, ftp);
           break;
         case Req.GET_FILES:
@@ -322,6 +322,10 @@ export class FTP {
     await c.cd(pwd);
     await c.remove(file, true);
     await this.pool.release(c);
+  }
+
+  async deleteFiles(files: string[]): Promise<void> {
+    await Promise.all(files.map(f => this.deleteFile(f)))
   }
 
   async rmdir(path: string): Promise<void> {

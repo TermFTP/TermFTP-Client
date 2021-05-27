@@ -31,7 +31,7 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
       // sftpReadDir(socket, sftp, cwd);
       socket.emit("sftp:data", { type: FTPResponseType.INIT, data: cwd })
 
-      socket.on('sftp:data', (req: FTPRequest) => {
+      socket.on('sftp:data', async (req: FTPRequest) => {
         switch (req.type) {
           // LIST DIRECTORY
           case FTPRequestType.LIST:
@@ -103,11 +103,13 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
             break;
 
           // DELETE
-          case FTPRequestType.DELETE:
-            sftp.unlink([cwd, req.data.file].join(''), (err) => {
-              if (err) return sftpErr(socket, err);
+          case FTPRequestType.DELETEFILES:
+            try {
+              await Promise.all(req.data.files.map(f => deleteFile(sftp, [cwd, f].join(""))));
               sftpReadDir(socket, sftp, cwd);
-            });
+            } catch (e) {
+              sftpErr(socket, e);
+            }
             break;
 
           // RMDIR
@@ -152,6 +154,16 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
     .on('error', (err) => sftpErr(socket, err))
     .connect(sshConfig);
 
+}
+
+const deleteFile = (sftp: SFTPWrapper, path: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    sftp.unlink(path, (err) => {
+      if (err) reject(err);
+      // sftpReadDir(socket, sftp, cwd);
+      resolve();
+    });
+  });
 }
 
 const rmDir = async (socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper, cwd: string, relativePath: string, giveCwd?: () => string) => {

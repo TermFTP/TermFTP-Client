@@ -153,7 +153,7 @@ export class FileManagerUI extends Component<Props, State> {
     switch (res.type) {
       case FTPResponseType.INIT: {
         const pwd = normalizeURL(res.data);
-        this.props.push(`/file-manager${pwd}`);
+        this.props.replace(`/file-manager${pwd}`);
         this.setState({ pwd: "" });
         break;
       }
@@ -224,9 +224,11 @@ export class FileManagerUI extends Component<Props, State> {
 
   onDragEnter = (e: React.DragEvent<HTMLDivElement>): void => {
     const actual = document.elementFromPoint(e.pageX, e.pageY);
+    const closest = actual.closest(".file-wrapper");
+    closest && console.log(closest.getAttribute("data-dir"));
     if (
       e.dataTransfer.types.includes("app/file-transfer") ||
-      actual.closest(".file-wrapper")
+      (closest && closest.getAttribute("data-dir") === "true")
     ) {
       this.setState({ dragging: false });
       this.counter = 1;

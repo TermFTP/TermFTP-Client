@@ -129,11 +129,11 @@ export class SFTP extends BaseFTP {
     })
   }
 
-  deleteFile(file: string): void {
+  deleteFiles(files: string[]): void {
     this.emit({
-      type: FTPRequestType.DELETE,
+      type: FTPRequestType.DELETEFILES,
       data: {
-        file,
+        files,
       }
     });
   }

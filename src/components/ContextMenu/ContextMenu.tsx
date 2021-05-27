@@ -136,7 +136,7 @@ const ContextMenuUI = ({
       },
       {
         label: "Delete file",
-        func: onFileDelete,
+        func: onFilesDelete,
         name: "context-delete",
         icon: faTrashAlt,
       },
@@ -267,11 +267,6 @@ const ContextMenuUI = ({
       });
   }
 
-  function onFileDelete(): void {
-    if (!file) return;
-    client.deleteFile(file.name);
-  }
-
   function onFolderDelete(): void {
     if (!file) return;
     client.rmdir(file.name);
@@ -311,13 +306,15 @@ const ContextMenuUI = ({
 
   function onFilesDelete(): void {
     if (selected.size === 0) return;
+    const files = [];
     for (const f of selected) {
       if (f.type === FileType.DIR) {
         client.rmdir(f.name);
       } else {
-        client.deleteFile(f.name);
+        files.push(f.name);
       }
     }
+    client.deleteFiles(files);
   }
 
   return (

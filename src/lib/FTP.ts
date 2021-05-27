@@ -172,11 +172,11 @@ export class FTP extends BaseFTP {
     })
   }
 
-  deleteFile(file: string): void {
+  deleteFiles(files: string[]): void {
     this.emit({
-      type: ReqT.DELETE,
+      type: ReqT.DELETEFILES,
       data: {
-        file
+        files
       }
     })
   }

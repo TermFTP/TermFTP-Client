@@ -25,7 +25,7 @@ export enum FTPRequestType {
   PUT = "put",
   CD = "cd",
   RENAME = "rename",
-  DELETE = "delete",
+  DELETEFILES = "delete",
   MKDIR = "mkdir",
   RMDIR = "rmdir",
   GET_FOLDERS = "get-folders",
@@ -77,10 +77,10 @@ export interface FTPReqRename {
   }
 }
 
-export interface FTPReqDelete {
-  type: typeof Req.DELETE;
+export interface FTPReqDeleteFiles {
+  type: typeof Req.DELETEFILES;
   data: {
-    file: string;
+    files: string[];
   }
 }
 
@@ -133,7 +133,7 @@ export type FTPRequest = FTPReqPWD
   | FTPReqGetFiles
   | FTPReqPut
   | FTPReqRename
-  | FTPReqDelete
+  | FTPReqDeleteFiles
   | FTPReqMkdir
   | FTPReqRmDIR
   | FTPError
