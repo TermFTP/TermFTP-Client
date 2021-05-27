@@ -79,14 +79,6 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
             }
             break;
 
-          // UPLOAD FILE
-          /*
-          case FTPRequestType.PUT:
-            console.log([cwd, basename(req.data.localPath)].join(''));
-            upload(socket, sftp, req.data.localPath, req.data.remotePath, cwd);
-            break;
-          */
-
           // UPLOAD FILES
           case FTPRequestType.PUT_FILES:
             for (const file of req.data.files) {

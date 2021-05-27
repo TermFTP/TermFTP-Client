@@ -44,10 +44,10 @@ function ProgressTrackerUI({ progressFiles }: Props): JSX.Element {
   const dispatch = useDispatch();
   useEffect(() => {
     if (upOpen && uploads.length == 0) setUpOpen(false);
-  }, [uploads.length]);
+  }, [uploads]);
   useEffect(() => {
     if (downOpen && downloads.length == 0) setDownOpen(false);
-  }, [downloads.length]);
+  }, [downloads]);
 
   return (
     <div className="progress-tracker">

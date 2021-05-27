@@ -351,7 +351,9 @@ export class FTP {
     const c = await this.pool.acquire();
     await c.access(this.config);
     await c.cd(pwd);
-    this.addSpecificTracker(c, pwd, "upload", undefined);
+    let cwd = pwd + destPath;
+    if (!cwd.endsWith("/")) cwd += "/"
+    this.addSpecificTracker(c, cwd, "upload", undefined);
     await c.uploadFromDir(source, destPath);
     await this.pool.release(c);
   }
