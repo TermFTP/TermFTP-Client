@@ -132,6 +132,7 @@ function FileUI({
   }
 
   function onDrop(e: React.DragEvent<HTMLDivElement>) {
+    if (file.type !== FileType.DIR) return;
     if (e.dataTransfer.types.includes("app/file-transfer")) {
       e.preventDefault();
       e.stopPropagation();

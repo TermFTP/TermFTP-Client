@@ -263,9 +263,10 @@ export class FileManagerUI extends Component<Props, State> {
 
   onDrop = async (e: React.DragEvent<HTMLDivElement>): Promise<void> => {
     const actual = document.elementFromPoint(e.pageX, e.pageY);
+    const closest = actual.closest(".file-wrapper");
     if (
       e.dataTransfer.types.includes("app/file-transfer") ||
-      actual.closest(".file-wrapper")
+      (closest && closest.getAttribute("data-dir") === "true")
     ) {
       this.setState({ dragging: false });
       return;
