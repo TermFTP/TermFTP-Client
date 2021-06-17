@@ -7,7 +7,6 @@ $terminalDur: 400ms;
   color: var(--color);
   will-change: height;
   // overflow: hidden;
-  position: absolute;
   bottom: var(--bottom-height);
 
   &.terminal-open {

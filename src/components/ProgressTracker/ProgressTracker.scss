@@ -1,13 +1,12 @@
 .progress-tracker {
-  position: fixed;
-  bottom: calc(
-    var(--r-padding) + var(--plus-height) * 2 + var(--terminalClosed)
-  );
+  position: absolute;
+  bottom: calc(var(--r-padding) * 2 + var(--plus-height));
   right: var(--r-padding);
   // height: calc(var(--plus-height) * 2 + 8px);
   display: flex;
   flex-direction: column;
   gap: var(--r-padding);
+  z-index: 1;
 }
 
 .progress-tracker-btn {

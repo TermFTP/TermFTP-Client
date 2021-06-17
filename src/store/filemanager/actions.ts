@@ -5,49 +5,53 @@ import { ThunkAction } from "redux-thunk";
 import { ContextMenuProps, FMState, FMActions, TerminalActions, SearchProps } from "./types";
 
 export type FTPThunk<ReturnType = void> = ActionCreator<
-  ThunkAction<ReturnType, FMState, unknown, Action<string>>
+	ThunkAction<ReturnType, FMState, unknown, Action<string>>
 >;
 
 interface Ret extends DefaultReturn {
-  type: FMActions;
+	type: FMActions;
 }
 
 export const setContextMenu = (menu: ContextMenuProps): Ret => ({
-  type: FMActions.SET_CONTEXT_MENU,
-  payload: menu,
+	type: FMActions.SET_CONTEXT_MENU,
+	payload: menu,
 });
 
 export const setFMLoading = (loading: boolean): Ret => ({
-  type: FMActions.SET_FM_LOADING,
-  payload: loading
+	type: FMActions.SET_FM_LOADING,
+	payload: loading
 })
 
 export const setTerminal = (action: TerminalActions): Ret => ({
-  type: FMActions.SET_TERMINAL,
-  payload: action
+	type: FMActions.SET_TERMINAL,
+	payload: action
 })
 
 export const setTerminalHeight = (height: number): Ret => ({
-  type: FMActions.SET_TERMINAL_HEIGHT,
-  payload: height
+	type: FMActions.SET_TERMINAL_HEIGHT,
+	payload: height
 })
 
 export const doSearch = (search: SearchProps): Ret => ({
-  type: FMActions.SEARCH,
-  payload: search,
+	type: FMActions.SEARCH,
+	payload: search,
 })
 
 export const addProgressFiles = (files: ProgressFileI[]): Ret => ({
-  type: FMActions.ADD_PROGRESS_FILES,
-  payload: files,
+	type: FMActions.ADD_PROGRESS_FILES,
+	payload: files,
 });
 
 export const updateProgressFile = (file: ProgressFileI): Ret => ({
-  type: FMActions.UPDATE_PROGRESS_FILE,
-  payload: file
+	type: FMActions.UPDATE_PROGRESS_FILE,
+	payload: file
 })
 
 export const removeProgressFiles = (files: ProgressFileI[]): Ret => ({
-  type: FMActions.REMOVE_PROGRESS_FILES,
-  payload: files
+	type: FMActions.REMOVE_PROGRESS_FILES,
+	payload: files
+})
+
+export const clearProgressFiles = (): Ret => ({
+	type: FMActions.CLEAR_PROGRESS_FILES,
 })

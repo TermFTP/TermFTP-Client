@@ -51,6 +51,7 @@
 }
 
 #file-manager-ui {
+  --terminal: var(--terminalClosed);
   flex-grow: 1;
   flex-shrink: 1;
   display: flex;
@@ -58,10 +59,10 @@
   flex-direction: column;
   overflow-y: scroll;
   height: calc(
-    100% - var(--top-height) - var(--bottom-height) - var(--terminalClosed)
+    100% - var(--top-height) - var(--bottom-height) - var(--terminal)
   );
   max-height: calc(
-    100% - var(--top-height) - var(--bottom-height) - var(--terminalClosed)
+    100% - var(--top-height) - var(--bottom-height) - var(--terminal)
   );
   outline: none;
 
@@ -86,7 +87,6 @@
   display: flex;
   place-items: center flex-start;
   flex-direction: row;
-  margin-top: var(--terminalClosed);
 
   #file-manager-status {
     --color: 255, 255, 255;
@@ -148,9 +148,9 @@
 }
 
 #file-manager-plus {
-  position: fixed;
+  position: absolute;
   right: var(--r-padding);
-  bottom: calc(var(--r-padding) + var(--bottom-height) + var(--terminalClosed));
+  bottom: var(--r-padding);
   transition: var(--dur) bottom ease;
   height: var(--plus-height);
   width: var(--plus-height);

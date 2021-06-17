@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import "./Header.scss";
 import { remote } from "electron";
 import {
-  faArrowLeft,
   faHome,
+  faSignOutAlt,
   faTimes,
   faWindowMinimize,
 } from "@fortawesome/free-solid-svg-icons";
@@ -11,16 +11,19 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWindowMaximize } from "@fortawesome/free-regular-svg-icons";
 import { DefaultDispatch, RootState } from "@store";
 import { connect, ConnectedProps } from "react-redux";
-import { goBack, push } from "connected-react-router";
+import { push } from "connected-react-router";
 import { Endpoints } from "@lib/Endpoints";
+import { logout } from "@store/user";
+import { ipcRenderer } from "electron";
+import { IPCDeleteKeyRequest } from "@shared";
 
 const mapState = ({ router }: RootState) => ({
   router,
 });
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
-  goBack: () => dispatch(goBack()),
   push: (route: string) => dispatch(push(route)),
+  logout: () => dispatch(logout()),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -28,15 +31,8 @@ const connector = connect(mapState, mapDispatch);
 type PropsFromState = ConnectedProps<typeof connector>;
 type Props = PropsFromState;
 
-function HeaderUI({ goBack, push, router }: Props) {
+function HeaderUI({ push, router, logout }: Props) {
   const [prevPath, setPrevPath] = useState("");
-
-  function back() {
-    if (prevPath === "/welcome") {
-      return;
-    }
-    goBack();
-  }
 
   if (router.location.pathname !== prevPath)
     setPrevPath(router.location.pathname);
@@ -51,15 +47,6 @@ function HeaderUI({ goBack, push, router }: Props) {
 
         <div className="headerContent" id={id}>
           <div id="headerTitle">
-            {id === "" && <span id="headerTitleText">TermFTP</span>}
-            <button
-              onClick={() => {
-                back();
-              }}
-              className="navBtn"
-            >
-              <FontAwesomeIcon icon={faArrowLeft}></FontAwesomeIcon>
-            </button>
             <button
               onClick={() => {
                 if (Endpoints.getInstance().headers["Access-Token"])
@@ -70,6 +57,22 @@ function HeaderUI({ goBack, push, router }: Props) {
             >
               <FontAwesomeIcon icon={faHome}></FontAwesomeIcon>
             </button>
+            {id === "" && <span id="headerTitleText">TermFTP</span>}
+            {window.location.pathname !== "/" && (
+              <button
+                onClick={() => {
+                  logout();
+                  ipcRenderer.invoke("logout", {
+                    caller: "login",
+                    key: "auto-login",
+                  } as IPCDeleteKeyRequest);
+                  push("/");
+                }}
+                className="navBtn"
+              >
+                <FontAwesomeIcon icon={faSignOutAlt}></FontAwesomeIcon>
+              </button>
+            )}
           </div>
           <div className="headerDock">
             <GetWindowControls id={id}></GetWindowControls>

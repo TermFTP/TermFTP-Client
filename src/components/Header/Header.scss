@@ -1,7 +1,7 @@
 /************************************************
 * Header                                         *
 *************************************************/
-$headerSize: 24px;
+$headerSize: 30px;
 $resizeSize: 2px;
 
 /*Header Bar*/
@@ -61,19 +61,22 @@ $resizeSize: 2px;
   #headerTitle {
     padding: 0px 5px;
     -webkit-app-region: no-drag;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   #headerTitleText {
     font-size: 14px;
     letter-spacing: 1px;
-    margin-right: 10px;
+    margin: 0 6px;
     cursor: default;
   }
 
   .headerDock {
     -webkit-app-region: no-drag;
     position: relative;
-    height: 26px;
+    height: $headerSize - $resizeSize;
     top: -$resizeSize;
     right: -$resizeSize;
   }
@@ -82,8 +85,8 @@ $resizeSize: 2px;
   .headerButton {
     background: none;
     border: none;
-    height: 26px;
-    width: 39px;
+    height: $headerSize;
+    width: $headerSize * 1.5;
     cursor: pointer;
     transition: background-color 200ms ease-in-out;
     color: white;

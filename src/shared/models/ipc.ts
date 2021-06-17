@@ -1,24 +1,24 @@
 export interface IRawParams {
-  [key: string]: any;
+	[key: string]: any;
 }
 
 export enum EncryptionType {
-  MASTER = 1, // the encryption type for the master password (additionally)
-  KEY = 100_000, // the encryption type for the encryption key for the server passwords
+	MASTER = 1, // the encryption type for the master password (additionally)
+	KEY = 100_000, // the encryption type for the encryption key for the server passwords
 }
 
 export interface IPCLoginReq {
-  caller: "login";
-  username: string;
-  password: string;
-  autoLogin: boolean;
+	caller: "login";
+	username: string;
+	password: string;
+	autoLogin: boolean;
 }
 
 export interface IPCRegisterReq {
-  caller: "register";
-  username: string;
-  password: string;
-  email: string;
+	caller: "register";
+	username: string;
+	password: string;
+	email: string;
 }
 
 export type IPCEncryptRequest = IPCLoginReq | IPCRegisterReq;
@@ -31,8 +31,8 @@ export type IPCEncryptReply = [string, string, string, boolean] | [string, strin
 export type IPCGetKeys = "auto-login" | "username:masterpw";
 
 export interface IPCGetKeyRequest {
-  caller: string;
-  key: IPCGetKeys;
+	caller: string;
+	key: IPCGetKeys;
 }
 
 /**
@@ -42,9 +42,14 @@ export interface IPCGetKeyRequest {
 export type IPCGetKeyReply = { result: boolean, val: string, err?: Error }
 
 export interface IPCSaveKeyRequest {
-  caller: string;
-  key: string;
-  value: string;
+	caller: string;
+	key: string;
+	value: string;
+}
+
+export interface IPCDeleteKeyRequest {
+	caller: string;
+	key: string;
 }
 
 /**

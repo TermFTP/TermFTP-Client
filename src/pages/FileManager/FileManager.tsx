@@ -1,6 +1,7 @@
 import { ContextMenu, Terminal } from "@components";
 import { faCircle } from "@fortawesome/free-regular-svg-icons";
 import {
+  faArrowLeft,
   faCog,
   faPlus,
   faSync,
@@ -14,6 +15,7 @@ import { DefaultDispatch, RootState } from "@store";
 import { addBubble, setSettings } from "@store/app";
 import {
   addProgressFiles,
+  clearProgressFiles,
   ContextMenuProps,
   doSearch,
   SearchProps,
@@ -30,7 +32,7 @@ import "./FileManager.scss";
 import fs from "fs";
 import { HotKeys } from "react-hotkeys";
 import { SearchBox, ProgressTracker } from "@components";
-import { push, replace } from "connected-react-router";
+import { goBack, replace } from "connected-react-router";
 import { Files } from "./Files";
 import { clearSelection, setFiles } from "@store/ftp";
 import { statSync } from "fs";
@@ -38,7 +40,7 @@ import { basename } from "path";
 
 const mapState = ({
   ftpReducer: { client },
-  fmReducer: { menu, loading, search },
+  fmReducer: { menu, loading, search, terminalOpen, terminalHeight },
   router: { location },
 }: RootState) => ({
   client,
@@ -46,6 +48,8 @@ const mapState = ({
   loading,
   location,
   search,
+  terminalOpen,
+  terminalHeight,
 });
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
@@ -56,7 +60,6 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   addBubble: (key: string, bubble: BubbleModel) =>
     dispatch(addBubble(key, bubble)),
   setFMLoading: (loading: boolean) => dispatch(setFMLoading(loading)),
-  push: (path: string) => dispatch(push(path)),
   setFiles: (files: FileI[]) => dispatch(setFiles(files)),
   replace: (p: string) => dispatch(replace(p)),
   clearSelection: () => dispatch(clearSelection()),
@@ -65,6 +68,8 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
     dispatch(updateProgressFile(file)),
   addProgressFiles: (files: ProgressFileI[]) =>
     dispatch(addProgressFiles(files)),
+  goBack: () => dispatch(goBack()),
+  clearProgressFiles: () => dispatch(clearProgressFiles()),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -145,6 +150,7 @@ export class FileManagerUI extends Component<Props, State> {
     // this.props.client?.removeAllListeners();
     this.props.setFiles([]);
     this.props.doSearch({ searching: false });
+    this.props.clearProgressFiles();
   }
 
   // eslint-disable-next-line
@@ -325,6 +331,11 @@ export class FileManagerUI extends Component<Props, State> {
 
   render(): JSX.Element {
     const connected = Boolean(this.props.client?.connected);
+    const uiStyle: React.CSSProperties = {
+      "--terminal": this.props.terminalOpen
+        ? `${this.props.terminalHeight}px`
+        : undefined,
+    } as React.CSSProperties;
 
     return (
       <div id="file-manager">
@@ -334,6 +345,12 @@ export class FileManagerUI extends Component<Props, State> {
           setSearching={(s) => this.props.doSearch({ searching: s })}
         />
         <div id="file-manager-top">
+          <button
+            className="file-manager-btn file-manager-back"
+            onClick={() => this.props.goBack()}
+          >
+            <FontAwesomeIcon icon={faArrowLeft}></FontAwesomeIcon>
+          </button>
           <button
             className="file-manager-btn file-manager-reload"
             onClick={() => this.props.client.list()}
@@ -363,6 +380,7 @@ export class FileManagerUI extends Component<Props, State> {
           onDragOver={(e) => e.preventDefault()}
           onDragEnter={this.onDragEnter}
           onDragLeave={this.onDragLeave}
+          style={uiStyle}
         >
           <HotKeys
             keyMap={this.keyMap}
