@@ -1,10 +1,10 @@
 #file-manager-context-menu {
   --menu-item-height: 2.75em;
   position: absolute;
-  bottom: calc(var(--plus-height) + 10px);
+  bottom: calc(var(--plus-height));
   right: 0;
   width: 14em;
-  border-radius: 10px;
+  border-radius: 10px 10px 0 10px;
   overflow: hidden;
   height: 0;
   transition: var(--dur) height ease, var(--dur) top ease, var(--dur) left ease;
@@ -14,7 +14,7 @@
   align-items: flex-start;
   flex-direction: column;
   box-shadow: none;
-  z-index: 5;
+  z-index: -1;
 
   button {
     width: 100%;

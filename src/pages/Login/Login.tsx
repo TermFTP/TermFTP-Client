@@ -1,4 +1,4 @@
-import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCog, faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DefaultDispatch } from "@store";
 import React from "react";
@@ -24,6 +24,7 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   addBubble: (key: string, bubble: BubbleModel) =>
     dispatch(addBubble(key, bubble)),
   login: (username: string, pw: string) => dispatch(login(username, pw)),
+  push: (path: string) => dispatch(push(path)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -178,6 +179,12 @@ class LoginUI extends React.Component<Props, State> {
         <button id="login-browser">
           <FontAwesomeIcon icon={faExternalLinkAlt} />
           Login in Browser
+        </button>
+        <button
+          className="global-settings-btn"
+          onClick={() => this.props.push("/settings")}
+        >
+          <FontAwesomeIcon icon={faCog}></FontAwesomeIcon>
         </button>
       </div>
     );

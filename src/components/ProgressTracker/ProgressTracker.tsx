@@ -6,6 +6,7 @@ import {
   faUpload,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { convertFileSize } from "@lib";
 import { FileType, ProgressFileI } from "@shared";
 import { DefaultDispatch, RootState } from "@store";
 import { removeProgressFiles } from "@store/filemanager";
@@ -143,6 +144,9 @@ const ProgressFile = ({ file }: ProgressFileProps) => {
         >
           <FontAwesomeIcon icon={faTimes}></FontAwesomeIcon>
         </button>
+      </div>
+      <div className="progress-file-progress-status">
+        {convertFileSize(file.progress, 0)} / {convertFileSize(file.total, 0)}
       </div>
     </div>
   );

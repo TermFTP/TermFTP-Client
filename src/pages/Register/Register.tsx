@@ -6,7 +6,7 @@ import { ConnectedProps, connect } from "react-redux";
 
 import { validateEmail } from "@lib";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCog, faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { push } from "connected-react-router";
 import { IPCEncryptRequest } from "@shared/models";
 
@@ -19,6 +19,7 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   login: () => dispatch(push("login")),
   register: (email: string, username: string, password: string) =>
     dispatch(register(email, username, password)),
+  push: (path: string) => dispatch(push(path)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -123,14 +124,8 @@ class RegisterUI extends React.Component<Props, State> {
   }
 
   render() {
-    const {
-      email,
-      username,
-      password,
-      confirmPassword,
-      tos,
-      canRegister,
-    } = this.state;
+    const { email, username, password, confirmPassword, tos, canRegister } =
+      this.state;
 
     const { handleChange, handleSubmit } = this;
 
@@ -203,6 +198,12 @@ class RegisterUI extends React.Component<Props, State> {
         <button id="register-browser">
           <FontAwesomeIcon icon={faExternalLinkAlt} />
           Open in Browser
+        </button>
+        <button
+          className="global-settings-btn"
+          onClick={() => this.props.push("/settings")}
+        >
+          <FontAwesomeIcon icon={faCog}></FontAwesomeIcon>
         </button>
       </div>
     );

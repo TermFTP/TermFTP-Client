@@ -18,6 +18,7 @@ import { ConnectDetails } from "./Lists/ServerItem/ServerItem";
 import { PromptProps } from "@components/Prompt/Prompt";
 import { goToFTPClient, setFTPType } from "@store/ftp";
 import { FTPConnectTypes } from "@shared";
+import { push } from "connected-react-router";
 
 type CKey = keyof typeof FTPConnectTypes;
 
@@ -38,6 +39,7 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   edit: (server: EditReq) => dispatch(editServer(server)),
   changeEditServer: (server: Server) => dispatch(changeEditServer(server)),
   setFTPType: (type: FTPConnectTypes) => dispatch(setFTPType(type)),
+  push: (route: string) => dispatch(push(route)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -256,7 +258,7 @@ export class ConnectUI extends Component<Props, State> {
       onConnect,
       onSave,
       onFavourite,
-      props: { openSettings, currentlyEdited },
+      props: { currentlyEdited },
       state: { ip, canConnect, password, mode, ftpPort, sshPort, username },
     } = this;
     const isEdited = Boolean(currentlyEdited);
@@ -270,7 +272,10 @@ export class ConnectUI extends Component<Props, State> {
             <span>GUI</span>
             <span>CLI</span>
           </button>
-          <button className="connect-settings-btn" onClick={openSettings}>
+          <button
+            className="connect-settings-btn"
+            onClick={() => this.props.push("/settings")}
+          >
             <FontAwesomeIcon icon={faCog}></FontAwesomeIcon>
           </button>
         </div>

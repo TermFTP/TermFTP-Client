@@ -61,10 +61,10 @@ export function App(): JSX.Element {
             <Route path="/main" component={Main}></Route>
             <Route path="/tos" component={ToS}></Route>
             <Route path="/file-manager" component={FileManager}></Route>
+            <Route path="/settings" component={Settings}></Route>
           </Switch>
         </ConnectedRouter>
       </div>
-      <Settings></Settings>
       <Loading></Loading>
       <Prompt></Prompt>
       <Bubbles></Bubbles>

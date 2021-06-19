@@ -3,7 +3,6 @@ import "./Header.scss";
 import { remote } from "electron";
 import {
   faHome,
-  faSignOutAlt,
   faTimes,
   faWindowMinimize,
 } from "@fortawesome/free-solid-svg-icons";
@@ -13,9 +12,6 @@ import { DefaultDispatch, RootState } from "@store";
 import { connect, ConnectedProps } from "react-redux";
 import { push } from "connected-react-router";
 import { Endpoints } from "@lib/Endpoints";
-import { logout } from "@store/user";
-import { ipcRenderer } from "electron";
-import { IPCDeleteKeyRequest } from "@shared";
 
 const mapState = ({ router }: RootState) => ({
   router,
@@ -23,7 +19,6 @@ const mapState = ({ router }: RootState) => ({
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   push: (route: string) => dispatch(push(route)),
-  logout: () => dispatch(logout()),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -31,7 +26,7 @@ const connector = connect(mapState, mapDispatch);
 type PropsFromState = ConnectedProps<typeof connector>;
 type Props = PropsFromState;
 
-function HeaderUI({ push, router, logout }: Props) {
+function HeaderUI({ push, router }: Props) {
   const [prevPath, setPrevPath] = useState("");
 
   if (router.location.pathname !== prevPath)
@@ -58,21 +53,6 @@ function HeaderUI({ push, router, logout }: Props) {
               <FontAwesomeIcon icon={faHome}></FontAwesomeIcon>
             </button>
             {id === "" && <span id="headerTitleText">TermFTP</span>}
-            {window.location.pathname !== "/" && (
-              <button
-                onClick={() => {
-                  logout();
-                  ipcRenderer.invoke("logout", {
-                    caller: "login",
-                    key: "auto-login",
-                  } as IPCDeleteKeyRequest);
-                  push("/");
-                }}
-                className="navBtn"
-              >
-                <FontAwesomeIcon icon={faSignOutAlt}></FontAwesomeIcon>
-              </button>
-            )}
           </div>
           <div className="headerDock">
             <GetWindowControls id={id}></GetWindowControls>

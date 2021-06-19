@@ -130,6 +130,10 @@
     .progress-file-cancel {
       display: block;
     }
+
+    .progress-file-progress-status {
+      opacity: 1;
+    }
   }
 
   .progress-file-name {
@@ -183,4 +187,17 @@
   .progress-file-cancel {
     color: var(--red);
   }
+}
+
+.progress-file-progress-status {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: var(--dur) opacity ease;
+  height: 1.25rem;
+  border-radius: 0.625rem;
+  padding: 0 0.5rem;
+  background-color: var(--dark-bg-1);
 }

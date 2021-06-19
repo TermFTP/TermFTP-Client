@@ -383,6 +383,17 @@ export class FileManagerUI extends Component<Props, State> {
           onDragLeave={this.onDragLeave}
           style={uiStyle}
         >
+          <div
+            id="file-manager-plus"
+            className={`${
+              this.state.plusOpen ? "file-manager-plus-opened" : ""
+            }`}
+          >
+            <button id="file-manager-plus-btn" onClick={this.onPlus}>
+              <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
+            </button>
+            <ContextMenu></ContextMenu>
+          </div>
           <HotKeys
             keyMap={this.keyMap}
             handlers={this.handlers}
@@ -407,17 +418,6 @@ export class FileManagerUI extends Component<Props, State> {
                       </div>
                     </div>
                   )}
-                </div>
-                <div
-                  id="file-manager-plus"
-                  className={`${
-                    this.state.plusOpen ? "file-manager-plus-opened" : ""
-                  }`}
-                >
-                  <button id="file-manager-plus-btn" onClick={this.onPlus}>
-                    <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
-                  </button>
-                  <ContextMenu></ContextMenu>
                 </div>
                 <ProgressTracker></ProgressTracker>
               </>
