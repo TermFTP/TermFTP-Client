@@ -196,8 +196,12 @@
   transform: translate(-50%, -50%);
   opacity: 0;
   transition: var(--dur) opacity ease;
-  height: 1.25rem;
+  height: 1.5rem;
+  font-size: 0.9em;
   border-radius: 0.625rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 0 0.5rem;
   background-color: var(--dark-bg-1);
 }
