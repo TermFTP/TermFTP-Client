@@ -327,6 +327,7 @@ export class ConnectUI extends Component<Props, State> {
                 placeholder="FTP Port"
                 value={ftpPort}
                 onChange={(e) => handleChange(e, Change.FTPPORT)}
+		disabled={this.props.ftpType === FTPConnectTypes.SFTP}
               />
             </div>
             <div className="connect-ssh-port" data-info="SSH Port">
