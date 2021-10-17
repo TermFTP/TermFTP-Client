@@ -14,6 +14,10 @@ export const initialState: FMState = {
 		searching: false,
 	},
 	progressFiles: new Map<string, ProgressFileI>(),
+	pathBox: {
+		focused: false,
+		pwd: ""
+	}
 };
 
 export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
@@ -102,6 +106,14 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
 			return {
 				...state,
 				progressFiles: new Map()
+			}
+		case FMActions.CHANGE_PATH_BOX:
+			return {
+				...state,
+				pathBox: {
+					...state.pathBox,
+					...action.payload
+				}
 			}
 		default:
 			return state;

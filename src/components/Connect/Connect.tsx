@@ -6,7 +6,7 @@ import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Lists } from "@components";
 import { setPrompt, setSettings } from "@store/app";
-import { BaseFTP, FTP, SFTP } from "@lib";
+import { BaseFTP, FTP, SFTP, parse } from "@lib";
 import {
   editServer,
   fetchGroups,
@@ -121,8 +121,14 @@ export class ConnectUI extends Component<Props, State> {
     this.setState({ mode: !this.state.mode });
   };
 
+  executeCommand = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const cmd = e.target.value.split(" ")[0];
+    const args = e.target.value.split(" ").slice(1);
+    parse(cmd, args);
+  };
+
   onConnect = (
-    e: MouseEvent<HTMLInputElement>,
+    e: React.MouseEvent<HTMLInputElement>,
     details: ConnectDetails = undefined
   ): void => {
     const { username, ip, password, ftpPort, sshPort } = details || this.state;
@@ -264,6 +270,8 @@ export class ConnectUI extends Component<Props, State> {
     const isEdited = Boolean(currentlyEdited);
     return (
       <div id="connect">
+        {/* SETTINGS */}
+
         <div className="connect-settings">
           <button
             className={`connect-switch ${mode ? "switched" : ""}`}
@@ -279,123 +287,134 @@ export class ConnectUI extends Component<Props, State> {
             <FontAwesomeIcon icon={faCog}></FontAwesomeIcon>
           </button>
         </div>
-        <div className="connect-gui">
-          <div className="connect-list-wrapper">
-            <Lists connect={onConnect}></Lists>
+
+        {/* GUI */}
+
+        {!this.state.mode && (
+          <div className="connect-gui">
+            <div className="connect-list-wrapper">
+              <Lists connect={onConnect}></Lists>
+            </div>
+            <form
+              className={`connect-form ${
+                this.props.ftpType === FTPConnectTypes.SFTP
+                  ? "connect-form-sftp"
+                  : ""
+              }`}
+              onSubmit={(e) => e.preventDefault()}
+            >
+              <div className="connect-type" data-info="type">
+                {Object.keys(FTPConnectTypes).map((k) => {
+                  const key = k as CKey;
+                  return (
+                    <label
+                      key={key}
+                      htmlFor={`t${key}`}
+                      data-txt={key}
+                      className={
+                        key == (this.props.ftpType as unknown as CKey)
+                          ? "connect-type-chosen"
+                          : ""
+                      }
+                      onClick={() => this.changeFTPType(FTPConnectTypes[key])}
+                    >
+                      <input type="radio" name="ftptype" id={`t${k}`} />
+                      {key}
+                    </label>
+                  );
+                })}
+              </div>
+              <span className="connect-ip" data-info="ip/domain">
+                <input
+                  type="text"
+                  placeholder="IP"
+                  value={ip}
+                  onChange={(e) => handleChange(e, Change.IP)}
+                  autoFocus
+                />
+              </span>
+              <div className="connect-ftp-port" data-info="FTP Port">
+                <input
+                  type="number"
+                  placeholder="FTP Port"
+                  value={ftpPort}
+                  onChange={(e) => handleChange(e, Change.FTPPORT)}
+                  disabled={this.props.ftpType === FTPConnectTypes.SFTP}
+                />
+              </div>
+              <div className="connect-ssh-port" data-info="SSH Port">
+                <input
+                  type="number"
+                  value={sshPort}
+                  onChange={(e) => handleChange(e, Change.SSHPORT)}
+                  placeholder="SSH Port"
+                />
+              </div>
+              <div className="connect-user" data-info="Username">
+                <input
+                  type="text"
+                  placeholder="anonymous"
+                  value={username}
+                  onChange={(e) => handleChange(e, Change.USERNAME)}
+                />
+              </div>
+              <div className="connect-pw" data-info="Password">
+                <input
+                  type="password"
+                  placeholder="anonymous"
+                  value={password}
+                  onChange={(e) => handleChange(e, Change.PASSWORD)}
+                />
+              </div>
+              <div className="connect-form-btn">
+                {!isEdited && (
+                  <>
+                    <input
+                      type="submit"
+                      value="Connect"
+                      onClick={onConnect}
+                      disabled={!canConnect}
+                    />
+                    <input
+                      type="submit"
+                      value="Save"
+                      onClick={onSave}
+                      disabled={!canConnect}
+                    />
+                    <input
+                      type="submit"
+                      value="Favourite"
+                      onClick={onFavourite}
+                      disabled={!canConnect}
+                    />
+                  </>
+                )}
+                {isEdited && (
+                  <>
+                    <input
+                      type="submit"
+                      value="Edit"
+                      onClick={this.onEdit}
+                      disabled={!canConnect}
+                    />
+                    <input
+                      type="submit"
+                      value="Cancel"
+                      onClick={this.onCancelEdit}
+                    />
+                  </>
+                )}
+              </div>
+            </form>
           </div>
-          <form
-            className={`connect-form ${
-              this.props.ftpType === FTPConnectTypes.SFTP
-                ? "connect-form-sftp"
-                : ""
-            }`}
-            onSubmit={(e) => e.preventDefault()}
-          >
-            <div className="connect-type" data-info="type">
-              {Object.keys(FTPConnectTypes).map((k) => {
-                const key = k as CKey;
-                return (
-                  <label
-                    key={key}
-                    htmlFor={`t${key}`}
-                    data-txt={key}
-                    className={
-                      key == (this.props.ftpType as unknown as CKey)
-                        ? "connect-type-chosen"
-                        : ""
-                    }
-                    onClick={() => this.changeFTPType(FTPConnectTypes[key])}
-                  >
-                    <input type="radio" name="ftptype" id={`t${k}`} />
-                    {key}
-                  </label>
-                );
-              })}
-            </div>
-            <span className="connect-ip" data-info="ip/domain">
-              <input
-                type="text"
-                placeholder="IP"
-                value={ip}
-                onChange={(e) => handleChange(e, Change.IP)}
-                autoFocus
-              />
-            </span>
-            <div className="connect-ftp-port" data-info="FTP Port">
-              <input
-                type="number"
-                placeholder="FTP Port"
-                value={ftpPort}
-                onChange={(e) => handleChange(e, Change.FTPPORT)}
-		disabled={this.props.ftpType === FTPConnectTypes.SFTP}
-              />
-            </div>
-            <div className="connect-ssh-port" data-info="SSH Port">
-              <input
-                type="number"
-                value={sshPort}
-                onChange={(e) => handleChange(e, Change.SSHPORT)}
-                placeholder="SSH Port"
-              />
-            </div>
-            <div className="connect-user" data-info="Username">
-              <input
-                type="text"
-                placeholder="anonymous"
-                value={username}
-                onChange={(e) => handleChange(e, Change.USERNAME)}
-              />
-            </div>
-            <div className="connect-pw" data-info="Password">
-              <input
-                type="password"
-                placeholder="anonymous"
-                value={password}
-                onChange={(e) => handleChange(e, Change.PASSWORD)}
-              />
-            </div>
-            <div className="connect-form-btn">
-              {!isEdited && (
-                <>
-                  <input
-                    type="submit"
-                    value="Connect"
-                    onClick={onConnect}
-                    disabled={!canConnect}
-                  />
-                  <input
-                    type="submit"
-                    value="Save"
-                    onClick={onSave}
-                    disabled={!canConnect}
-                  />
-                  <input
-                    type="submit"
-                    value="Favourite"
-                    onClick={onFavourite}
-                    disabled={!canConnect}
-                  />
-                </>
-              )}
-              {isEdited && (
-                <>
-                  <input
-                    type="submit"
-                    value="Edit"
-                    onClick={this.onEdit}
-                    disabled={!canConnect}
-                  />
-                  <input
-                    type="submit"
-                    value="Cancel"
-                    onClick={this.onCancelEdit}
-                  />
-                </>
-              )}
-            </div>
-          </form>
-        </div>
-        <div className="connect-cli"></div>
+        )}
+
+        {/* CLI */}
+        {this.state.mode && (
+          <div className="connect-cli">
+            <input className="krasse-cli" onChange={this.executeCommand} />
+          </div>
+        )}
       </div>
     );
   }

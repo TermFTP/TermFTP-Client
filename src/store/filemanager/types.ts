@@ -14,6 +14,11 @@ export interface SearchProps {
 	query?: string;
 }
 
+export interface PathBox {
+	pwd: string;
+	focused: boolean;
+}
+
 export enum FMActions {
 	SET_CONTEXT_MENU = "fm/set-context-menu",
 	SET_FM_LOADING = "fm/set-fm-loading",
@@ -23,7 +28,8 @@ export enum FMActions {
 	ADD_PROGRESS_FILES = "fm/add-progress-files",
 	UPDATE_PROGRESS_FILE = "fm/update-progress-file",
 	REMOVE_PROGRESS_FILES = "fm/remove-progress-files",
-	CLEAR_PROGRESS_FILES = "fm/clear-progress-files"
+	CLEAR_PROGRESS_FILES = "fm/clear-progress-files",
+	CHANGE_PATH_BOX = "fm/change-path-box"
 }
 
 
@@ -34,4 +40,5 @@ export interface FMState {
 	terminalHeight: number;
 	search: SearchProps;
 	progressFiles: Map<string, ProgressFileI>;
+	pathBox: PathBox;
 }
