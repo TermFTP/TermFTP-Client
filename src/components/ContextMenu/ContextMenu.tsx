@@ -207,7 +207,7 @@ const ContextMenuUI = ({
       }
       addProgressFiles(progressFiles);
       client.putFolders(res.filePaths);
-    } catch (err) {
+    } catch (err: any) {
       addBubble("upload-error", {
         title: "Could not upload folder",
         message: err.message,
@@ -236,7 +236,7 @@ const ContextMenuUI = ({
       }
       addProgressFiles(progressFiles);
       client.putFiles(res.filePaths);
-    } catch (err) {
+    } catch (err: any) {
       addBubble("upload-error", {
         title: "Could not upload file",
         message: err.message,

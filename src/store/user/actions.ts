@@ -37,7 +37,7 @@ export const register: UserThunk = (
 				type: UserActionTypes.REGISTER,
 				payload: json.data,
 			});
-		} catch (err) {
+		} catch (err: any) {
 			const e = await err;
 			dispatch(setLoading(false));
 			return dispatch(
@@ -78,7 +78,7 @@ export const login: UserThunk = (username: string, password: string) => {
 				type: UserActionTypes.LOGIN,
 				payload: json.data,
 			});
-		} catch (err) {
+		} catch (err: any) {
 			const e = await err;
 			dispatch(setLoading(false));
 			return dispatch(
