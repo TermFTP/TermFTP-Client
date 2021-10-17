@@ -7,7 +7,9 @@
     "strictNullChecks": false,
     "noImplicitAny": false,
     "esModuleInterop": true,
-    "target": "es5"
+    "target": "es5",
+    "noEmitOnError": false,
+    "skipLibCheck": true
   },
   "include": ["window"]
 }
