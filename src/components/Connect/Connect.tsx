@@ -1,4 +1,4 @@
-import React, { Component, MouseEvent } from "react";
+import React, { Component } from "react";
 import { DefaultDispatch, RootState } from "@store";
 import { connect, ConnectedProps } from "react-redux";
 import "./Connect.scss";
@@ -131,6 +131,8 @@ export class ConnectUI extends Component<Props, State> {
     e: React.MouseEvent<HTMLInputElement>,
     details: ConnectDetails = undefined
   ): void => {
+    e.preventDefault();
+    e.stopPropagation();
     const { username, ip, password, ftpPort, sshPort } = details || this.state;
     const { ftpType } = details || this.props;
     if (ftpType === FTPConnectTypes.FTP) {

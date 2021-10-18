@@ -14,7 +14,7 @@ export interface SearchProps {
 	query?: string;
 }
 
-export interface PathBox {
+export interface PathBoxData {
 	pwd: string;
 	focused: boolean;
 }
@@ -40,5 +40,5 @@ export interface FMState {
 	terminalHeight: number;
 	search: SearchProps;
 	progressFiles: Map<string, ProgressFileI>;
-	pathBox: PathBox;
+	pathBox: PathBoxData;
 }

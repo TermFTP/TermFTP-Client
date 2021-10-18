@@ -2,7 +2,7 @@ import { DefaultReturn } from "@models";
 import { ProgressFileI } from "@shared";
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { PathBox } from ".";
+import { PathBoxData } from ".";
 import { ContextMenuProps, FMState, FMActions, TerminalActions, SearchProps } from "./types";
 
 export type FTPThunk<ReturnType = void> = ActionCreator<
@@ -57,7 +57,7 @@ export const clearProgressFiles = (): Ret => ({
 	type: FMActions.CLEAR_PROGRESS_FILES,
 })
 
-export const changePathBox = (pathBox: PathBox): Ret => ({
+export const changePathBox = (pathBox: PathBoxData): Ret => ({
 	type: FMActions.CHANGE_PATH_BOX,
 	payload: pathBox
 })

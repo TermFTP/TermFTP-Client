@@ -15,9 +15,11 @@ import { DefaultDispatch, RootState } from "@store";
 import { addBubble, setSettings } from "@store/app";
 import {
   addProgressFiles,
+  changePathBox,
   clearProgressFiles,
   ContextMenuProps,
   doSearch,
+  PathBoxData,
   SearchProps,
   setContextMenu,
   setFMLoading,
@@ -37,10 +39,11 @@ import { Files } from "./Files";
 import { clearSelection, setFiles } from "@store/ftp";
 import { statSync } from "fs";
 import { basename } from "path";
+import PathBox from "./PathBox";
 
 const mapState = ({
   ftpReducer: { client },
-  fmReducer: { menu, loading, search, terminalOpen, terminalHeight },
+  fmReducer: { menu, loading, search, terminalOpen, terminalHeight, pathBox },
   router: { location },
 }: RootState) => ({
   client,
@@ -50,26 +53,25 @@ const mapState = ({
   search,
   terminalOpen,
   terminalHeight,
+  pathBox,
 });
 
-const mapDispatch = (dispatch: DefaultDispatch) => ({
-  historyItem: (req: HistoryReq) => dispatch(historyItem(req)),
-  openSettings: () => dispatch(setSettings(true)),
+const mapDispatch = (d: DefaultDispatch) => ({
+  historyItem: (req: HistoryReq) => d(historyItem(req)),
+  openSettings: () => d(setSettings(true)),
   setContextMenu: (contextMenu: ContextMenuProps) =>
-    dispatch(setContextMenu(contextMenu)),
-  addBubble: (key: string, bubble: BubbleModel) =>
-    dispatch(addBubble(key, bubble)),
-  setFMLoading: (loading: boolean) => dispatch(setFMLoading(loading)),
-  setFiles: (files: FileI[]) => dispatch(setFiles(files)),
-  replace: (p: string) => dispatch(replace(p)),
-  clearSelection: () => dispatch(clearSelection()),
-  doSearch: (search: SearchProps) => dispatch(doSearch(search)),
-  updateProgressFile: (file: ProgressFileI) =>
-    dispatch(updateProgressFile(file)),
-  addProgressFiles: (files: ProgressFileI[]) =>
-    dispatch(addProgressFiles(files)),
-  goBack: () => dispatch(goBack()),
-  clearProgressFiles: () => dispatch(clearProgressFiles()),
+    d(setContextMenu(contextMenu)),
+  addBubble: (key: string, bubble: BubbleModel) => d(addBubble(key, bubble)),
+  setFMLoading: (loading: boolean) => d(setFMLoading(loading)),
+  setFiles: (files: FileI[]) => d(setFiles(files)),
+  replace: (p: string) => d(replace(p)),
+  clearSelection: () => d(clearSelection()),
+  doSearch: (search: SearchProps) => d(doSearch(search)),
+  updateProgressFile: (file: ProgressFileI) => d(updateProgressFile(file)),
+  addProgressFiles: (files: ProgressFileI[]) => d(addProgressFiles(files)),
+  goBack: () => d(goBack()),
+  clearProgressFiles: () => d(clearProgressFiles()),
+  changePathBox: (pathBox: PathBoxData) => d(changePathBox(pathBox)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -80,7 +82,6 @@ type Props = PropsFromState;
 interface State {
   plusOpen: boolean;
   dragging: boolean;
-  pwd: string;
 }
 
 export class FileManagerUI extends Component<Props, State> {
@@ -92,7 +93,6 @@ export class FileManagerUI extends Component<Props, State> {
     this.state = {
       plusOpen: false,
       dragging: false,
-      pwd: undefined,
     };
     (window as any).refreshFTP = this.onConnected;
 
@@ -114,16 +114,6 @@ export class FileManagerUI extends Component<Props, State> {
   componentDidMount(): void {
     if (this.props.client) {
       this.props.client.connect(this.onChange);
-      // .catch((e: Error) => {
-      //   this.props.addBubble("connect-error", {
-      //     title: `failed to connect to ${
-      //       this.props.client.config.host || ""
-      //     }`,
-      //     type: "ERROR",
-      //     message: e.message,
-      //   });
-      //   this.props.push("/main");
-      // });
     }
   }
 
@@ -135,8 +125,8 @@ export class FileManagerUI extends Component<Props, State> {
       window.location.pathname.replace("/file-manager", "")
     );
     if (
-      this.state.pwd !== undefined &&
-      this.state.pwd != url &&
+      this.props.pathBox.pwd !== undefined &&
+      this.props.pathBox.pwd != url &&
       url != "/main" &&
       !this.props.loading
     ) {
@@ -160,7 +150,7 @@ export class FileManagerUI extends Component<Props, State> {
       case FTPResponseType.INIT: {
         const pwd = normalizeURL(res.data);
         this.props.replace(`/file-manager${pwd}`);
-        this.setState({ pwd: "" });
+        this.props.changePathBox({ focused: false, pwd: "" });
         break;
       }
       case FTPResponseType.LIST: {
@@ -168,7 +158,7 @@ export class FileManagerUI extends Component<Props, State> {
           normalizeURL(res.data.pwd) ||
           normalizeURL(await this.props.client.pwd());
         // this.props.push(`/file-manager${pwd}`);
-        this.setState({ pwd });
+        this.props.changePathBox({ focused: this.props.pathBox.focused, pwd });
         this.props.setFiles(res.data.files);
         this.props.setFMLoading(false);
         break;
@@ -179,8 +169,8 @@ export class FileManagerUI extends Component<Props, State> {
           type: "ERROR",
           message: res.data,
         });
-        if (!this.state.pwd) this.props.replace("/main");
-        else this.props.replace(`/file-manager${this.state.pwd}`);
+        if (!this.props.pathBox.pwd) this.props.replace("/main");
+        else this.props.replace(`/file-manager${this.props.pathBox.pwd}`);
         this.props.setFMLoading(false);
         break;
       }
@@ -358,7 +348,8 @@ export class FileManagerUI extends Component<Props, State> {
           >
             <FontAwesomeIcon icon={faSync}></FontAwesomeIcon>
           </button>
-          <div id="file-manager-pwd">{this.state.pwd}</div>
+          <PathBox></PathBox>
+          {/* <div id="file-manager-pwd">{this.props.pathBox.pwd}</div> */}
           <button
             className="file-manager-btn"
             onClick={this.props.openSettings}
