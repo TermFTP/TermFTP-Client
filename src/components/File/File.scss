@@ -23,11 +23,12 @@
 
 .file {
   border-radius: 10px;
-  height: var(--file-height);
+  min-height: var(--file-height);
   margin: 0.25em auto;
   color: white;
-  display: grid;
-  grid-template-columns: var(--file-height) auto 5em 6em;
+  display: flex;
+  // grid-template-columns: var(--file-height) auto 5em 6em;
+  flex-direction: row;
   align-items: center;
   gap: 5px;
   border: 1px solid transparent;
@@ -49,13 +50,20 @@
   }
 
   .file-name {
-    width: 100%;
+    width: calc(100% - var(--file-height) - 11em);
     text-align: left;
     user-select: text;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .file-size {
+    width: 6em;
   }
 
   .file-last {
     font-size: 0.8em;
+    width: 6em;
   }
 
   &.file-selected {
