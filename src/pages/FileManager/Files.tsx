@@ -66,7 +66,7 @@ export const Files = (): JSX.Element => {
     <>
       <div className="file-wrapper">
         <div className="file">
-          <div className="file-type"></div>
+          <div className="file-icon"></div>
           <div className="file-name">Name</div>
           <div className="file-size">Size</div>
           <div className="file-last">Last Modified</div>
