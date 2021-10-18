@@ -1,10 +1,11 @@
+import { doSearch } from "@store/filemanager";
 import React, { useRef } from "react";
+import { useDispatch } from "react-redux";
 import "./SearchBox.scss";
 
 export interface SearchProps {
   // value: string;
   // onKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setSearching: (searching: boolean) => void;
   searching: boolean;
 }
@@ -13,11 +14,10 @@ const handleFocus = (event: React.FocusEvent<HTMLInputElement>) =>
   event.target.select();
 
 export function SearchBox({
-  // value,
   setSearching,
-  onSearch,
   searching,
 }: SearchProps): JSX.Element {
+  const dispatch = useDispatch();
   const ref = useRef<HTMLInputElement>(undefined);
   // const [listening, setListening] = useState<boolean>(false);
   const onKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -26,6 +26,13 @@ export function SearchBox({
       if (ref.current) ref.current.value = "";
     }
   };
+  const onSearch = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    // put matches in store
+    // if no matches, show nothing
+    // on search-box close: show all again
+    dispatch(doSearch({ searching: true, query: event.target.value }));
+  };
+
   if (searching) {
     ref.current?.focus();
   } else {

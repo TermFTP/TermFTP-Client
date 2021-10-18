@@ -6,7 +6,7 @@ import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Lists } from "@components";
 import { setPrompt, setSettings } from "@store/app";
-import { BaseFTP, FTP, SFTP, parse } from "@lib";
+import { BaseFTP, FTP, SFTP, parseCommand } from "@lib";
 import {
   editServer,
   fetchGroups,
@@ -56,6 +56,7 @@ interface State {
   password: string;
   canConnect: boolean;
   serverID: string;
+  cmdHistory: string[];
 }
 
 enum Change {
@@ -78,6 +79,7 @@ export class ConnectUI extends Component<Props, State> {
       canConnect: false,
       sshPort: 22,
       serverID: undefined,
+      cmdHistory: [],
     };
   }
   componentDidMount(): void {
@@ -124,7 +126,9 @@ export class ConnectUI extends Component<Props, State> {
   executeCommand = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const cmd = e.target.value.split(" ")[0];
     const args = e.target.value.split(" ").slice(1);
-    parse(cmd, args);
+    if (parseCommand(cmd, args)) {
+      this.setState({ cmdHistory: [...this.state.cmdHistory, e.target.value] });
+    }
   };
 
   onConnect = (

@@ -99,6 +99,7 @@ export class FileManagerUI extends Component<Props, State> {
     this.keyMap = {
       SEARCH: "ctrl+f",
       RELOAD: "F5",
+      PATH: "ctrl+l",
     };
 
     this.handlers = {
@@ -108,6 +109,9 @@ export class FileManagerUI extends Component<Props, State> {
       RELOAD: () => {
         this.props.setFMLoading(true);
         this.props.client.list();
+      },
+      PATH: () => {
+        this.props.changePathBox({ focused: true });
       },
     };
   }
@@ -150,7 +154,7 @@ export class FileManagerUI extends Component<Props, State> {
       case FTPResponseType.INIT: {
         const pwd = normalizeURL(res.data);
         this.props.replace(`/file-manager${pwd}`);
-        this.props.changePathBox({ focused: false, pwd: "" });
+        this.props.changePathBox({ pwd: "" });
         break;
       }
       case FTPResponseType.LIST: {
@@ -158,7 +162,7 @@ export class FileManagerUI extends Component<Props, State> {
           normalizeURL(res.data.pwd) ||
           normalizeURL(await this.props.client.pwd());
         // this.props.push(`/file-manager${pwd}`);
-        this.props.changePathBox({ focused: this.props.pathBox.focused, pwd });
+        this.props.changePathBox({ pwd });
         this.props.setFiles(res.data.files);
         this.props.setFMLoading(false);
         break;
@@ -303,15 +307,6 @@ export class FileManagerUI extends Component<Props, State> {
     this.props.client.putFiles(files);
   };
 
-  onSearch = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const query = event.target.value;
-
-    // put matches in store
-    // if no matches, show nothing
-    // on search-box close: show all again
-    this.props.doSearch({ searching: true, query });
-  };
-
   onFilesClick = (ev: React.MouseEvent<HTMLDivElement>): void => {
     if (!this.props.menu.isOpen) {
       ev.stopPropagation();
@@ -331,7 +326,6 @@ export class FileManagerUI extends Component<Props, State> {
     return (
       <div id="file-manager">
         <SearchBox
-          onSearch={this.onSearch}
           searching={this.props.search.searching}
           setSearching={(s) => this.props.doSearch({ searching: s })}
         />

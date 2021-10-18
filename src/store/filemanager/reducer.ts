@@ -15,8 +15,8 @@ export const initialState: FMState = {
 	},
 	progressFiles: new Map<string, ProgressFileI>(),
 	pathBox: {
-		focused: false,
-		pwd: ""
+		pwd: "",
+		focused: false
 	}
 };
 

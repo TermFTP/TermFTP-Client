@@ -1,13 +1,30 @@
 import { Command } from '@models';
+import { BaseFTP, FTP, SFTP } from "@lib";
 
-export function parse(cmd: string, args: string[]): boolean {
-
+export function parseCommand(cmd: string, args: string[]): boolean {
 	switch (findCmd(cmd)) {
-		case Command.CONNECT:
+		case Command.CONNECT: {
 
-			//TODO
+			if (args.length < 2) {
+				return false;
+			}
+
+			const ip = args[0];
+			const port = parseInt(args[1]) || 21;
+
+			const ftp = new FTP({
+				host: ip,
+				port: port,
+				sshPort: 22,
+			});
+
+			ftp.connect((data) => {
+				console.log(data)
+			});
+
 
 			break;
+		}
 
 		// TODO ...
 	}
@@ -15,10 +32,15 @@ export function parse(cmd: string, args: string[]): boolean {
 	return true;
 }
 
+const keys = Object.keys(Command);
+const values = Object.values(Command);
+
 function findCmd(cmd: string): Command {
-	for (const c in Command) {
+	for (let i = 0; i < keys.length; i++) {
+		const c = keys[i];
+
 		if (c.toUpperCase() == cmd.toUpperCase())
-			return c as Command;
+			return values[i] as Command;
 	}
 	return null;
 }

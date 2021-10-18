@@ -15,8 +15,8 @@ export interface SearchProps {
 }
 
 export interface PathBoxData {
-	pwd: string;
-	focused: boolean;
+	pwd?: string;
+	focused?: boolean;
 }
 
 export enum FMActions {

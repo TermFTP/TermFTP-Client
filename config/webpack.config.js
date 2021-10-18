@@ -286,6 +286,7 @@ module.exports = function (webpackEnv) {
                   annotation: true,
                 }
               : false,
+            autoprefixer: { disable: true },
           },
           cssProcessorPluginOptions: {
             preset: ["default", { minifyFontValues: { removeQuotes: false } }],
