@@ -3,6 +3,14 @@
   max-width: 65em;
   margin: 0 auto;
   width: 100%;
+  user-select: none;
+
+  // header
+  &:first-child {
+    position: sticky;
+    top: 0;
+    background: inherit;
+  }
 
   &:last-child {
     border: none;
@@ -18,7 +26,6 @@
       background: rgba(23, 125, 155, 80%);
     }
   }
-  user-select: none;
 }
 
 .file {
