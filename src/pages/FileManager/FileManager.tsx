@@ -128,6 +128,10 @@ export class FileManagerUI extends Component<Props, State> {
     const url = normalizeURL(
       window.location.pathname.replace("/file-manager", "")
     );
+    if (!this.props.client) {
+      this.props.replace("/main");
+      return;
+    }
     if (
       this.props.pathBox.pwd !== undefined &&
       this.props.pathBox.pwd != url &&
