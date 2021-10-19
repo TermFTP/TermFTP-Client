@@ -41,12 +41,18 @@
   flex-direction: row;
   align-items: center;
   height: var(--top-height);
-  gap: 10px;
+  gap: 5px;
 
   .file-manager-btn {
-    --s: calc(var(--top-height) * 0.7);
-    height: var(--s);
-    width: var(--s);
+    --size: calc(var(--top-height) - 10px * 2);
+    font-size: inherit;
+    height: var(--size);
+    width: var(--size);
+    background: inherit;
+
+    &:hover {
+      background: var(--dark-bg-2);
+    }
   }
 }
 
@@ -147,7 +153,7 @@
       font-size: 1.25rem;
 
       &:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--dark-bg-2);
       }
 
       &:focus {
