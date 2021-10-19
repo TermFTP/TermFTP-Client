@@ -183,7 +183,7 @@ export class FTP {
 		return files
 			.map((v) => ({
 				type: this.convertFileType(v.type),
-				date: v.modifiedAt,
+				date: v.modifiedAt || "N/A",
 				name: v.name,
 				size: v.size,
 			} as FileI))

@@ -201,7 +201,9 @@ function FileUI({
         <FileIcon file={file}></FileIcon>
         <div className="file-name">{file.name}</div>
         <div className="file-size">{convertFileSize(file.size)}</div>
-        <div className="file-last">{file.date?.toLocaleString()}</div>
+        <div className="file-last">
+          {isNaN(file.date?.getTime()) ? "N/A" : file.date.toLocaleString()}
+        </div>
       </div>
     </div>
   );

@@ -50,7 +50,7 @@
   }
 
   .file-name {
-    width: calc(100% - var(--file-height) - 11em);
+    width: calc(100% - var(--file-height) - 11em + 5px * 3);
     text-align: left;
     user-select: text;
     text-overflow: ellipsis;
