@@ -1,25 +1,31 @@
 import File from "@components/File/File";
 import { normalizeURL } from "@lib";
-import { FileType } from "@shared";
+import { FileType, FromTo } from "@shared";
 import { RootState } from "@store";
 import { addBubble, setPrompt } from "@store/app";
-import { toggleContextMenu } from "@store/filemanager";
+import {
+  clearPasteBuffer,
+  setPasteBuffer,
+  toggleContextMenu,
+} from "@store/filemanager";
 import { clearSelection } from "@store/ftp";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export const Files = (): JSX.Element => {
-  const { files, selected, client } = useSelector(
+  const { files, selected, client, pasteBuffer } = useSelector(
     ({
       ftpReducer: {
         files,
         selection: { selected },
         client,
       },
+      fmReducer: { pasteBuffer },
     }: RootState) => ({
       files,
       selected,
       client,
+      pasteBuffer,
     })
   );
   const pwd = normalizeURL(
@@ -36,50 +42,116 @@ export const Files = (): JSX.Element => {
       // check if element is either input, editable or a not a file
       if (el.tagName === "input" || el.isContentEditable) return;
     }
-    if (e.key === "Backspace" || e.key === "Delete") {
-      e?.preventDefault();
-      e?.stopPropagation();
-      const files = [];
-      for (const f of selected) {
-        if (f.type === FileType.DIR) {
-          client.rmdir(f.name);
+    if (e.ctrlKey) {
+      const k = e.key.toLowerCase();
+      if (k === "c") {
+        e?.preventDefault();
+        e?.stopPropagation();
+        dispatch(
+          setPasteBuffer({
+            dir: pwd,
+            files: selected,
+            type: "copy",
+          })
+        );
+      } else if (k === "x") {
+        e?.preventDefault();
+        e?.stopPropagation();
+        dispatch(
+          setPasteBuffer({
+            dir: pwd,
+            files: selected,
+            type: "cut",
+          })
+        );
+      } else if (k === "v") {
+        e?.preventDefault();
+        e?.stopPropagation();
+        if (!pasteBuffer) {
+          dispatch(
+            addBubble("paste:warning", {
+              title: "Nothing to paste",
+              type: "WARNING",
+            })
+          );
+          return;
+        }
+        if (pasteBuffer.type === "copy") {
+          // TODO copy-paste
+          const dir = normalizeURL(pasteBuffer.dir);
+          const folders: FromTo[] = [];
+          const files: FromTo[] = [];
+          for (const f of pasteBuffer.files) {
+            if (f.type === FileType.DIR) {
+              folders.push({
+                from: `${dir}/${f.name}`,
+                to: `${pwd}/${f.name}`,
+              });
+            } else if (f.type === FileType.FILE) {
+              folders.push({
+                from: `${dir}/${f.name}`,
+                to: `${pwd}/${f.name}`,
+              });
+            }
+          }
+          client.copyFiles(files);
+          client.copyFolders(folders);
         } else {
-          files.push(f.name);
+          const dir = normalizeURL(pasteBuffer.dir);
+          for (const f of pasteBuffer.files) {
+            client.rename(`${dir}/${f.name}`, `${pwd}/${f.name}`);
+          }
+          dispatch(clearPasteBuffer());
         }
       }
-      client.deleteFiles(files);
-      dispatch(clearSelection());
-    } else if (e.key === "F2") {
-      e?.preventDefault();
-      e?.stopPropagation();
-      if (selected.size === 0) {
-        dispatch(
-          addBubble("files:rename", {
-            title: "No file to rename",
-            type: "WARNING",
-          })
-        );
-      } else if (selected.size > 1) {
-        dispatch(
-          addBubble("files:rename", {
-            title: "Can't rename multiple files",
-            type: "WARNING",
-          })
-        );
-      } else {
-        const filename = selected.values().next().value.name;
-        dispatch(
-          setPrompt({
-            fieldName: "file name",
-            initial: filename,
-            callback: (val) => {
-              client.rename(filename, val);
-            },
-          })
-        );
+    } else {
+      if (e.key === "Backspace" || e.key === "Delete") {
+        e?.preventDefault();
+        e?.stopPropagation();
+        const files = [];
+        for (const f of selected) {
+          if (f.type === FileType.DIR) {
+            client.rmdir(f.name);
+          } else {
+            files.push(f.name);
+          }
+        }
+        client.deleteFiles(files);
+        dispatch(clearSelection());
+      } else if (e.key === "F2") {
+        e?.preventDefault();
+        e?.stopPropagation();
+        if (selected.size === 0) {
+          dispatch(
+            addBubble("files:rename", {
+              title: "No file to rename",
+              type: "WARNING",
+            })
+          );
+        } else if (selected.size > 1) {
+          dispatch(
+            addBubble("files:rename", {
+              title: "Can't rename multiple files",
+              type: "WARNING",
+            })
+          );
+        } else {
+          const filename = selected.values().next().value.name;
+          dispatch(
+            setPrompt({
+              fieldName: "file name",
+              initial: filename,
+              callback: (val) => {
+                client.rename(filename, val);
+              },
+            })
+          );
+        }
+      } else if (e.key.toLowerCase() === "c") {
+        e?.preventDefault();
+        e?.stopPropagation();
+        dispatch(toggleContextMenu());
       }
-    } else if (e.key.toLowerCase() === "c") {
-      dispatch(toggleContextMenu());
     }
   };
   useEffect(() => {

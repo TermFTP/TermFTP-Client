@@ -1,5 +1,5 @@
 // import Client from "ftp";
-import { FileI, FTPRequest, FTPRequestType, FTPResponse, FTPResponseType } from "@shared";
+import { FileI, FromTo, FTPRequest, FTPRequestType, FTPResponse, FTPResponseType } from "@shared";
 import { BaseFTP, FTPConfig } from "./BaseFTP";
 import Client from "socket.io-client";
 
@@ -217,6 +217,20 @@ export class FTP extends BaseFTP {
 				folders,
 				basePath
 			}
+		})
+	}
+
+	copyFolders(folders: FromTo[]): void {
+		this.emit({
+			type: ReqT.COPY_FOLDERS,
+			data: { folders }
+		})
+	}
+
+	copyFiles(files: FromTo[]): void {
+		this.emit({
+			type: ReqT.COPY_FILES,
+			data: { files }
 		})
 	}
 

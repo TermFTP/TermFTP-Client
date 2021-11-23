@@ -398,6 +398,7 @@ export class FileManagerUI extends Component<Props, State> {
                   )}
                 </div>
                 <ProgressTracker></ProgressTracker>
+                {/* TODO display paste buffer for copying and cutting */}
               </>
             )}
           </HotKeys>

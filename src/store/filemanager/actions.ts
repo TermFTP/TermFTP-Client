@@ -2,7 +2,7 @@ import { DefaultReturn } from "@models";
 import { ProgressFileI } from "@shared";
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { PathBoxData } from ".";
+import { PasteBuffer, PathBoxData } from ".";
 import { ContextMenuProps, FMState, FMActions, TerminalActions, SearchProps } from "./types";
 
 export type FTPThunk<ReturnType = void> = ActionCreator<
@@ -65,3 +65,10 @@ export const changePathBox = (pathBox: PathBoxData): Ret => ({
 	type: FMActions.CHANGE_PATH_BOX,
 	payload: pathBox
 })
+
+export const setPasteBuffer = (buffer: PasteBuffer): Ret => ({
+	type: FMActions.SET_PASTE_BUFFER,
+	payload: buffer
+})
+
+export const clearPasteBuffer = (): Ret => setPasteBuffer(undefined)

@@ -1,4 +1,4 @@
-import { FileI, FTPResponse } from "../shared/models";
+import { FileI, FTPResponse, FromTo } from "../shared";
 import { AccessOptions } from "basic-ftp";
 import { Socket } from "socket.io-client";
 
@@ -34,6 +34,8 @@ export abstract class BaseFTP {
 	abstract rename(oldPath: string, newPath: string): void;
 	abstract putFolders(folders: string[], basePath?: string): void;
 	abstract putFiles(files: string[], basePath?: string): void;
+	abstract copyFiles(files: FromTo[]): void;
+	abstract copyFolders(folders: FromTo[]): void;
 
 	abstract get connected(): boolean;
 	abstract get config(): FTPConfig;
