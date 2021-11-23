@@ -4,3 +4,8 @@ export enum Command {
 	UPLOAD = "upload",
 	DOWNLOAD = "download",
 }
+
+export interface CommandResult {
+  command: Command,
+  data: any,
+}

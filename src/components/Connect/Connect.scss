@@ -80,6 +80,13 @@
   }
 }
 
+.connect-cli {
+  width: 100%;
+  .krasse-cli {
+    width: 80%;
+  }
+}
+
 .connect-gui {
   display: flex;
   flex-direction: row;

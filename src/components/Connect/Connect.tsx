@@ -19,6 +19,7 @@ import { PromptProps } from "@components/Prompt/Prompt";
 import { goToFTPClient, setFTPType } from "@store/ftp";
 import { FTPConnectTypes } from "@shared";
 import { push } from "connected-react-router";
+import internal from "stream";
 
 type CKey = keyof typeof FTPConnectTypes;
 
@@ -57,6 +58,7 @@ interface State {
   canConnect: boolean;
   serverID: string;
   cmdHistory: string[];
+  cmdHistoryIndex: number;
 }
 
 enum Change {
@@ -80,6 +82,7 @@ export class ConnectUI extends Component<Props, State> {
       sshPort: 22,
       serverID: undefined,
       cmdHistory: [],
+      cmdHistoryIndex: 0,
     };
   }
   componentDidMount(): void {
@@ -123,13 +126,46 @@ export class ConnectUI extends Component<Props, State> {
     this.setState({ mode: !this.state.mode });
   };
 
-  executeCommand = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const cmd = e.target.value.split(" ")[0];
-    const args = e.target.value.split(" ").slice(1);
-    if (parseCommand(cmd, args)) {
-      this.setState({ cmdHistory: [...this.state.cmdHistory, e.target.value] });
+  executeCommand = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+
+    const elem = e.target as HTMLInputElement;
+
+    if(e.key === "ArrowUp") {
+      e.preventDefault();
+      
+      let itemId = this.state.cmdHistoryIndex + 1;
+      if(this.state.cmdHistory[this.state.cmdHistory.length - itemId]) {
+        (document.getElementById("krasse-cli") as HTMLInputElement).value = this.state.cmdHistory[this.state.cmdHistory.length - itemId];
+        this.setState({cmdHistoryIndex: itemId});
+      }
+
+    } else if(e.key === "ArrowDown") {
+      e.preventDefault();
+
+      let itemId = this.state.cmdHistoryIndex - 1;
+      if(this.state.cmdHistory[this.state.cmdHistory.length - itemId]) {
+        (document.getElementById("krasse-cli") as HTMLInputElement).value = this.state.cmdHistory[this.state.cmdHistory.length - itemId];
+        this.setState({cmdHistoryIndex: itemId});
+      }
+
+    } else if(e.key === "Enter") {
+
+      const cmd = elem.value.split(" ")[0];
+      const args = elem.value.split(" ").slice(1);
+      console.log(cmd, args)
+
+      try {
+        const result = parseCommand(cmd, args);
+
+        this.setState({ cmdHistory: [...this.state.cmdHistory, elem.value] });
+        console.log("works")
+        this.doConnect(result.data);
+        
+      } catch(e) {/**/}
+
     }
   };
+
 
   onConnect = (
     e: React.MouseEvent<HTMLInputElement>,
@@ -137,6 +173,10 @@ export class ConnectUI extends Component<Props, State> {
   ): void => {
     e.preventDefault();
     e.stopPropagation();
+    this.doConnect(details);
+  };
+
+  doConnect = (details: ConnectDetails = undefined): void => {
     const { username, ip, password, ftpPort, sshPort } = details || this.state;
     const { ftpType } = details || this.props;
     if (ftpType === FTPConnectTypes.FTP) {
@@ -170,7 +210,7 @@ export class ConnectUI extends Component<Props, State> {
         })
       );
     }
-  };
+  }
 
   onSave = (): void => {
     const { ip, username, ftpPort, password, sshPort } = this.state;
@@ -418,7 +458,7 @@ export class ConnectUI extends Component<Props, State> {
         {/* CLI */}
         {this.state.mode && (
           <div className="connect-cli">
-            <input className="krasse-cli" onChange={this.executeCommand} />
+            <input id="krasse-cli" className="krasse-cli" onKeyUp={this.executeCommand}/>
           </div>
         )}
       </div>
