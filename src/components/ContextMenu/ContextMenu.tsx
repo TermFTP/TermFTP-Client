@@ -168,7 +168,6 @@ const ContextMenuUI = ({
     };
   }
   const click = (e: MouseEvent) => {
-    // TODO also listen to escape
     if (isOpen && !(e.target as HTMLButtonElement).id.includes("plus")) {
       setContextMenu({ isOpen: false });
     }

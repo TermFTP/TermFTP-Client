@@ -266,9 +266,7 @@ export class FTP {
 	}
 
 	async getFolders(folders: FileI[], localFolder: string): Promise<void> {
-		// TODO implement preemptive file tree (fetch everything from the beginning)
 		await Promise.all(folders.map(f => this._getFolder(f, localFolder)));
-		// await c.downloadToDir(localFolder, remoteFolder); // this apparently does not work
 	}
 
 	private async _getFolder(file: FileI, path: string): Promise<void> {
