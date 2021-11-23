@@ -1,4 +1,4 @@
-import { ProgressFileI } from "@shared";
+import { FileI, ProgressFileI } from "@shared";
 
 export type TerminalActions = "OPEN" | "CLOSE" | "TOGGLE";
 
@@ -18,6 +18,12 @@ export interface PathBoxData {
 	focused?: boolean;
 }
 
+export interface PasteBuffer {
+	type: "copy" | "cut",
+	dir: string;
+	files: Set<FileI>;
+}
+
 export enum FMActions {
 	SET_CONTEXT_MENU = "fm/set-context-menu",
 	SET_FM_LOADING = "fm/set-fm-loading",
@@ -29,7 +35,8 @@ export enum FMActions {
 	REMOVE_PROGRESS_FILES = "fm/remove-progress-files",
 	CLEAR_PROGRESS_FILES = "fm/clear-progress-files",
 	CHANGE_PATH_BOX = "fm/change-path-box",
-	TOGGLE_CONTEXT_MENU = "fm/toggle-context-menu"
+	TOGGLE_CONTEXT_MENU = "fm/toggle-context-menu",
+	SET_PASTE_BUFFER = "fm/create-paste-buffer",
 }
 
 
@@ -41,4 +48,5 @@ export interface FMState {
 	search: SearchProps;
 	progressFiles: Map<string, ProgressFileI>;
 	pathBox: PathBoxData;
+	pasteBuffer?: PasteBuffer;
 }

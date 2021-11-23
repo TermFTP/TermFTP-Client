@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { ClientEvents, ServerEvents, FileI, FileType, FTPResponse, FTPResponseType, FTPRequestType, ProgressType } from "../../src/shared";
+import { ClientEvents, ServerEvents, FileI, FileType, FTPResponse, FTPResponseType, FTPRequestType, ProgressType, FromTo } from "../../src/shared";
 import { FileType as BasicType, Client, FileInfo } from "basic-ftp";
 import { FTPConfig } from "../../src/lib/BaseFTP";
 import PQueue from "p-queue";
@@ -82,11 +82,18 @@ export const FTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => async 
 					await ftp.putFolders(req.data.folders, req.data.basePath);
 					ftpReadDir(socket, ftp)
 					break;
+				case Req.COPY_FOLDERS:
+					await ftp.copyFolders(req.data.folders);
+					ftpReadDir(socket, ftp);
+					break;
+				case Req.COPY_FILES:
+					await ftp.copyFiles(req.data.files);
+					ftpReadDir(socket, ftp);
+					break;
 				default:
 					return;
 			}
 		} catch (e) {
-			// console.log(e)
 			ftpErr(socket, e);
 		}
 	})
@@ -369,6 +376,34 @@ export class FTP {
 		await Promise.all(
 			folders.map((f) => this.putFolder(f, (basePath ? basePath + "/" : "") + basename(f)))
 		);
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async copy(fromTo: FromTo): Promise<void> {
+		const c = await this.pool.acquire();
+		await c.access(this.config);
+		// await c.uploadFrom(fromTo.from, fromTo.to);
+		// TODO implement manual copying like detailed in this SO post
+		// https://stackoverflow.com/a/32625670/13156660
+		await this.pool.release(c);
+	}
+
+	async copyFiles(files: FromTo[]): Promise<void> {
+		await Promise.all(files.map(this.copy.bind(this)))
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async copyFolder(fromTo: FromTo): Promise<void> {
+		const c = await this.pool.acquire();
+		await c.access(this.config);
+		// await c.uploadFromDir(fromTo.from, fromTo.to);
+		// TODO implement manual copying like detailed in this SO post
+		// https://stackoverflow.com/a/32625670/13156660
+		await this.pool.release(c);
+	}
+
+	async copyFolders(folders: FromTo[]): Promise<void> {
+		await Promise.all(folders.map(this.copyFolder.bind(this)));
 	}
 
 	get connected(): boolean { return !this.client.closed }
