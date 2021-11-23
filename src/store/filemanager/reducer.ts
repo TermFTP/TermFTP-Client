@@ -30,6 +30,16 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
 					...action.payload,
 				},
 			};
+		case FMActions.TOGGLE_CONTEXT_MENU:
+			return {
+				...state,
+				menu: {
+					...state.menu,
+					isOpen: !state.menu.isOpen,
+					x: undefined,
+					y: undefined
+				}
+			}
 		case FMActions.SET_FM_LOADING:
 			return {
 				...state,

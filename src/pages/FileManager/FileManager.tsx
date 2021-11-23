@@ -199,7 +199,6 @@ export class FileManagerUI extends Component<Props, State> {
       });
     } else {
       this.props.setContextMenu({
-        file: undefined,
         x: undefined,
         y: undefined,
         isOpen: true,
@@ -214,7 +213,6 @@ export class FileManagerUI extends Component<Props, State> {
       isOpen: true,
       x: e.clientX,
       y: e.clientY,
-      file: undefined,
     });
   };
 

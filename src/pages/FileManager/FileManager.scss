@@ -189,7 +189,7 @@
   z-index: 5;
 
   #file-manager-plus-btn {
-    box-shadow: 2px 2px 10px 2px black;
+    box-shadow: 2px 2px 10px 2px rgba(0, 0, 0, 0.5);
     height: var(--plus-height);
     width: var(--plus-height);
     display: grid;
@@ -211,15 +211,13 @@
     }
   }
 
-  &.file-manager-plus-opened {
-    #file-manager-plus-btn {
-      box-shadow: none;
-      svg {
-        animation: opened var(--dur) ease forwards;
-      }
-      color: var(--red);
-      border-radius: 0 0 50% 50%;
+  &.file-manager-plus-opened #file-manager-plus-btn {
+    svg {
+      animation: opened var(--dur) ease forwards;
     }
+    color: var(--red);
+    border-radius: 0 0 50% 50%;
+    box-shadow: none;
   }
 
   &.file-manager-plus-floating #file-manager-plus-btn {
