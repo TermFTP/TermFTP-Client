@@ -57,8 +57,6 @@ interface State {
   password: string;
   canConnect: boolean;
   serverID: string;
-  cmdHistory: string[];
-  cmdHistoryIndex: number;
 }
 
 enum Change {
@@ -81,8 +79,6 @@ export class ConnectUI extends Component<Props, State> {
       canConnect: false,
       sshPort: 22,
       serverID: undefined,
-      cmdHistory: [],
-      cmdHistoryIndex: 0,
     };
   }
   componentDidMount(): void {
@@ -125,47 +121,6 @@ export class ConnectUI extends Component<Props, State> {
   changeMode = (): void => {
     this.setState({ mode: !this.state.mode });
   };
-
-  executeCommand = (e: React.KeyboardEvent<HTMLInputElement>): void => {
-
-    const elem = e.target as HTMLInputElement;
-
-    if(e.key === "ArrowUp") {
-      e.preventDefault();
-      
-      let itemId = this.state.cmdHistoryIndex + 1;
-      if(this.state.cmdHistory[this.state.cmdHistory.length - itemId]) {
-        (document.getElementById("krasse-cli") as HTMLInputElement).value = this.state.cmdHistory[this.state.cmdHistory.length - itemId];
-        this.setState({cmdHistoryIndex: itemId});
-      }
-
-    } else if(e.key === "ArrowDown") {
-      e.preventDefault();
-
-      let itemId = this.state.cmdHistoryIndex - 1;
-      if(this.state.cmdHistory[this.state.cmdHistory.length - itemId]) {
-        (document.getElementById("krasse-cli") as HTMLInputElement).value = this.state.cmdHistory[this.state.cmdHistory.length - itemId];
-        this.setState({cmdHistoryIndex: itemId});
-      }
-
-    } else if(e.key === "Enter") {
-
-      const cmd = elem.value.split(" ")[0];
-      const args = elem.value.split(" ").slice(1);
-      console.log(cmd, args)
-
-      try {
-        const result = parseCommand(cmd, args);
-
-        this.setState({ cmdHistory: [...this.state.cmdHistory, elem.value] });
-        console.log("works")
-        this.doConnect(result.data);
-        
-      } catch(e) {/**/}
-
-    }
-  };
-
 
   onConnect = (
     e: React.MouseEvent<HTMLInputElement>,

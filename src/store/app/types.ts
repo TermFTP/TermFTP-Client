@@ -1,4 +1,5 @@
 import { PromptProps } from "@components";
+import { OkbarProps } from "@components/Okbar/Okbar";
 import { BubbleModel } from "@models";
 
 export enum AppActionTypes {
@@ -7,7 +8,8 @@ export enum AppActionTypes {
   SET_SETTINGS = "app/set-settings",
   ADD_BUBBLE = "app/add-bubble",
   REMOVE_BUBBLE = "app/remove-bubble",
-  SET_AUTO_LOGGED_IN = "app/set-auto-logged-in"
+  SET_AUTO_LOGGED_IN = "app/set-auto-logged-in",
+  SET_OKBAR = "app/set-okbar"
 }
 
 export interface AppState {
@@ -18,4 +20,5 @@ export interface AppState {
   settingsOpen: boolean;
   prompt: PromptProps;
   autoLoggedIn: boolean;
+  okbar: OkbarProps;
 }

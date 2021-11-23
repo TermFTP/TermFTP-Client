@@ -9,7 +9,8 @@ export const initialState: AppState = {
   },
   settingsOpen: false,
   prompt: undefined,
-  autoLoggedIn: false
+  autoLoggedIn: false,
+  okbar: undefined,
 };
 
 export const appReducer: Reducer<AppState> = (state = initialState, action) => {
@@ -28,6 +29,12 @@ export const appReducer: Reducer<AppState> = (state = initialState, action) => {
         ...state,
         prompt: action.payload,
       };
+    }
+    case AppActionTypes.SET_OKBAR: {
+      return {
+        ...state,
+        okbar: action.payload,
+      } 
     }
     case AppActionTypes.SET_SETTINGS: {
       return {
