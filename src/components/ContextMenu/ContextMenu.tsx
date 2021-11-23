@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import "./ContextMenu.scss";
 import { DefaultDispatch, RootState } from "@store";
 import { connect, ConnectedProps } from "react-redux";
@@ -51,7 +51,7 @@ type PropsFromState = ConnectedProps<typeof connector>;
 type Props = PropsFromState;
 
 const ContextMenuUI = ({
-  menu: { x, y, file, isOpen },
+  menu: { x, y, isOpen },
   client,
   setContextMenu,
   setPrompt,
@@ -80,6 +80,7 @@ const ContextMenuUI = ({
       icon: faFolderPlus,
     },
   ];
+  const file = selected.values().next().value;
   if (selected.size > 1) {
     items = [
       ...items,

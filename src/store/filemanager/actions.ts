@@ -18,6 +18,10 @@ export const setContextMenu = (menu: ContextMenuProps): Ret => ({
 	payload: menu,
 });
 
+export const toggleContextMenu = (): Ret => ({
+	type: FMActions.TOGGLE_CONTEXT_MENU,
+})
+
 export const setFMLoading = (loading: boolean): Ret => ({
 	type: FMActions.SET_FM_LOADING,
 	payload: loading

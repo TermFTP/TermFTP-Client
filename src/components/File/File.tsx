@@ -92,15 +92,14 @@ function FileUI({
   ): void {
     e.preventDefault();
     e.stopPropagation();
+    if (!selected.has(file)) {
+      selectFile(file);
+    }
     setContextMenu({
       isOpen: true,
       x: e.clientX,
       y: e.clientY,
-      file,
     });
-    if (!selected.has(file)) {
-      selectFile(file);
-    }
   }
 
   function onDragStart(e: React.DragEvent<HTMLDivElement>) {

@@ -1,11 +1,10 @@
-import { FileI, ProgressFileI } from "@shared";
+import { ProgressFileI } from "@shared";
 
 export type TerminalActions = "OPEN" | "CLOSE" | "TOGGLE";
 
 export interface ContextMenuProps {
 	x?: number;
 	y?: number;
-	file?: FileI;
 	isOpen: boolean;
 }
 
@@ -29,7 +28,8 @@ export enum FMActions {
 	UPDATE_PROGRESS_FILE = "fm/update-progress-file",
 	REMOVE_PROGRESS_FILES = "fm/remove-progress-files",
 	CLEAR_PROGRESS_FILES = "fm/clear-progress-files",
-	CHANGE_PATH_BOX = "fm/change-path-box"
+	CHANGE_PATH_BOX = "fm/change-path-box",
+	TOGGLE_CONTEXT_MENU = "fm/toggle-context-menu"
 }
 
 
