@@ -192,21 +192,22 @@
     box-shadow: 2px 2px 10px 2px black;
     height: var(--plus-height);
     width: var(--plus-height);
-    border-radius: 50%;
     display: grid;
     place-items: center center;
     font-size: inherit;
     transition: var(--dur) transform ease, var(--dur) background ease,
       var(--dur) color ease, var(--dur) border-radius ease,
       var(--dur) box-shadow ease;
-    svg {
-      animation: closed var(--dur) ease forwards;
-    }
     background: var(--dark-bg-1);
     z-index: 7;
+    border-radius: 50%;
 
     &:hover {
       background: var(--dark-bg-2);
+    }
+
+    svg {
+      animation: closed var(--dur) ease forwards;
     }
   }
 
@@ -219,6 +220,10 @@
       color: var(--red);
       border-radius: 0 0 50% 50%;
     }
+  }
+
+  &.file-manager-plus-floating #file-manager-plus-btn {
+    border-radius: 50%;
   }
 }
 

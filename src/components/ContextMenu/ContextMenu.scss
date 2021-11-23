@@ -1,10 +1,11 @@
 #file-manager-context-menu {
   --menu-item-height: 2.75em;
+  --r: 10px;
   position: absolute;
   bottom: calc(var(--plus-height));
   right: 0;
   width: 14em;
-  border-radius: 10px 10px 0 10px;
+  border-radius: var(--r) var(--r) 0 var(--r);
   overflow: hidden;
   height: 0;
   transition: var(--dur) height ease, var(--dur) top ease, var(--dur) left ease;
@@ -15,6 +16,10 @@
   flex-direction: column;
   box-shadow: none;
   z-index: -1;
+
+  &.menu-floating {
+    border-radius: var(--r);
+  }
 
   button {
     width: 100%;
@@ -43,7 +48,7 @@
     place-items: center;
   }
 
-  &.opened {
+  &.menu-opened {
     height: calc(var(--items) * var(--menu-item-height));
     box-shadow: 1px 1px 10px 2px black;
   }
