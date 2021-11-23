@@ -43,14 +43,13 @@ import PathBox from "./PathBox";
 
 const mapState = ({
   ftpReducer: { client },
-  fmReducer: { menu, loading, search, terminalOpen, terminalHeight, pathBox },
+  fmReducer: { menu, loading, terminalOpen, terminalHeight, pathBox },
   router: { location },
 }: RootState) => ({
   client,
   menu,
   loading,
   location,
-  search,
   terminalOpen,
   terminalHeight,
   pathBox,
@@ -80,7 +79,6 @@ type PropsFromState = ConnectedProps<typeof connector>;
 type Props = PropsFromState;
 
 interface State {
-  plusOpen: boolean;
   dragging: boolean;
 }
 
@@ -91,7 +89,6 @@ export class FileManagerUI extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      plusOpen: false,
       dragging: false,
     };
     (window as any).refreshFTP = this.onConnected;
@@ -122,9 +119,6 @@ export class FileManagerUI extends Component<Props, State> {
   }
 
   async componentDidUpdate(): Promise<void> {
-    if (this.state.plusOpen != this.props.menu.isOpen) {
-      this.setState({ plusOpen: this.props.menu.isOpen });
-    }
     const url = normalizeURL(
       window.location.pathname.replace("/file-manager", "")
     );
@@ -199,13 +193,11 @@ export class FileManagerUI extends Component<Props, State> {
   };
 
   onPlus = (): void => {
-    if (this.state.plusOpen) {
-      this.setState({ plusOpen: false });
+    if (this.props.menu.isOpen) {
       this.props.setContextMenu({
         isOpen: false,
       });
     } else {
-      this.setState({ plusOpen: true });
       this.props.setContextMenu({
         file: undefined,
         x: undefined,
@@ -326,13 +318,11 @@ export class FileManagerUI extends Component<Props, State> {
         ? `${this.props.terminalHeight}px`
         : undefined,
     } as React.CSSProperties;
+    const { isOpen: plusOpen, x, y } = this.props.menu;
 
     return (
       <div id="file-manager">
-        <SearchBox
-          searching={this.props.search.searching}
-          setSearching={(s) => this.props.doSearch({ searching: s })}
-        />
+        <SearchBox />
         <div id="file-manager-top">
           <button
             className="file-manager-btn file-manager-back"
@@ -374,8 +364,8 @@ export class FileManagerUI extends Component<Props, State> {
         >
           <div
             id="file-manager-plus"
-            className={`${
-              this.state.plusOpen ? "file-manager-plus-opened" : ""
+            className={`${plusOpen ? "file-manager-plus-opened" : ""} ${
+              plusOpen && x && y ? "file-manager-plus-floating" : ""
             }`}
           >
             <button id="file-manager-plus-btn" onClick={this.onPlus}>
@@ -394,6 +384,7 @@ export class FileManagerUI extends Component<Props, State> {
                   id="file-manager-files"
                   onContextMenu={this.onContextMenu}
                   onClick={this.onFilesClick}
+                  tabIndex={0}
                 >
                   <Files></Files>
 
@@ -431,6 +422,12 @@ export class FileManagerUI extends Component<Props, State> {
     );
   }
 }
+
+export const getFileManagerFilesElement = (): HTMLDivElement | undefined =>
+  document.getElementById("file-manager-files") as HTMLDivElement;
+
+export const focusFilesElement = (): void =>
+  getFileManagerFilesElement()?.focus();
 
 export const FileManager = connector(FileManagerUI);
 

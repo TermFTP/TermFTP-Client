@@ -1,3 +1,4 @@
+import { focusFilesElement } from "@pages";
 import { normalizeURL } from "@lib";
 import { DefaultDispatch, RootState } from "@store";
 import { changePathBox, PathBoxData } from "@store/filemanager";
@@ -48,12 +49,19 @@ export class PathBoxUI extends Component<Props, State> {
     ) {
       this.inputRef.current.focus();
     }
+    if (
+      !this.props.pathBox.focused &&
+      this.inputRef.current === document.activeElement
+    ) {
+      this.inputRef.current.value = decodeURI(this.props.pathBox.pwd);
+      this.inputRef.current.blur();
+      focusFilesElement();
+    }
   }
 
   handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     e.stopPropagation();
-    this.inputRef.current.blur();
     const path = this.state.path.trim();
     const { push } = this.props;
     if (path.startsWith("/")) {
@@ -61,16 +69,14 @@ export class PathBoxUI extends Component<Props, State> {
     } else {
       push(`${normalizeURL(window.location.pathname)}/${path}`);
     }
+    focusFilesElement();
     clearSelection();
   };
 
-  handlePath = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    this.setState({ path: e.target.value });
-  };
-
-  onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+  onKeyUp = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+    const { changePathBox } = this.props;
     if (e.key === "Escape") {
-      this.setState({ path: this.props.pathBox.pwd });
+      changePathBox({ focused: false });
     }
   };
 
@@ -86,7 +92,7 @@ export class PathBoxUI extends Component<Props, State> {
             onChange={(e) => this.setState({ path: e.target.value })}
             onFocus={() => changePathBox({ focused: true })}
             onBlur={() => changePathBox({ focused: false })}
-            onKeyDown={this.onKeyDown}
+            onKeyUp={this.onKeyUp}
           />
         </label>
       </form>

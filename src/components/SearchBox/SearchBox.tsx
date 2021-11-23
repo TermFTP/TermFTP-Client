@@ -1,29 +1,26 @@
+import { focusFilesElement } from "@pages";
+import { RootState } from "@store";
 import { doSearch } from "@store/filemanager";
-import React, { useRef } from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import "./SearchBox.scss";
 
-export interface SearchProps {
-  // value: string;
-  // onKeyUp: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  setSearching: (searching: boolean) => void;
-  searching: boolean;
-}
-
-const handleFocus = (event: React.FocusEvent<HTMLInputElement>) =>
-  event.target.select();
-
-export function SearchBox({
-  setSearching,
-  searching,
-}: SearchProps): JSX.Element {
+export function SearchBox(): JSX.Element {
+  const { searching, query } = useSelector(
+    ({
+      fmReducer: {
+        search: { searching, query },
+      },
+    }: RootState) => ({
+      searching,
+      query,
+    })
+  );
   const dispatch = useDispatch();
   const ref = useRef<HTMLInputElement>(undefined);
-  // const [listening, setListening] = useState<boolean>(false);
   const onKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Escape") {
-      setSearching(false);
-      if (ref.current) ref.current.value = "";
+      dispatch(doSearch({ searching: false, query: "" }));
     }
   };
   const onSearch = (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -33,11 +30,14 @@ export function SearchBox({
     dispatch(doSearch({ searching: true, query: event.target.value }));
   };
 
-  if (searching) {
-    ref.current?.focus();
-  } else {
-    // ref.current?.parentElement.parentElement.focus();
-  }
+  useEffect(() => {
+    if (searching) {
+      ref.current?.select();
+    } else {
+      focusFilesElement();
+    }
+  }, [searching]);
+
   return (
     <div
       id="search-box"
@@ -46,14 +46,10 @@ export function SearchBox({
       <input
         ref={ref}
         type="text"
-        // defaultValue={value}
         placeholder="search..."
-        onBlur={() => setSearching(false)}
         onKeyUp={onKeyUp}
-        onFocus={handleFocus}
         onChange={onSearch}
-        // onBlur={e => setSearching(false)}
-        // onBlur={e => setSearching(false)}
+        value={query}
       />
     </div>
   );

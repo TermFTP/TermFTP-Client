@@ -60,7 +60,6 @@ const ContextMenuUI = ({
   addProgressFiles,
 }: Props) => {
   const ownRef = useRef<HTMLDivElement>();
-  const [listening, setListening] = useState<boolean>(false);
   let items = [
     {
       label: "Create folder",
@@ -171,16 +170,27 @@ const ContextMenuUI = ({
     // TODO also listen to escape
     if (isOpen && !(e.target as HTMLButtonElement).id.includes("plus")) {
       setContextMenu({ isOpen: false });
-      window.removeEventListener("click", click);
-      setListening(false);
+    }
+  };
+  const keyUp = (e: KeyboardEvent) => {
+    if (e.key === "Escape" && isOpen) {
+      setContextMenu({ isOpen: false });
     }
   };
   useEffect(() => {
-    if (!listening && isOpen) {
-      window.addEventListener("click", click);
-      setListening(true);
-    }
-  });
+    // remove any previous event listeners from this element (you never know)
+    document.removeEventListener("keyup", keyUp);
+    document.removeEventListener("click", click);
+
+    // add the event listeners
+    isOpen && document.addEventListener("click", click);
+    isOpen && document.addEventListener("keyup", keyUp);
+
+    // clean up (remove the event listeners)
+    return () => {
+      document.removeEventListener("click", click);
+    };
+  }, [isOpen]);
 
   function onRename(field: string): () => void {
     return () => {
@@ -320,7 +330,9 @@ const ContextMenuUI = ({
   return (
     <div
       id="file-manager-context-menu"
-      className={`${isOpen ? "opened" : ""}`}
+      className={`${isOpen ? "menu-opened" : ""} ${
+        isOpen && x && y ? "menu-floating" : ""
+      }`}
       style={contextStyles}
       ref={ownRef}
     >

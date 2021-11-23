@@ -80,6 +80,9 @@ function FileUI({
     } else if (ev.shiftKey) {
       shiftSelection(file);
     } else {
+      setContextMenu({
+        isOpen: false,
+      });
       selectFile(file);
     }
   }
