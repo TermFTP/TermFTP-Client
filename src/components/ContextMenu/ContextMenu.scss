@@ -5,10 +5,10 @@
   bottom: calc(var(--plus-height));
   right: 0;
   width: 14em;
-  border-radius: var(--r) var(--r) 0 var(--r);
   overflow: hidden;
   height: 0;
-  transition: var(--dur) height ease, var(--dur) top ease, var(--dur) left ease;
+  transition: var(--dur) height ease, var(--dur) top ease, var(--dur) left ease,
+    var(--dur) border-radius ease;
   will-change: height;
   display: flex;
   justify-content: flex-end;
@@ -16,9 +16,11 @@
   flex-direction: column;
   box-shadow: none;
   z-index: -1;
+  border-radius: var(--r);
+  outline: 0;
 
-  &.menu-floating {
-    border-radius: var(--r);
+  &.menu-fixed {
+    border-radius: var(--r) var(--r) 0 var(--r);
   }
 
   button {
@@ -36,7 +38,8 @@
     transition: var(--dur) background ease;
     padding: 0 0.5em;
 
-    &:hover {
+    &:hover,
+    &:focus {
       background: var(--dark-bg-2);
     }
   }
@@ -56,7 +59,8 @@
   .context-delete {
     background: #af5750;
 
-    &:hover {
+    &:hover,
+    &:focus {
       background: var(--red);
     }
   }

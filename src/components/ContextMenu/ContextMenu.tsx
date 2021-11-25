@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./ContextMenu.scss";
 import { DefaultDispatch, RootState } from "@store";
 import { connect, ConnectedProps } from "react-redux";
@@ -26,6 +26,7 @@ import { FileType, ProgressFileI } from "@shared";
 import { statSync } from "fs";
 import { basename } from "path";
 import { getProgressDir } from "@lib";
+import { focusFilesElement } from "@pages";
 
 const mapState = ({
   fmReducer: { menu },
@@ -59,6 +60,7 @@ const ContextMenuUI = ({
   selected,
   addProgressFiles,
 }: Props) => {
+  const [curItem, setCurItem] = useState<number>(-1);
   const ownRef = useRef<HTMLDivElement>();
   let items = [
     {
@@ -168,29 +170,71 @@ const ContextMenuUI = ({
     };
   }
   const click = (e: MouseEvent) => {
-    if (isOpen && !(e.target as HTMLButtonElement).id.includes("plus")) {
+    if (!(e.target as HTMLButtonElement).id.includes("plus")) {
       setContextMenu({ isOpen: false });
     }
   };
   const keyUp = (e: KeyboardEvent) => {
-    if (e.key === "Escape" && isOpen) {
+    if (e.key === "Escape") {
+      e.stopPropagation();
+      e.preventDefault();
       setContextMenu({ isOpen: false });
+      focusFilesElement();
+      setCurItem(-1);
+    } else if (e.key === "Tab") {
+      e.stopPropagation();
+      e.preventDefault();
+      let change = 0;
+      if (e.shiftKey) change = -1;
+      else change = 1;
+      // wrap around
+      const item = curItem < 0 ? -1 : curItem;
+      setCurItem((item + items.length + change) % items.length);
+    } else if (e.key.includes("Arrow")) {
+      e.stopPropagation();
+      e.preventDefault();
+      let change = 0;
+      if (e.key === "ArrowDown") change = 1;
+      else if (e.key === "ArrowUp") change = -1;
+      // wrap around
+      const item = curItem < 0 ? -1 : curItem;
+      setCurItem((curItem + items.length + change) % items.length);
     }
   };
   useEffect(() => {
-    // remove any previous event listeners from this element (you never know)
+    // remove any previous event listeners (you never know)
     document.removeEventListener("keyup", keyUp);
     document.removeEventListener("click", click);
 
-    // add the event listeners
-    isOpen && document.addEventListener("click", click);
-    isOpen && document.addEventListener("keyup", keyUp);
+    // add the event listeners if it is open
+    if (isOpen) {
+      document.addEventListener("click", click);
+      document.addEventListener("keyup", keyUp);
+      !x && !y && curItem == -1 && setCurItem(0);
+    }
 
     // clean up (remove the event listeners)
     return () => {
       document.removeEventListener("click", click);
+      document.removeEventListener("keyup", keyUp);
+      !isOpen && setCurItem(-1);
     };
-  }, [isOpen]);
+  }, [isOpen, items.length, curItem]);
+
+  useEffect(() => {
+    console.log(curItem, document.activeElement);
+    if (curItem >= 0) {
+      const btn = document.getElementsByClassName(
+        `file-manager-context-menu-btn`
+      ) as HTMLCollectionOf<HTMLButtonElement>;
+      btn[curItem]?.focus();
+    } else {
+      const el = document.activeElement as HTMLElement;
+      el.classList.contains("file-manager-context-menu-btn") &&
+        document.getElementById("file-manager-context-menu").focus();
+      console.log(el.classList.contains("file-manager-context-menu-btn"));
+    }
+  }, [curItem]);
 
   function onRename(field: string): () => void {
     return () => {
@@ -331,17 +375,24 @@ const ContextMenuUI = ({
     <div
       id="file-manager-context-menu"
       className={`${isOpen ? "menu-opened" : ""} ${
-        isOpen && x && y ? "menu-floating" : ""
+        isOpen && !x && !y ? "menu-fixed" : ""
       }`}
       style={contextStyles}
       ref={ownRef}
+      onMouseMove={() => setCurItem(-2)}
+      tabIndex={-1}
     >
-      {items.map((i) => (
-        <button key={i.label} onClick={() => i.func()} className={i.name}>
+      {items.map((item, i) => (
+        <button
+          key={item.label}
+          onClick={() => item.func()}
+          className={`${item.name} file-manager-context-menu-btn`}
+          tabIndex={isOpen ? i : -1}
+        >
           <div className="context-icon">
-            <FontAwesomeIcon icon={i.icon}></FontAwesomeIcon>
+            <FontAwesomeIcon icon={item.icon}></FontAwesomeIcon>
           </div>
-          <div className="context-text">{i.label}</div>
+          <div className="context-text">{item.label}</div>
         </button>
       ))}
     </div>
