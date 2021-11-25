@@ -1,12 +1,12 @@
 import { join } from "path";
 import { app, BrowserWindow, Menu, MenuItem } from "electron";
-import isDev from "electron-is-dev";
 import dotenv from "dotenv";
 import { initialize } from "@electron/remote/main"
 initialize()
 
 import "./ipc";
 import "./server"
+import { isDev } from "../src/shared";
 
 dotenv.config();
 let win: BrowserWindow;
@@ -18,7 +18,6 @@ function createWindow(): void {
 		webPreferences: {
 			nodeIntegration: true,
 			preload: join(app.getAppPath(), "util", "preload.js"),
-			enableRemoteModule: true,
 			contextIsolation: false
 		},
 		title: "TermFTP",

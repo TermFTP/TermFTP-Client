@@ -19,8 +19,8 @@ import {
 } from "@models";
 import { hostname } from "os";
 import { IRawParams } from "@shared/models";
-import isDev from "electron-is-dev";
 import { normalizeURL } from "./util";
+import { isDev } from "@shared";
 
 /**
  * the class for communication with the backend API
