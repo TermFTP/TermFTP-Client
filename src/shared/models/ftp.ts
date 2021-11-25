@@ -35,11 +35,6 @@ export enum FTPRequestType {
 	COPY_FILES = "copy-files"
 }
 
-export interface FromTo {
-	from: string;
-	to: string;
-}
-
 const Req = FTPRequestType;
 
 export interface FTPReqPWD {
@@ -132,14 +127,18 @@ export interface FTPReqPutFiles {
 export interface FTPReqCopyFolders {
 	type: typeof Req.COPY_FOLDERS,
 	data: {
-		folders: FromTo[]
+		basePath: string;
+		folders: FileI[];
+		to: string;
 	}
 }
 
 export interface FTPReqCopyFiles {
 	type: typeof Req.COPY_FILES,
 	data: {
-		files: FromTo[]
+		basePath: string;
+		files: FileI[];
+		to: string;
 	}
 }
 

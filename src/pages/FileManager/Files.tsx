@@ -1,6 +1,6 @@
 import File from "@components/File/File";
 import { normalizeURL } from "@lib";
-import { FileType, FromTo } from "@shared";
+import { FileType } from "@shared";
 import { RootState } from "@store";
 import { addBubble, setPrompt } from "@store/app";
 import {
@@ -79,30 +79,24 @@ export const Files = (): JSX.Element => {
         if (pasteBuffer.type === "copy") {
           // TODO copy-paste
           const dir = normalizeURL(pasteBuffer.dir);
-          const folders: FromTo[] = [];
-          const files: FromTo[] = [];
+          const folders = [];
+          const files = [];
           for (const f of pasteBuffer.files) {
             if (f.type === FileType.DIR) {
-              folders.push({
-                from: `${dir}/${f.name}`,
-                to: `${pwd}/${f.name}`,
-              });
+              folders.push(f);
             } else if (f.type === FileType.FILE) {
-              folders.push({
-                from: `${dir}/${f.name}`,
-                to: `${pwd}/${f.name}`,
-              });
+              files.push(f);
             }
           }
-          client.copyFiles(files);
-          client.copyFolders(folders);
+          client.copyFiles(dir, files, pwd);
+          client.copyFolders(dir, folders, pwd);
         } else {
           const dir = normalizeURL(pasteBuffer.dir);
           for (const f of pasteBuffer.files) {
             client.rename(`${dir}/${f.name}`, `${pwd}/${f.name}`);
           }
-          dispatch(clearPasteBuffer());
         }
+        dispatch(clearPasteBuffer());
       }
     } else {
       if (e.key === "Backspace" || e.key === "Delete") {

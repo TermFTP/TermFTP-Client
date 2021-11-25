@@ -1,6 +1,6 @@
 import Client from 'socket.io-client';
 import { ConnectConfig } from 'ssh2';
-import { FTPResponse, FTPResponseType, FTPRequestType, FileI, FTPRequest, FromTo } from '@shared';
+import { FTPResponse, FTPResponseType, FTPRequestType, FileI, FTPRequest } from '@shared';
 import { BaseFTP, FTPConfig } from './BaseFTP';
 
 const ReqT = FTPRequestType;
@@ -165,17 +165,17 @@ export class SFTP extends BaseFTP {
 		})
 	}
 
-	copyFolders(folders: FromTo[]): void {
+	copyFolders(basePath: string, folders: FileI[], to: string): void {
 		this.emit({
 			type: ReqT.COPY_FOLDERS,
-			data: { folders }
+			data: { basePath, folders, to }
 		})
 	}
 
-	copyFiles(files: FromTo[]): void {
+	copyFiles(basePath: string, files: FileI[], to: string): void {
 		this.emit({
 			type: ReqT.COPY_FILES,
-			data: { files }
+			data: { basePath, files, to }
 		})
 	}
 
