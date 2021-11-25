@@ -1,7 +1,7 @@
 import { join } from "path";
 import { app, BrowserWindow, Menu, MenuItem } from "electron";
 import dotenv from "dotenv";
-import { initialize } from "@electron/remote/main"
+import { initialize, enable } from "@electron/remote/main"
 initialize()
 
 import "./ipc";
@@ -29,6 +29,7 @@ function createWindow(): void {
 		minWidth: 400,
 		icon: join(app.getAppPath(), "assets", "logo.ico"),
 	});
+	enable(win.webContents)
 
 	if (isDev) {
 		win.loadURL("http://localhost:14000");

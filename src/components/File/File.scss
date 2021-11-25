@@ -46,13 +46,10 @@
   .file-icon {
     height: var(--file-height);
     width: var(--file-height);
-    display: grid;
-    place-items: center;
-    flex-grow: 0 !important;
-    flex-shrink: 0;
     padding: 2px 0;
 
     img {
+      margin: 0 auto;
       height: 100%;
     }
   }
