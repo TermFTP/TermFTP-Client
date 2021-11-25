@@ -2,6 +2,9 @@ import { join } from "path";
 import { app, BrowserWindow, Menu, MenuItem } from "electron";
 import isDev from "electron-is-dev";
 import dotenv from "dotenv";
+import { initialize } from "@electron/remote/main"
+initialize()
+
 import "./ipc";
 import "./server"
 
@@ -16,6 +19,7 @@ function createWindow(): void {
 			nodeIntegration: true,
 			preload: join(app.getAppPath(), "util", "preload.js"),
 			enableRemoteModule: true,
+			contextIsolation: false
 		},
 		title: "TermFTP",
 		center: true,

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./Header.scss";
-import { remote } from "electron";
+import { getCurrentWindow } from "@electron/remote";
 import {
   faHome,
   faTimes,
@@ -67,12 +67,12 @@ function HeaderUI({ push, router }: Props) {
 
 const GetWindowControls = ({ id }: { id: "darwin" | "" }) => {
   function closeWindow() {
-    const window = remote.getCurrentWindow();
+    const window = getCurrentWindow();
     window.close();
   }
 
   function resizeWindow() {
-    const window = remote.getCurrentWindow();
+    const window = getCurrentWindow();
     if (window.isMaximized()) {
       window.unmaximize();
     } else {
@@ -81,7 +81,7 @@ const GetWindowControls = ({ id }: { id: "darwin" | "" }) => {
   }
 
   function minimizeWindow() {
-    const window = remote.getCurrentWindow();
+    const window = getCurrentWindow();
     window.minimize();
   }
   if (id === "darwin") {
