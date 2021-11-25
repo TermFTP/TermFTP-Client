@@ -153,12 +153,11 @@
   .progress-file-type {
     height: var(--plus-height);
     width: var(--plus-height);
-    display: grid;
+    display: flex;
     place-items: center;
-    flex-shrink: 0;
 
     img {
-      height: 80%;
+      height: 90%;
     }
   }
 
