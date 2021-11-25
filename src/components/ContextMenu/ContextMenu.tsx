@@ -198,7 +198,7 @@ const ContextMenuUI = ({
       else if (e.key === "ArrowUp") change = -1;
       // wrap around
       const item = curItem < 0 ? -1 : curItem;
-      setCurItem((curItem + items.length + change) % items.length);
+      setCurItem((item + items.length + change) % items.length);
     }
   };
   useEffect(() => {
@@ -222,7 +222,6 @@ const ContextMenuUI = ({
   }, [isOpen, items.length, curItem]);
 
   useEffect(() => {
-    console.log(curItem, document.activeElement);
     if (curItem >= 0) {
       const btn = document.getElementsByClassName(
         `file-manager-context-menu-btn`
@@ -232,7 +231,6 @@ const ContextMenuUI = ({
       const el = document.activeElement as HTMLElement;
       el.classList.contains("file-manager-context-menu-btn") &&
         document.getElementById("file-manager-context-menu").focus();
-      console.log(el.classList.contains("file-manager-context-menu-btn"));
     }
   }, [curItem]);
 
