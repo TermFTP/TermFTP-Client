@@ -48,10 +48,6 @@
     "history": "^4.10.1",
     "html-webpack-plugin": "4.5.0",
     "identity-obj-proxy": "3.0.0",
-    "jest": "26.6.0",
-    "jest-circus": "26.6.0",
-    "jest-resolve": "26.6.0",
-    "jest-watch-typeahead": "0.6.1",
     "keytar": "^7.7.0",
     "mini-css-extract-plugin": "0.11.3",
     "optimize-css-assets-webpack-plugin": "5.0.4",
@@ -225,9 +221,13 @@
     "@typescript-eslint/parser": "^4.33.0",
     "concurrently": "^5.3.0",
     "cross-env": "^7.0.3",
-    "electron": "^14.2.1",
+    "electron": "^15.3.2",
     "electron-builder": "^22.13.1",
     "electron-reloader": "^1.2.1",
+    "jest": "26.6.0",
+    "jest-circus": "26.6.0",
+    "jest-resolve": "26.6.0",
+    "jest-watch-typeahead": "0.6.1",
     "node-sass": "^4.14.1",
     "nodemon": "^2.0.13",
     "ts-loader": "^8.3.0",
@@ -237,12 +237,10 @@
   },
   "browserslist": {
     "production": [
-      "chrome > 90"
+      "last 3 chrome version"
     ],
     "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
+      "last 3 chrome version"
     ]
   }
 }
