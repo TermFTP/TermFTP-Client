@@ -77,7 +77,6 @@ export const Files = (): JSX.Element => {
           return;
         }
         if (pasteBuffer.type === "copy") {
-          // TODO copy-paste
           const dir = normalizeURL(pasteBuffer.dir);
           const folders = [];
           const files = [];

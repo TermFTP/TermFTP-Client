@@ -40,6 +40,7 @@ import { clearSelection, setFiles } from "@store/ftp";
 import { statSync } from "fs";
 import { basename } from "path";
 import PathBox from "./PathBox";
+import { PasteBufferTracker } from "@components/PasteBufferTracker/PasteBufferTracker";
 
 const mapState = ({
   ftpReducer: { client },
@@ -398,7 +399,7 @@ export class FileManagerUI extends Component<Props, State> {
                   )}
                 </div>
                 <ProgressTracker></ProgressTracker>
-                {/* TODO display paste buffer for copying and cutting */}
+                <PasteBufferTracker></PasteBufferTracker>
               </>
             )}
           </HotKeys>

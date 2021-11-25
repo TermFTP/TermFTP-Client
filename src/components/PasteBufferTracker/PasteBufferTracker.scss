@@ -1,7 +1,7 @@
-.progress-tracker {
+.paste-buffer {
   position: absolute;
-  bottom: calc(var(--r-padding) * 2 + var(--plus-height));
-  right: var(--r-padding);
+  bottom: calc(var(--r-padding));
+  left: var(--r-padding);
   // height: calc(var(--plus-height) * 2 + 8px);
   display: flex;
   flex-direction: column;
@@ -9,7 +9,7 @@
   z-index: 1;
 }
 
-.progress-tracker-btn {
+.paste-buffer-btn {
   height: var(--plus-height);
   width: var(--plus-height);
   border-radius: 50%;
@@ -21,7 +21,7 @@
   animation: closed var(--dur) ease forwards;
   background: var(--dark-bg-1);
   position: absolute;
-  right: 0;
+  left: 0;
   bottom: 0;
   z-index: -1;
 
@@ -34,45 +34,45 @@
   }
 }
 
-.progress-part {
+.paste-buffer-part {
   position: relative;
   height: var(--plus-height);
   transition: var(--dur) height ease;
 
-  &.progress-open {
+  &.paste-buffer-open {
     height: calc(var(--plus-height) * 4);
   }
 }
 
-.progress-content-wrapper {
+.paste-buffer-content-wrapper {
   --content-width: 20em;
   height: 100%;
   width: 0;
   transition: var(--dur) height ease, var(--dur) width ease;
   overflow: hidden;
   position: absolute;
-  right: 0;
+  left: 0;
   bottom: 0;
   z-index: 5;
   background: var(--dark-bg-1);
   border-radius: calc(var(--plus-height) / 3);
 }
 
-.progress-open .progress-content-wrapper {
+.paste-buffer-open .paste-buffer-content-wrapper {
   width: var(--content-width);
   box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.6);
   // padding-bottom: var(--r-padding);
 }
 
-.progress-content {
+.paste-buffer-content {
   width: var(--content-width);
   height: 100%;
-  overflow-y: auto;
+  overflow-y: scroll;
   display: flex;
   flex-direction: column;
   position: relative;
 
-  .progress-part-header {
+  .paste-buffer-part-header {
     display: flex;
     flex-direction: row;
     background: var(--background);
@@ -80,34 +80,46 @@
     top: 0;
     width: 100%;
     z-index: 1;
-
+    align-items: center;
     p {
+      text-align: left;
       flex-grow: 1;
-      display: grid;
-      place-items: center;
+      // direction: rtl;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      display: block;
+      flex-shrink: 1;
+      font-size: 0.9em;
     }
 
     button {
-      width: var(--plus-height);
-      height: var(--plus-height);
+      width: calc(var(--plus-height) * 0.9);
+      height: calc(var(--plus-height) * 0.9);
       border-radius: 50%;
       background: inherit;
       font-size: inherit;
       display: grid;
       place-items: center;
+      flex-shrink: 0;
 
-      &:hover {
-        background: var(--dark-bg-2);
+      &.btn-not-active {
+        cursor: default;
+      }
+
+      &:not(.btn-not-active) {
+        &:hover {
+          background: var(--dark-bg-2);
+        }
       }
     }
 
-    .progress-part-cancel:hover {
+    .paste-buffer-part-cancel:hover {
       color: var(--red);
     }
   }
 }
 
-.progress-file {
+.paste-buffer-file {
   display: flex;
   width: 100%;
   flex-direction: row;
@@ -115,28 +127,7 @@
   align-items: center;
   position: relative;
 
-  &:after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    height: 2px;
-    width: calc(100% * var(--progress));
-    background: var(--green);
-    transition: 100ms width ease;
-  }
-
-  &:hover {
-    background: var(--dark-bg-2);
-    .progress-file-cancel {
-      display: block;
-    }
-
-    .progress-file-progress-status {
-      opacity: 1;
-    }
-  }
-
-  .progress-file-name {
+  .paste-buffer-file-name {
     flex-grow: 1;
     max-width: calc(100% - var(--plus-height) * 2);
     // display: inline-flex;
@@ -150,7 +141,7 @@
     height: min-content;
   }
 
-  .progress-file-type {
+  .paste-buffer-file-type {
     height: var(--plus-height);
     width: var(--plus-height);
     display: flex;
@@ -160,47 +151,4 @@
       height: 90%;
     }
   }
-
-  .progress-file-right {
-    height: var(--plus-height);
-    width: var(--plus-height);
-    position: relative;
-    flex-shrink: 0;
-
-    & > * {
-      height: var(--plus-height);
-      width: var(--plus-height);
-      position: absolute;
-      top: 0;
-      left: 0;
-      font-size: inherit;
-      background: inherit;
-      border-radius: 50%;
-    }
-
-    button {
-      display: none;
-    }
-  }
-
-  .progress-file-cancel {
-    color: var(--red);
-  }
-}
-
-.progress-file-progress-status {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  transition: var(--dur) opacity ease;
-  height: 1.5rem;
-  font-size: 0.9em;
-  border-radius: 0.625rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 0.5rem;
-  background-color: var(--dark-bg-1);
 }

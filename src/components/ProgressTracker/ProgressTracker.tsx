@@ -29,11 +29,6 @@ type PropsFromState = ConnectedProps<typeof connector>;
 type Props = PropsFromState;
 
 function ProgressTrackerUI({ progressFiles }: Props): JSX.Element {
-  // console.groupCollapsed(progressFiles.size);
-  // for (const f of progressFiles.keys()) {
-  //   console.log(f);
-  // }
-  // console.groupEnd();
   const uploads: ProgressFileI[] = [];
   const downloads: ProgressFileI[] = [];
   for (const file of progressFiles.values()) {
