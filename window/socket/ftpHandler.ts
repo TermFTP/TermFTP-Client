@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { ClientEvents, ServerEvents, FileI, FileType, FTPResponse, FTPResponseType, FTPRequestType, ProgressType, FromTo } from "../../src/shared";
+import { ClientEvents, ServerEvents, FileI, FileType, FTPResponse, FTPResponseType, FTPRequestType, ProgressType } from "../../src/shared";
 import { FileType as BasicType, Client, FileInfo } from "basic-ftp";
 import { FTPConfig } from "../../src/lib/BaseFTP";
 import PQueue from "p-queue";
@@ -83,11 +83,11 @@ export const FTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => async 
 					ftpReadDir(socket, ftp)
 					break;
 				case Req.COPY_FOLDERS:
-					await ftp.copyFolders(req.data.folders);
+					await ftp.copyFolders(req.data.basePath, req.data.folders, req.data.to);
 					ftpReadDir(socket, ftp);
 					break;
 				case Req.COPY_FILES:
-					await ftp.copyFiles(req.data.files);
+					await ftp.copyFiles(req.data.basePath, req.data.files, req.data.to);
 					ftpReadDir(socket, ftp);
 					break;
 				default:
@@ -378,32 +378,72 @@ export class FTP {
 		);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async copy(fromTo: FromTo): Promise<void> {
+	async copyCPFRCPTO(basePath: string, file: FileI, to: string): Promise<void> {
 		const c = await this.pool.acquire();
 		await c.access(this.config);
-		// await c.uploadFrom(fromTo.from, fromTo.to);
-		// TODO implement manual copying like detailed in this SO post
-		// https://stackoverflow.com/a/32625670/13156660
+		// const features = await c.features();
+		// if (features.get("SITE") === "CPFR" || features.get("SITE") === "CPTO") {
+
+		try {
+			await c.cd(basePath);
+			const fromPath = await c.protectWhitespace(`${file.name}`)
+			let res = await c.sendIgnoringError(`SITE CPFR ${fromPath}`);
+			if (res.code === 502) throw new Error("copying not supported")
+			else if (res.code === 552) throw new Error("no storage available")
+			else if (res.code >= 400) throw new Error(res.message)
+
+			await c.cd(to)
+			const toPath = await c.protectWhitespace(`${file.name}`)
+			res = await c.sendIgnoringError(`SITE CPTO ${toPath}`)
+			if (res.code === 502) throw new Error("copying not supported")
+			else if (res.code === 552) throw new Error("no storage available")
+			else if (res.code >= 400) throw new Error(res.message)
+		} catch (e) {
+			await this.pool.release(c);
+			throw e;
+		}
 		await this.pool.release(c);
 	}
 
-	async copyFiles(files: FromTo[]): Promise<void> {
-		await Promise.all(files.map(this.copy.bind(this)))
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async copy(basePath: string, file: FileI, to: string): Promise<void> {
+		// eslint-disable-next-line no-useless-catch
+		try {
+			await this.copyCPFRCPTO(basePath, file, to)
+		} catch (e) {
+			// const c = await this.pool.acquire();
+			// await c.access(this.config);
+			// await c.cd(basePath);
+
+			// TODO manual copying
+
+			// await this.pool.release(c);
+			throw e
+		}
+	}
+
+	async copyFiles(basePath: string, files: FileI[], to: string): Promise<void> {
+		await Promise.all(files.map(f => this.copy(basePath, f, to)))
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async copyFolder(fromTo: FromTo): Promise<void> {
-		const c = await this.pool.acquire();
-		await c.access(this.config);
-		// await c.uploadFromDir(fromTo.from, fromTo.to);
-		// TODO implement manual copying like detailed in this SO post
-		// https://stackoverflow.com/a/32625670/13156660
-		await this.pool.release(c);
+	async copyFolder(basePath: string, folder: FileI, to: string): Promise<void> {
+		// eslint-disable-next-line no-useless-catch
+		try {
+			await this.copyCPFRCPTO(basePath, folder, to)
+		} catch (e) {
+			// const c = await this.pool.acquire();
+			// await c.access(this.config);
+
+			// TODO manual copying
+
+			// await this.pool.release(c);
+			throw e
+		}
 	}
 
-	async copyFolders(folders: FromTo[]): Promise<void> {
-		await Promise.all(folders.map(this.copyFolder.bind(this)));
+	async copyFolders(basePath: string, folders: FileI[], to: string): Promise<void> {
+		await Promise.all(folders.map(f => this.copyFolder(basePath, f, to)));
 	}
 
 	get connected(): boolean { return !this.client.closed }

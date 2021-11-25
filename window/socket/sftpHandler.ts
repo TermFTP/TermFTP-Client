@@ -124,14 +124,14 @@ export const SFTPHandler = (socket: Socket<ClientEvents, ServerEvents>) => (sshC
 					// COPY FOLDERS
 					case FTPRequestType.COPY_FOLDERS:
 						for (const folder of req.data.folders) {
-							copy(ssh, socket, sftp, folder.from, folder.to, cwd);
+							copy(ssh, socket, sftp, req.data.basePath, folder, req.data.to, cwd);
 						}
 						break;
 
 					// COPY FILES
 					case FTPRequestType.COPY_FILES:
 						for (const file of req.data.files) {
-							copy(ssh, socket, sftp, file.from, file.to, cwd);
+							copy(ssh, socket, sftp, req.data.basePath, file, req.data.to, cwd);
 						}
 						break;
 
@@ -302,19 +302,19 @@ const readDir = async (sftp: SFTPWrapper, dir: string): Promise<FileI[]> => {
 	})
 }
 
-const copy = (ssh: Client, socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper, from: string, to: string, cwd: string) => {
-	// TODO fix "file not found" (wrong path)
-	ssh.exec(`cp -r "${from}" "${to}"`, (err, stream) => {
+const copy = (ssh: Client, socket: Socket<ClientEvents, ServerEvents>, sftp: SFTPWrapper, from: string, file: FileI, to: string, cwd: string) => {
+	ssh.exec(`cp -r "${from}/${file.name}" "${to}/${file.name}"`, (err, stream) => {
 		if (err) {
-			sftpErr(socket, new Error(`Could not copy file ${from}`))
+			sftpErr(socket, new Error(`Could not copy file ${from} ${err.message}`))
 			return;
 		}
-		stream.on('close', (code: number) => {
+		const whenDone = (code: number) => {
 			if (Number(code) !== 0) {
 				sftpErr(socket, new Error(`Could not copy file ${from}`))
 				return;
 			}
 			sftpReadDir(socket, sftp, cwd)
-		});
+		}
+		stream.on('close', whenDone).on("exit", whenDone);
 	})
 }
