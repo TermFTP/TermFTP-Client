@@ -1,5 +1,4 @@
-import { Command, CommandResult } from '@models';
-import { BaseFTP, FTP, SFTP } from "@lib";
+import { Command, CommandResult, definedCommands, CommandAction } from '@models';
 import { FTPConnectTypes } from '@shared';
 
 export function parseCommand(cmd: string, args: string[]): CommandResult {
@@ -35,6 +34,19 @@ export function parseCommand(cmd: string, args: string[]): CommandResult {
 	throw false;
 }
 
+export function matchCommand(cmd: string): CommandAction[] {
+  const actions: CommandAction[] = []
+
+  if(cmd.length == 0)
+    return []
+
+  for(const action of definedCommands) {
+    if(action.type.toLowerCase().includes(cmd.toLowerCase()))
+      actions.push(action);
+  }
+
+  return actions;
+}
 
 function findCmd(cmd: string): Command {
 	const keys = Object.keys(Command);

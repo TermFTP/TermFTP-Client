@@ -6,7 +6,7 @@ import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Lists } from "@components";
 import { setPrompt, setSettings } from "@store/app";
-import { BaseFTP, FTP, SFTP, parseCommand } from "@lib";
+import { BaseFTP, FTP, SFTP } from "@lib";
 import {
   editServer,
   fetchGroups,
@@ -19,7 +19,6 @@ import { PromptProps } from "@components/Prompt/Prompt";
 import { goToFTPClient, setFTPType } from "@store/ftp";
 import { FTPConnectTypes } from "@shared";
 import { push } from "connected-react-router";
-import internal from "stream";
 
 type CKey = keyof typeof FTPConnectTypes;
 
@@ -49,7 +48,6 @@ type PropsFromState = ConnectedProps<typeof connector>;
 type Props = PropsFromState;
 
 interface State {
-  mode: boolean;
   ip: string;
   ftpPort: number;
   sshPort: number;
@@ -71,7 +69,6 @@ export class ConnectUI extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      mode: false,
       ip: "",
       ftpPort: 21,
       password: "",
@@ -116,10 +113,6 @@ export class ConnectUI extends Component<Props, State> {
     };
 
     this.setState(upd);
-  };
-
-  changeMode = (): void => {
-    this.setState({ mode: !this.state.mode });
   };
 
   onConnect = (
@@ -260,13 +253,12 @@ export class ConnectUI extends Component<Props, State> {
 
   render(): JSX.Element {
     const {
-      changeMode,
       handleChange,
       onConnect,
       onSave,
       onFavourite,
       props: { currentlyEdited },
-      state: { ip, canConnect, password, mode, ftpPort, sshPort, username },
+      state: { ip, canConnect, password, ftpPort, sshPort, username },
     } = this;
     const isEdited = Boolean(currentlyEdited);
     return (
@@ -275,13 +267,6 @@ export class ConnectUI extends Component<Props, State> {
 
         <div className="connect-settings">
           <button
-            className={`connect-switch ${mode ? "switched" : ""}`}
-            onClick={changeMode}
-          >
-            <span>GUI</span>
-            <span>CLI</span>
-          </button>
-          <button
             className="connect-settings-btn"
             onClick={() => this.props.push("/settings")}
           >
@@ -289,9 +274,7 @@ export class ConnectUI extends Component<Props, State> {
           </button>
         </div>
 
-        {/* GUI */}
-
-        {!this.state.mode && (
+        
           <div className="connect-gui">
             <div className="connect-list-wrapper">
               <Lists connect={onConnect}></Lists>
@@ -408,14 +391,6 @@ export class ConnectUI extends Component<Props, State> {
               </div>
             </form>
           </div>
-        )}
-
-        {/* CLI */}
-        {this.state.mode && (
-          <div className="connect-cli">
-            <input id="krasse-cli" className="krasse-cli" onKeyUp={this.executeCommand}/>
-          </div>
-        )}
       </div>
     );
   }

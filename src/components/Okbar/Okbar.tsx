@@ -3,10 +3,12 @@ import { setOkbar } from "@store/app";
 import React, { createRef } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import { goToFTPClient } from "@store/ftp";
-import { BaseFTP, FTP, SFTP, parseCommand } from "@lib";
+import { BaseFTP, FTP, SFTP, parseCommand, matchCommand } from "@lib";
 import { ConnectDetails } from "../Connect/Lists/ServerItem/ServerItem";
 import { FTPConnectTypes } from "@shared";
 import "./Okbar.scss";
+import { CommandAction } from "@models";
+import Match from "./Match";
 
 const mapState = ({ appReducer: { okbar } }: RootState) => ({ okbar });
 
@@ -28,6 +30,7 @@ interface State {
   value: string;
   cmdHistory: string[];
   cmdHistoryIndex: number;
+  matches: CommandAction[];
 }
 
 class OkbarUI extends React.Component<Props, State> {
@@ -38,6 +41,7 @@ class OkbarUI extends React.Component<Props, State> {
       value: "",
       cmdHistory: [],
       cmdHistoryIndex: 0,
+      matches: [],
     };
   }
 
@@ -52,6 +56,7 @@ class OkbarUI extends React.Component<Props, State> {
       e?.preventDefault();
       e?.stopPropagation();
       this.props.setOkbar({shown: true});
+      this.setState({matches: []})
     }
   }
 
@@ -95,16 +100,19 @@ class OkbarUI extends React.Component<Props, State> {
       this.props.setOkbar(undefined);
       const cmd = elem.value.split(" ")[0];
       const args = elem.value.split(" ").slice(1);
-      console.log(cmd, args)
 
       try {
         const result = parseCommand(cmd, args);
 
         this.setState({ cmdHistory: [...this.state.cmdHistory, elem.value] });
-        console.log("works")
         this.doConnect(result.data);
         
       } catch(e) {/**/}
+    } else {
+      const cmd = elem.value.split(" ")[0];
+      
+      const matches = matchCommand(cmd);
+      this.setState({ matches });
     }
   };
 
@@ -158,13 +166,20 @@ class OkbarUI extends React.Component<Props, State> {
         ></div>
         <div className="okbar">
           <input
+            autoComplete="off"
             type="text"
             placeholder="Enter Command"
             ref={this.input}
             onChange={this.onChange}
             value={value}
             onKeyUp={this.onKeyUp}
+            onFocus={ () => this.input.current.select()}
           />
+          {this.state.matches.length>0 && 
+            <div className="matches">
+              {this.state.matches.map((match) => (<Match key={match.type} match={match} />))}
+            </div>
+          }
         </div>
       </div>
     );

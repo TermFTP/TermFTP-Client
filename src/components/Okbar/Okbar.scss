@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+
 .okbar-wrapper {
   position: fixed;
   top: 0;
@@ -26,16 +28,66 @@
   overflow: hidden;
   z-index: 100;
 
+  box-shadow: 0 0 10px black;
+
   input {
     background-color: rgb(46, 46, 46);
-    border: 3px solid rgb(83, 83, 83);
-    border-radius: 5px;
-    padding: 0.7em;
+    padding: 1em;
     outline: none;
-    background-color: var(--dark-bg-2);
-    border-radius: var(--radius);
     box-shadow: none;
+    font-family: 'Roboto Mono', monospace;
     font-size: 1em;
+    /*border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;*/
+  }
+
+  .matches {
+    font-family: 'Roboto Mono', monospace;
+    background-color: rgb(46, 46, 46);
+    /*border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;*/
+    border-radius: 5px;
+    //transform: translateY(-6px);
+    margin-top: -6px;
+
+    .match-item {
+      padding: 0.5em;
+      transition: background-color 100ms;
+
+      &:hover {
+        background-color: rgb(71, 71, 71);
+      }
+
+      &:last-child {
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+      }
+
+      h3 {
+        font-size: 1em;
+        font-weight: 400;
+        text-align: left;
+      }
+
+      p {
+        font-size: 0.8em;
+        margin-top: 0.1em;
+        margin-left: 0.4em;
+        text-align: left;
+      }
+
+      .match-arg {
+        margin-left: 0.3em;
+        margin-right: 0.3em;
+        background-color: rgb(224, 224, 224);
+        color: black;
+        padding: 2px;
+        border-radius: 2px;
+        cursor: pointer;
+      }
+    }
   }
 
 }
