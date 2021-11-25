@@ -10,7 +10,7 @@ import {
 import { PromptProps } from "@components/Prompt/Prompt";
 import { setPrompt, addBubble } from "@store/app";
 import { BubbleModel } from "@models";
-import { remote } from "electron";
+import { dialog } from "@electron/remote";
 import {
   faDownload,
   faFileDownload,
@@ -196,7 +196,7 @@ const ContextMenuUI = ({
 
   async function onFolderUpload(): Promise<void> {
     try {
-      const res = await remote.dialog.showOpenDialog({
+      const res = await dialog.showOpenDialog({
         properties: ["openDirectory", "multiSelections"],
       });
       if (res.canceled) return;
@@ -218,7 +218,7 @@ const ContextMenuUI = ({
 
   async function onFileUpload(): Promise<void> {
     try {
-      const res = await remote.dialog.showOpenDialog({
+      const res = await dialog.showOpenDialog({
         properties: ["openFile", "multiSelections"],
       });
       if (res.canceled) return;
@@ -257,7 +257,7 @@ const ContextMenuUI = ({
   }
 
   function onFolderDownload(): void {
-    remote.dialog
+    dialog
       .showOpenDialog({
         properties: ["createDirectory", "openDirectory"],
       })
@@ -274,7 +274,7 @@ const ContextMenuUI = ({
 
   function onFilesDownload(): void {
     if (selected.size === 0) return;
-    remote.dialog
+    dialog
       .showOpenDialog({
         properties: ["createDirectory", "openDirectory"],
       })
