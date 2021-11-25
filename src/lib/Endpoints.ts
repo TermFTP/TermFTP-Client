@@ -74,7 +74,7 @@ export class Endpoints implements IRawParams {
 			localStorage.setItem("base", Endpoints.base);
 			localStorage.setItem("apiURL", Endpoints.apiURL);
 		}
-		if (window.process.env.NODE_ENV === "development")
+		if (isDev)
 			// so that you can you can recreate the instance when hot reloading
 			(window as any).reCreateEndpoints = this.reCreateInstance;
 	}
