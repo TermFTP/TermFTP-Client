@@ -1,5 +1,8 @@
-import * as eIsDev from "electron-is-dev";
-
 export function isDev(): boolean {
-  return eIsDev;
+	const ENV = process.env.NODE_ENV || window.process.env.NODE_ENV;
+	if (ENV) {
+		return ENV.toLowerCase().includes("dev");
+	} else {
+		return false
+	}
 }
