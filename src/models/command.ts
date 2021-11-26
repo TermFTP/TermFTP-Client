@@ -23,7 +23,7 @@ export const definedCommands = [
     name: "Connect",
     description: ["connect", "TYPE", "IP", "USERNAME" , "PASSWORD"],
     references: {
-      "TYPE": "FTP / SFTP / FTPS",
+      "TYPE": "FTP|SFTP|FTPS",
       "IP": "IP[:PORT]",
       "USERNAME": "username",
       "PASSWORD": "password",
