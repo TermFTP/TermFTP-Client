@@ -208,6 +208,7 @@ export class FileManagerUI extends Component<Props, State> {
   };
 
   onContextMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>): void => {
+    if (!this.props.client?.connected) return;
     e.preventDefault();
     e.stopPropagation();
     this.props.setContextMenu({
@@ -360,6 +361,7 @@ export class FileManagerUI extends Component<Props, State> {
           onDragEnter={this.onDragEnter}
           onDragLeave={this.onDragLeave}
           style={uiStyle}
+          onContextMenu={this.onContextMenu}
         >
           <div
             id="file-manager-plus"
@@ -381,7 +383,6 @@ export class FileManagerUI extends Component<Props, State> {
               <>
                 <div
                   id="file-manager-files"
-                  onContextMenu={this.onContextMenu}
                   onClick={this.onFilesClick}
                   tabIndex={0}
                 >

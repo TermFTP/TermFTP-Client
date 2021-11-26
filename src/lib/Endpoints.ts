@@ -121,7 +121,6 @@ export class Endpoints implements IRawParams {
 				})
 				.then((data) => {
 					if (data && !data.error) {
-						// console.log(data);
 						resolve(data);
 					} else {
 						reject(data);

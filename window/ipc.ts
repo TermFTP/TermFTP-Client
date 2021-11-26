@@ -39,13 +39,6 @@ ipcMain.on("ondragstart", (event, filePath) => {
 		icon: dragIcon.resize({ height: 32, width: 32 }),
 	});
 });
-// onDragStart={(e) => {
-//   e.preventDefault();
-//   e.stopPropagation();
-//   console.log("ss");
-//   ipcRenderer.send("ondragstart", "D:\\msdia80.dll");
-// }}
-// draggable={true}
 
 ipcMain.handle("get-key", async (event, args: IPCGetKeyRequest): Promise<IPCGetKeyReply> => {
 	try {
