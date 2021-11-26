@@ -26,7 +26,14 @@ export function parseCommand(cmd: string, args: string[]): CommandResult {
           ftpType,
         }
       };
+
 		}
+    case Command.DISCONNECT: {
+      return {
+        command: Command.DISCONNECT,
+        data: null,
+      }
+    }
 
 		// TODO ...
 	}

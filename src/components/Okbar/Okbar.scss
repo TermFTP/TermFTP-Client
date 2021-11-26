@@ -78,18 +78,27 @@
         text-align: left;
       }
 
-      .match-arg {
-        margin-left: 0.3em;
-        margin-right: 0.3em;
-        background-color: rgb(224, 224, 224);
-        color: black;
-        padding: 2px;
-        border-radius: 2px;
-        cursor: pointer;
-      }
     }
+
+    .match-selected {
+      background-color: rgb(71, 71, 71);
+    }
+
   }
 
+  .match-arg {
+    margin-left: 0.3em;
+    margin-right: 0.3em;
+    background-color: rgb(224, 224, 224);
+    color: black;
+    padding: 2px;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+
+  .match-arg-selected {
+    background-color: rgb(62, 142, 246);
+  }
 }
 
 .okbar-background {

@@ -24,9 +24,17 @@ export const definedCommands = [
     description: ["connect", "TYPE", "IP", "USERNAME" , "PASSWORD"],
     references: {
       "TYPE": "FTP / SFTP / FTPS",
-      "IP": "IP<:PORT>",
+      "IP": "IP[:PORT]",
       "USERNAME": "username",
       "PASSWORD": "password",
+    }
+  },
+  {
+    type: Command.DISCONNECT,
+    name: "Disconnect",
+    description: ["disconnect"],
+    references: {
+       
     }
   }
 ]
