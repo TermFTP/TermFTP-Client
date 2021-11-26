@@ -79,18 +79,18 @@
     "url": "git+https://github.com/TermFTP/TermFTP-Client"
   },
   "scripts": {
-    "start": "node scripts/start.js",
+    "start": "cross-env PORT=14000 BROWSER=none NODE_ENV=development node scripts/start.js",
     "build": "node scripts/build.js",
     "build:electron": "tsc --build tsconfig.electron.json",
     "test": "node scripts/test.js",
     "electron": "electron --trace-warnings .",
     "preelectron-pack": "npm run build && npm run build:electron",
     "electron-pack": "electron-builder -c.extraMetadata.main=build/window/main.js --publish=never",
-    "dev": "cross-env PORT=14000 BROWSER=none NODE_ENV=development npm run devScript",
+    "dev": "cross-env NODE_ENV=development npm run devScript",
     "devScript": "concurrently \"npm run start\" \"npm run dev:electronBuild\" \"wait-on http://localhost:14000 && npm run dev:watchElectron\"",
-    "dev:electron": "cross-env NODE_ENV=development concurrently \"npm run dev:electronBuild\" \"npm run dev:watchElectron\"",
+    "dev:electron": "cross-env NODE_ENV=development concurrently \"npm run dev:electronBuild\" \"(sleep 10 || timeout 10) && npm run dev:watchElectron\"",
     "dev:electronBuild": "tsc --preserveWatchOutput -w -p tsconfig.electron.json",
-    "dev:watchElectron": "nodemon -w build/window -w build/shared --exec \"npm run electron\""
+    "dev:watchElectron": "nodemon -d 5 -L -w build/window -w build/shared --exec \"npm run electron\""
   },
   "eslintConfig": {
     "extends": [

@@ -42,7 +42,7 @@ export abstract class BaseFTP {
 }
 
 export function convertFileSize(size: number, decimals = 1): string {
-	if (size === 0) return "";
+	if (!size) return "";
 
 	const k = 1024;
 	const dm = decimals < 0 ? 0 : decimals;

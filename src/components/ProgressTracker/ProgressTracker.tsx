@@ -141,7 +141,8 @@ const ProgressFile = ({ file }: ProgressFileProps) => {
         </button>
       </div>
       <div className="progress-file-progress-status">
-        {convertFileSize(file.progress, 0)} / {convertFileSize(file.total, 0)}
+        {convertFileSize(file.progress, 0)} /{" "}
+        {convertFileSize(file.total, 0) || "N/A"}
       </div>
     </div>
   );

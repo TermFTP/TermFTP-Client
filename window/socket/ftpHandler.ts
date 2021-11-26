@@ -5,9 +5,10 @@ import { FTPConfig } from "../../src/lib/BaseFTP";
 import PQueue from "p-queue";
 import { Factory, createPool, Options, Pool } from "generic-pool";
 import { basename } from "path";
-import { mkdirSync } from "fs-extra";
-import { join } from "path";
-import { statSync } from "fs";
+import { mkdirsSync } from "fs-extra";
+import { join, } from "path";
+import fs, { rmSync, statSync } from "fs";
+import { app } from "electron"
 
 const Res = FTPResponseType;
 const Req = FTPRequestType;
@@ -242,20 +243,17 @@ export class FTP {
 			await this._reconnect();
 		}
 
-		// try {
 		await this.queue.add(() => this.client.cd(dir));
-		// } catch (e) {
-		// console.log(`error: ${JSON.stringify(e)}`)
-		// }
 		await this.pwd();
 	}
 
 	async get(
 		remoteFile: string,
 		localPath: string,
+		cwd?: string,
 		startAt?: number
 	): Promise<void> {
-		const pwd = this._cwd;
+		const pwd = cwd || this._cwd;
 		const c = await this.pool.acquire();
 		await c.access(this.config);
 		await c.cd(pwd);
@@ -276,17 +274,18 @@ export class FTP {
 		await Promise.all(folders.map(f => this._getFolder(f, localFolder)));
 	}
 
-	private async _getFolder(file: FileI, path: string): Promise<void> {
+	private async _getFolder(file: FileI, path: string, cwd?: string): Promise<void> {
 		if (file.type === FileType.DIR) {
-			const pwd = this._cwd;
+			try {
+				mkdirsSync(join(path, file.name));
+			} catch (e) {
+				// folder already exists, who cares..
+			}
+
+			const pwd = cwd || this._cwd;
 			const c = await this.pool.acquire();
 			await c.access(this.config);
 			await c.cd(pwd);
-			try {
-				mkdirSync(join(path, file.name));
-			} catch (e) {
-				//oflder already exists, who cares..
-			}
 			const items = (await c.list(file.name))
 				.map((v) => ({
 					type: this.convertFileType(v.type),
@@ -298,21 +297,21 @@ export class FTP {
 
 			await Promise.all(items.map(i => {
 				i.name = [file.name, i.name].join("/");
-				return this._getFolder(i, path);
+				return this._getFolder(i, path, cwd);
 			}))
 		} else if (file.type === FileType.FILE) {
-			await this.get(file.name, join(path, file.name));
+			await this.get(file.name, join(path, file.name), cwd);
 		}
 	}
 
-	async put(source: string, destPath: string): Promise<void> {
+	async put(localPath: string, destPath: string): Promise<void> {
 		const pwd = this._cwd;
 		const c = await this.pool.acquire();
 		await c.access(this.config);
 		await c.cd(pwd);
-		const stats = statSync(source);
+		const stats = statSync(localPath);
 		this.addSpecificTracker(c, pwd, "upload", stats.size)
-		await c.uploadFrom(source, destPath);
+		await c.uploadFrom(localPath, destPath);
 		await this.pool.release(c);
 	}
 
@@ -356,15 +355,15 @@ export class FTP {
 		await this.pool.release(c);
 	}
 
-	async putFolder(source: string, destPath: string): Promise<void> {
+	async putFolder(localPath: string, destPath: string): Promise<void> {
 		const pwd = this._cwd;
 		const c = await this.pool.acquire();
 		await c.access(this.config);
 		await c.cd(pwd);
 		let cwd = pwd + destPath;
-		if (!cwd.endsWith("/")) cwd += "/"
+		if (!cwd.endsWith("/")) cwd += "/";
 		this.addSpecificTracker(c, cwd, "upload", undefined);
-		await c.uploadFromDir(source, destPath);
+		await c.uploadFromDir(localPath, destPath);
 		await this.pool.release(c);
 	}
 
@@ -381,23 +380,21 @@ export class FTP {
 	async copyCPFRCPTO(basePath: string, file: FileI, to: string): Promise<void> {
 		const c = await this.pool.acquire();
 		await c.access(this.config);
-		// const features = await c.features();
-		// if (features.get("SITE") === "CPFR" || features.get("SITE") === "CPTO") {
 
 		try {
 			await c.cd(basePath);
 			const fromPath = await c.protectWhitespace(`${file.name}`)
 			let res = await c.sendIgnoringError(`SITE CPFR ${fromPath}`);
-			if (res.code === 502) throw new Error("copying not supported")
-			else if (res.code === 552) throw new Error("no storage available")
-			else if (res.code >= 400) throw new Error(res.message)
+			if (res.code === 502) throw new FTPError("copying not supported", res.code)
+			else if (res.code === 552) throw new FTPError("no storage available", res.code)
+			else if (res.code >= 400) throw new FTPError(res.message, res.code)
 
 			await c.cd(to)
 			const toPath = await c.protectWhitespace(`${file.name}`)
 			res = await c.sendIgnoringError(`SITE CPTO ${toPath}`)
-			if (res.code === 502) throw new Error("copying not supported")
-			else if (res.code === 552) throw new Error("no storage available")
-			else if (res.code >= 400) throw new Error(res.message)
+			if (res.code === 502) throw new FTPError("copying not supported", res.code)
+			else if (res.code === 552) throw new FTPError("no storage available", res.code)
+			else if (res.code >= 400) throw new FTPError(res.message, res.code)
 		} catch (e) {
 			await this.pool.release(c);
 			throw e;
@@ -405,46 +402,64 @@ export class FTP {
 		await this.pool.release(c);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async copy(basePath: string, file: FileI, to: string): Promise<void> {
-		// eslint-disable-next-line no-useless-catch
+	async copyFile(basePath: string, file: FileI, to: string, localPath: string): Promise<void> {
 		try {
 			await this.copyCPFRCPTO(basePath, file, to)
 		} catch (e) {
-			// const c = await this.pool.acquire();
-			// await c.access(this.config);
-			// await c.cd(basePath);
+			// if cpfr cpto is supported, but another error occured
+			if (e?.code !== 504 && e?.code !== 502) throw e;
 
-			// TODO manual copying
-
-			// await this.pool.release(c);
-			throw e
+			const localFilePath = join(localPath, file.name);
+			const fromRemotePath = `${basePath === "/" ? "" : basePath}/${file.name}`
+			const toRemotePath = `${to}/${file.name}`
+			await this.get(fromRemotePath, localFilePath);
+			await this.put(localFilePath, toRemotePath);
+			rmSync(localFilePath);
 		}
 	}
 
 	async copyFiles(basePath: string, files: FileI[], to: string): Promise<void> {
-		await Promise.all(files.map(f => this.copy(basePath, f, to)))
+		const temp = app.getPath("temp");
+		const pathStr = basePath.replace(/[\\/]/g, "/").split("/").filter(p => p.trim().length)
+		const p = join(temp, "TermFTP", "files", ...pathStr)
+		mkdirsSync(p);
+		await Promise.all(files.map(f => this.copyFile(basePath, f, to, p)))
+		if (pathStr.length === 0) return;
+		const newPath = join(temp, "TermFTP", "files", pathStr[0])
+		fs.rmSync(newPath, { recursive: true, force: true })
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async copyFolder(basePath: string, folder: FileI, to: string): Promise<void> {
-		// eslint-disable-next-line no-useless-catch
+	async copyFolder(basePath: string, folder: FileI, to: string, localPath: string): Promise<void> {
 		try {
 			await this.copyCPFRCPTO(basePath, folder, to)
 		} catch (e) {
-			// const c = await this.pool.acquire();
-			// await c.access(this.config);
+			// if cpfr cpto is supported, but another error occured
+			if (e?.code !== 504 && e?.code !== 502) throw e;
 
-			// TODO manual copying
-
-			// await this.pool.release(c);
-			throw e
+			const localFolderPath = join(localPath, folder.name);
+			const toRemotePath = `${to}/${folder.name}`
+			await this._getFolder(folder, localPath, basePath);
+			await this.putFolder(localFolderPath, toRemotePath);
+			fs.rmSync(localFolderPath, { recursive: true, force: true })
 		}
 	}
 
 	async copyFolders(basePath: string, folders: FileI[], to: string): Promise<void> {
-		await Promise.all(folders.map(f => this.copyFolder(basePath, f, to)));
+		const temp = app.getPath("temp");
+		const pathStr = basePath.replace(/[\\/]/g, "/").split("/").filter(p => p.trim().length)
+		const p = join(temp, "TermFTP", "folders", ...pathStr)
+		mkdirsSync(p);
+		await Promise.all(folders.map(f => this.copyFolder(basePath, f, to, p)));
+		if (pathStr.length === 0) return;
+		const newPath = join(temp, "TermFTP", "folders", pathStr[0])
+		fs.rmSync(newPath, { recursive: true, force: true })
 	}
 
 	get connected(): boolean { return !this.client.closed }
+}
+
+class FTPError extends Error {
+	constructor(msg: string, private code: number) {
+		super(msg);
+	}
 }
