@@ -79,7 +79,23 @@ class OkbarUI extends React.Component<Props, State> {
     if (!this.props.okbar) return;
 
     if (e.key === "Tab") {
-      this.setState({ autofillIndex: this.state.value.split(/ +/g).length - 2, autofillHighlight: true })
+      if(this.state.autofill) {
+        e.preventDefault();
+        e.stopPropagation();
+        if(this.state.autofillIndex === 0 && this.state.value.trim().split(/ +/g).length == this.state.autofillIndex + 1) {
+          const matchIndex = this.state.selectionIndex < this.state.matches.length ? this.state.selectionIndex+1 : this.state.matches.length;
+          this.setState({ value: this.state.matches[matchIndex].description[0] + (this.state.matches[matchIndex].description.length > 1 ? " " : ""),
+          autofill: { ...this.state.matches[matchIndex] }, selectionIndex: 0, autofillHighlight: true })
+        } else {
+          this.setState({ autofillIndex: this.state.value.split(/ +/g).length - 1, autofillHighlight: true, value: this.state.value + " " })
+        }
+      }
+      else if(this.state.matches.length > 0) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.setState({ autofill: this.state.matches[0], autofillHighlight: true, value: this.state.matches[0].description[0]+(this.state.matches[0].description.length > 1 ? " ": ""), autofillIndex: 0})
+      }
+        
     } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
       e.preventDefault();
       e.stopPropagation();
@@ -175,6 +191,7 @@ class OkbarUI extends React.Component<Props, State> {
       if (this.state.autofill) {
         if (e.key === " ") {
           this.setState({ autofillIndex: this.state.value.split(/ +/g).length - 2, autofillHighlight: true })
+          return;
         } else if (e.key === "Backspace") {
           if (this.state.value.length === 0) {
             this.setState({ autofill: null, autofillHighlight: false, autofillIndex: 0 })
@@ -182,8 +199,6 @@ class OkbarUI extends React.Component<Props, State> {
             this.setState({ autofillIndex: this.state.value.split(/ +/g).length - 2, autofillHighlight: true })
           }
         }
-
-        return;
       }
 
       const cmd = elem.value.split(/ +/g)[0];
