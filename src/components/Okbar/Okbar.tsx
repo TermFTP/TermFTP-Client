@@ -83,11 +83,16 @@ class OkbarUI extends React.Component<Props, State> {
         e.preventDefault();
         e.stopPropagation();
         if(this.state.autofillIndex === 0 && this.state.value.trim().split(/ +/g).length == this.state.autofillIndex + 1) {
-          const matchIndex = this.state.selectionIndex < this.state.matches.length ? this.state.selectionIndex+1 : this.state.matches.length;
+          let matchIndex = -1;
+          if(!e.shiftKey)
+            matchIndex = this.state.selectionIndex < this.state.matches.length-1 ? this.state.selectionIndex+1 : this.state.matches.length-1;
+          else
+            matchIndex = this.state.selectionIndex > 1 ? this.state.selectionIndex - 1 : 0;
+
           this.setState({ value: this.state.matches[matchIndex].description[0] + (this.state.matches[matchIndex].description.length > 1 ? " " : ""),
           autofill: { ...this.state.matches[matchIndex] }, selectionIndex: 0, autofillHighlight: true })
         } else {
-          this.setState({ autofillIndex: this.state.value.split(/ +/g).length - 1, autofillHighlight: true, value: this.state.value + " " })
+          this.setState({ autofillIndex: this.state.value.trim().split(/ +/g).length - 1, autofillHighlight: true, value: this.state.value + " " })
         }
       }
       else if(this.state.matches.length > 0) {
@@ -126,7 +131,7 @@ class OkbarUI extends React.Component<Props, State> {
       e.preventDefault();
       e.stopPropagation();
 
-      if (this.state.matches) {
+      if (this.state.matches.length > 0) {
         const selectId = this.state.selectionIndex > 1 ? this.state.selectionIndex - 1 : 0;
         this.setState({ selectionIndex: selectId });
         return;
@@ -134,14 +139,13 @@ class OkbarUI extends React.Component<Props, State> {
 
       const itemId = this.state.cmdHistoryIndex + 1;
       if (this.state.cmdHistory[this.state.cmdHistory.length - itemId]) {
-        (document.getElementById("krasse-cli") as HTMLInputElement).value = this.state.cmdHistory[this.state.cmdHistory.length - itemId];
-        this.setState({ cmdHistoryIndex: itemId });
+        this.setState({ cmdHistoryIndex: itemId, value: this.state.cmdHistory[this.state.cmdHistory.length - itemId] });
       }
 
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
 
-      if (this.state.matches) {
+      if (this.state.matches.length > 0) {
         const selectId = this.state.selectionIndex < this.state.matches.length ? this.state.selectionIndex + 1 : this.state.matches.length;
         this.setState({ selectionIndex: selectId });
         return;
@@ -149,8 +153,9 @@ class OkbarUI extends React.Component<Props, State> {
 
       const itemId = this.state.cmdHistoryIndex - 1;
       if (this.state.cmdHistory[this.state.cmdHistory.length - itemId]) {
-        (document.getElementById("krasse-cli") as HTMLInputElement).value = this.state.cmdHistory[this.state.cmdHistory.length - itemId];
-        this.setState({ cmdHistoryIndex: itemId });
+        this.setState({ cmdHistoryIndex: itemId, value: this.state.cmdHistory[this.state.cmdHistory.length - itemId]});
+      } else {
+        this.setState({value: "", cmdHistoryIndex: 0})
       }
 
     } else if (e.key === "Enter") {

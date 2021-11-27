@@ -1,5 +1,6 @@
 export enum Command {
 	CONNECT = "connect",
+  DISCO = "disco",
 	DISCONNECT = "disconnect",
 	UPLOAD = "upload",
 	DOWNLOAD = "download",
@@ -17,7 +18,7 @@ export interface CommandResult {
   data: any,
 }
 
-export const definedCommands = [
+export const definedCommands: CommandAction[] = [
   {
     type: Command.CONNECT,
     name: "Connect",
@@ -33,8 +34,12 @@ export const definedCommands = [
     type: Command.DISCONNECT,
     name: "Disconnect",
     description: ["disconnect"],
-    references: {
-       
-    }
+    references: {}
+  },
+  {
+    type: Command.DISCO,
+    name: "Disco",
+    description: ["disco"],
+    references: {}
   }
 ]
