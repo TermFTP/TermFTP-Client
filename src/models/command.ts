@@ -1,9 +1,7 @@
 export enum Command {
 	CONNECT = "connect",
-  DISCO = "disco",
 	DISCONNECT = "disconnect",
-	UPLOAD = "upload",
-	DOWNLOAD = "download",
+  SAVE = "save"
 }
 
 export interface CommandAction {
@@ -24,7 +22,7 @@ export const definedCommands: CommandAction[] = [
     name: "Connect",
     description: ["connect", "TYPE", "IP", "USERNAME" , "PASSWORD"],
     references: {
-      "TYPE": "FTP|SFTP|FTPS",
+      "TYPE": "FTP|SFTP|FTPS|<name>",
       "IP": "IP[:PORT]",
       "USERNAME": "username",
       "PASSWORD": "password",
@@ -37,9 +35,16 @@ export const definedCommands: CommandAction[] = [
     references: {}
   },
   {
-    type: Command.DISCO,
-    name: "Disco",
-    description: ["disco"],
-    references: {}
+    type: Command.SAVE,
+    name: "Save",
+    description: ["save", "NAME", "TYPE", "IP", "USERNAME", "PASSWORD", "SSH"],
+    references: {
+      "NAME": "myserver",
+      "TYPE": "FTP|SFTP|FTPS",
+      "IP": "IP[:PORT]",
+      "USERNAME": "username",
+      "PASSWORD": "password",
+      "SSH": "PORT"
+    }
   }
 ]

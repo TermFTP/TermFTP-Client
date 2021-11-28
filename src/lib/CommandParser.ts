@@ -1,29 +1,34 @@
-import { Command, CommandResult, definedCommands, CommandAction } from '@models';
+import { Command, CommandResult, definedCommands, CommandAction, Server } from '@models';
 import { FTPConnectTypes } from '@shared';
 
-export function parseCommand(cmd: string, args: string[]): CommandResult {
+export function parseCommand(cmd: string, args: string[], servers?: Server[]): CommandResult {
 	switch (findCmd(cmd)) {
 		case Command.CONNECT: {
+      let server: Server;
 
-			if (args.length < 2) {
-				throw false;
-			}
-
-      const ftpType = findType(args[0]);
-			const ip = args[1].split(':')[0];
-			const port = parseInt(args[1].split(':')[1]) || 21;
-      const username = args[2];
-      const password = args[3];
+			if (args.length == 1) {
+        server = servers?.find(s => s.name.toLowerCase() === args[0].toLowerCase());
+        if(!server) throw "Name does not exist";
+			} else if(args.length > 1) {
+        server = {
+          serverID: undefined,
+          ftpType: findType(args[0]),
+          ip: args[1].split(':')[0],
+          ftpPort: parseInt(args[1].split(':')[1]) || 21,
+          sshPort: undefined,
+          lastConnection: undefined,
+          name: undefined,
+          username: args[2] || "anonymous",
+          password: args[3] || "", 
+        }
+      } else {
+        throw "Not enough arguments";
+      }
 
       return {
         command: Command.CONNECT,
         data: {
-          ip,
-          ftpPort: port,
-          sshPort: 22,
-          username,
-          password,
-          ftpType,
+          ...server
         }
       };
 
@@ -34,9 +39,23 @@ export function parseCommand(cmd: string, args: string[]): CommandResult {
         data: null,
       }
     }
-
-		// TODO ...
-	}
+    case Command.SAVE: {
+      if(args.length !== 6)
+        throw "Not enough arguments";
+      return {
+        command: Command.SAVE,
+        data: {
+          name: args[0],
+          ftpType: findType(args[1]),
+          ip: args[2].split(':')[0],
+          ftpPort: parseInt(args[2].split(':')[1]) || 21,
+          username: args[3] || "anonymous",
+          password: args[4] || "",
+          sshPort: parseInt(args[5]) || 22,
+        }
+      }
+    }
+  }
 
 	throw false;
 }

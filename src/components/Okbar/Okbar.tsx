@@ -1,5 +1,5 @@
 import { DefaultDispatch, RootState } from "@store";
-import { setOkbar } from "@store/app";
+import { addBubble, setOkbar } from "@store/app";
 import React, { createRef } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import { goToFTPClient } from "@store/ftp";
@@ -7,16 +7,19 @@ import { BaseFTP, FTP, SFTP, parseCommand, matchCommand } from "@lib";
 import { ConnectDetails } from "../Connect/Lists/ServerItem/ServerItem";
 import { FTPConnectTypes } from "@shared";
 import "./Okbar.scss";
-import { Command, CommandAction } from "@models";
+import { BubbleModel, Command, CommandAction, SaveReq } from "@models";
 import Match from "./Match";
 import { push } from "connected-react-router";
+import { saveServer } from "@store/lists";
 
-const mapState = ({ appReducer: { okbar }, ftpReducer: { client } }: RootState) => ({ okbar, client });
+const mapState = ({ appReducer: { okbar }, ftpReducer: { client }, listReducer: {saved, favourites, groups} }: RootState) => ({ okbar, client, savedServers: saved, favouriteServers: favourites, groupServers: groups });
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   setOkbar: (okbar: OkbarProps) => dispatch(setOkbar(okbar)),
   goToFTP: (client: BaseFTP) => dispatch(goToFTPClient(client)),
   push: (route: string) => dispatch(push(route)),
+  saveServer: (req: SaveReq) => dispatch(saveServer(req)),
+  addBubble: (key: string, bubble: BubbleModel) => dispatch(addBubble(key, bubble)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -178,7 +181,9 @@ class OkbarUI extends React.Component<Props, State> {
       const args = elem.value.split(/ +/g).slice(1);
 
       try {
-        const result = parseCommand(cmd, args);
+        const result = parseCommand(cmd, args, [...(this.props.savedServers?.server || []), 
+                                                ...(this.props.favouriteServers?.server || []),
+                                                ...(this.props.groupServers?.map(g => g.server)?.flat() || [])]);
 
         this.setState({ cmdHistory: [...this.state.cmdHistory, elem.value] });
         switch (result.command) {
@@ -188,10 +193,19 @@ class OkbarUI extends React.Component<Props, State> {
           case Command.DISCONNECT:
             this.props.push("/main");
             break;
-          //TODO
+          case Command.SAVE:
+            this.props.saveServer(result.data)
+            break;
         }
 
-      } catch (e) {/**/ }
+      } catch (e: any) {
+        console.error(e);
+        this.props.addBubble("command-error", {
+          type: "ERROR",
+          title: "Error executing Command",
+          message: e,
+        })
+      }
     } else if(e.key === " ") {
       
       if(!this.state.autofill) {
