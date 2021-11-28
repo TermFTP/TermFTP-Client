@@ -71,7 +71,7 @@ class OkbarUI extends React.Component<Props, State> {
       e?.preventDefault();
       e?.stopPropagation();
       this.props.setOkbar({ shown: true });
-      this.setState({ matches: [], selectionIndex: 0, autofill: null, autofillIndex: 0, autofillHighlight: false })
+      this.setState({ matches: [], selectionIndex: 0, autofill: null, autofillIndex: 0, autofillHighlight: false, cmdHistoryIndex: 0 })
     }
   }
 
@@ -79,9 +79,9 @@ class OkbarUI extends React.Component<Props, State> {
     if (!this.props.okbar) return;
 
     if (e.key === "Tab") {
+      e.preventDefault();
+      e.stopPropagation();
       if(this.state.autofill) {
-        e.preventDefault();
-        e.stopPropagation();
         if(this.state.autofillIndex === 0 && this.state.value.trim().split(/ +/g).length == this.state.autofillIndex + 1) {
           let matchIndex = -1;
           if(!e.shiftKey)
@@ -92,7 +92,7 @@ class OkbarUI extends React.Component<Props, State> {
           this.setState({ value: this.state.matches[matchIndex].description[0] + (this.state.matches[matchIndex].description.length > 1 ? " " : ""),
           autofill: { ...this.state.matches[matchIndex] }, selectionIndex: 0, autofillHighlight: true })
         } else {
-          this.setState({ autofillIndex: this.state.value.trim().split(/ +/g).length - 1, autofillHighlight: true, value: this.state.value + " " })
+          this.setState({ autofillIndex: this.state.value.trim().split(/ +/g).length - 1, autofillHighlight: true, value: (this.state.value + " ").replace(/ +$/, " ") })
         }
       }
       else if(this.state.matches.length > 0) {
@@ -115,8 +115,9 @@ class OkbarUI extends React.Component<Props, State> {
 
 
   onChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const val = event.target.value.replace(/ +$/, " ");
     this.setState({
-      value: event.target.value,
+      value: val.trim().length > 0 ? val : "",
     });
   };
 
@@ -191,13 +192,20 @@ class OkbarUI extends React.Component<Props, State> {
         }
 
       } catch (e) {/**/ }
+    } else if(e.key === " ") {
+      
+      if(!this.state.autofill) {
+        if(this.state.matches.length > 0)
+          this.setState({autofill: this.state.matches[0], value: this.state.matches[0].description[0] + (this.state.matches[0].description.length > 1 ? " " : ""), autofillHighlight: true, autofillIndex: 0})
+      } else {
+        this.setState({ autofillIndex: this.state.value.split(/ +/g).length - 2, autofillHighlight: true })
+        return;
+      }
+
     } else {
 
       if (this.state.autofill) {
-        if (e.key === " ") {
-          this.setState({ autofillIndex: this.state.value.split(/ +/g).length - 2, autofillHighlight: true })
-          return;
-        } else if (e.key === "Backspace") {
+        if (e.key === "Backspace") {
           if (this.state.value.length === 0) {
             this.setState({ autofill: null, autofillHighlight: false, autofillIndex: 0 })
           } else {
@@ -268,7 +276,8 @@ class OkbarUI extends React.Component<Props, State> {
         ></div>
         <div className="okbar">
           <div className="okbar-hint">
-            <span className="okbar-hint-value">{value}</span>{" "}
+            <span>{this.state.matches[0]?.description[0] || (value.length === 0 ? "Enter Command" : "")}</span>
+            <span className="okbar-hint-value">{" "+value.split(/ +/g).slice(1)}</span>
             <span>
               {this.state.value.trim().split(/ +/g).length == this.state.autofillIndex + 1 ?
                 this.state.autofill?.references[this.state.autofill.description.slice(1)[this.state.autofillIndex]]
@@ -277,8 +286,8 @@ class OkbarUI extends React.Component<Props, State> {
           </div>
           <input
             autoComplete="off"
+            spellCheck="false"
             type="text"
-            placeholder="Enter Command"
             ref={this.input}
             onChange={this.onChange}
             value={value}
