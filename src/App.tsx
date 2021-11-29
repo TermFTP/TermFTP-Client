@@ -1,4 +1,5 @@
 import { Bubbles, Header, Loading, Prompt, Settings } from "@components";
+import Okbar from "@components/Okbar/Okbar";
 import { FileManager, Login, Main, Register, ToS, Welcome } from "@pages";
 import { IPCGetKeyReply, IPCGetKeyRequest } from "@shared/models";
 import { setAutoLoggedIn } from "@store/app";
@@ -68,6 +69,7 @@ export function App(): JSX.Element {
       <Loading></Loading>
       <Prompt></Prompt>
       <Bubbles></Bubbles>
+      <Okbar></Okbar>
     </div>
   );
 }

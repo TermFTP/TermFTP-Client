@@ -55,7 +55,7 @@ export class FTP extends BaseFTP {
 
 	async pwd(): Promise<string> {
 		return new Promise((resolve) => {
-			this.socket.once('ftp:pwd', (res: string) => {
+			this.socket?.once('ftp:pwd', (res: string) => {
 				this._pwd = res;
 				resolve(res);
 			})
@@ -84,7 +84,7 @@ export class FTP extends BaseFTP {
 
 	cd(dir: string): Promise<void> {
 		return new Promise((resolve) => {
-			this.socket.once('ftp:cd', () => {
+			this.socket?.once('ftp:cd', () => {
 				resolve();
 			})
 			this.emit({
