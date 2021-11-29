@@ -290,7 +290,7 @@ class OkbarUI extends React.Component<Props, State> {
         ></div>
         <div className="okbar">
           <div className="okbar-hint">
-            <span>{this.state.matches[0]?.description[0] || (value.length === 0 ? "Enter Command" : "")}</span>
+            <span>{(this.state.matches[0]?.description[0][0] === value[0]?.toLowerCase() ? this.state.matches[0]?.description[0] : undefined) || (value.length === 0 ? "Enter Command" : "")}</span>
             <span className="okbar-hint-value">{" "+value.split(/ +/g).slice(1)}</span>
             <span>
               {this.state.value.trim().split(/ +/g).length == this.state.autofillIndex + 1 ?

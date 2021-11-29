@@ -61,17 +61,18 @@ export function parseCommand(cmd: string, args: string[], servers?: Server[]): C
 }
 
 export function matchCommand(cmd: string): CommandAction[] {
-  const actions: CommandAction[] = []
+  const actions = []
 
   if(cmd.length == 0)
     return []
 
   for(const action of definedCommands) {
-    if(action.type.toLowerCase().includes(cmd.toLowerCase()))
-      actions.push(action);
+    const index = action.type.toLowerCase().indexOf(cmd.toLowerCase());
+    if(index !== -1)
+      actions.push({index, action});
   }
 
-  return actions;
+  return actions.sort((a,b) => a.index - b.index).map(a => a.action).flat().slice(0,5);
 }
 
 function findCmd(cmd: string): Command {
