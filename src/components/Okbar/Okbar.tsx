@@ -104,51 +104,49 @@ class OkbarUI extends React.Component<Props, State> {
   keyDown = (e: KeyboardEvent): void => {
     if (!this.props.okbar) return;
 
+    const { matches, selectionIndex, autofill, autofillIndex, value } =
+      this.state;
+
     if (e.key === "Tab") {
       e.preventDefault();
       e.stopPropagation();
-      if (this.state.autofill) {
+      if (autofill) {
         if (
-          this.state.autofillIndex === 0 &&
-          this.state.value.trim().split(/ +/g).length ==
-            this.state.autofillIndex + 1
+          autofillIndex === 0 &&
+          value.trim().split(/ +/g).length == autofillIndex + 1
         ) {
           let matchIndex = -1;
           if (!e.shiftKey)
             matchIndex =
-              this.state.selectionIndex < this.state.matches.length - 1
-                ? this.state.selectionIndex + 1
-                : this.state.matches.length - 1;
-          else
-            matchIndex =
-              this.state.selectionIndex > 1 ? this.state.selectionIndex - 1 : 0;
+              selectionIndex < matches.length - 1
+                ? selectionIndex + 1
+                : matches.length - 1;
+          else matchIndex = selectionIndex > 1 ? selectionIndex - 1 : 0;
 
           this.setState({
             value:
-              this.state.matches[matchIndex].description[0] +
-              (this.state.matches[matchIndex].description.length > 1
-                ? " "
-                : ""),
-            autofill: { ...this.state.matches[matchIndex] },
+              matches[matchIndex].description[0] +
+              (matches[matchIndex].description.length > 1 ? " " : ""),
+            autofill: { ...matches[matchIndex] },
             selectionIndex: 0,
             autofillHighlight: true,
           });
         } else {
           this.setState({
-            autofillIndex: this.state.value.trim().split(/ +/g).length - 1,
+            autofillIndex: value.trim().split(/ +/g).length - 1,
             autofillHighlight: true,
-            value: (this.state.value + " ").replace(/ +$/, " "),
+            value: (value + " ").replace(/ +$/, " "),
           });
         }
-      } else if (this.state.matches.length > 0) {
+      } else if (matches.length > 0) {
         e.preventDefault();
         e.stopPropagation();
         this.setState({
-          autofill: this.state.matches[0],
+          autofill: matches[0],
           autofillHighlight: true,
           value:
-            this.state.matches[0].description[0] +
-            (this.state.matches[0].description.length > 1 ? " " : ""),
+            matches[0].description[0] +
+            (matches[0].description.length > 1 ? " " : ""),
           autofillIndex: 0,
         });
       }
@@ -177,41 +175,49 @@ class OkbarUI extends React.Component<Props, State> {
 
     const elem = e.target as HTMLInputElement;
 
+    const {
+      matches,
+      selectionIndex,
+      cmdHistory,
+      cmdHistoryIndex,
+      autofill,
+      value,
+    } = this.state;
+
     if (e.key === "ArrowUp") {
       e.preventDefault();
       e.stopPropagation();
 
-      if (this.state.matches.length > 0) {
-        const selectId =
-          this.state.selectionIndex > 1 ? this.state.selectionIndex - 1 : 0;
+      if (matches.length > 0) {
+        const selectId = selectionIndex > 1 ? selectionIndex - 1 : 0;
         this.setState({ selectionIndex: selectId });
         return;
       }
 
-      const itemId = this.state.cmdHistoryIndex + 1;
-      if (this.state.cmdHistory[this.state.cmdHistory.length - itemId]) {
+      const itemId = cmdHistoryIndex + 1;
+      if (cmdHistory[cmdHistory.length - itemId]) {
         this.setState({
           cmdHistoryIndex: itemId,
-          value: this.state.cmdHistory[this.state.cmdHistory.length - itemId],
+          value: cmdHistory[cmdHistory.length - itemId],
         });
       }
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
+      e.stopPropagation();
 
-      if (this.state.matches.length > 0) {
+      if (matches.length > 0) {
         const selectId =
-          this.state.selectionIndex < this.state.matches.length
-            ? this.state.selectionIndex + 1
-            : this.state.matches.length;
+          selectionIndex < matches.length ? selectionIndex + 1 : matches.length;
         this.setState({ selectionIndex: selectId });
         return;
       }
 
-      const itemId = this.state.cmdHistoryIndex - 1;
-      if (this.state.cmdHistory[this.state.cmdHistory.length - itemId]) {
+      const itemId = cmdHistoryIndex - 1;
+      const item = cmdHistory.slice(-itemId)[0];
+      if (item) {
         this.setState({
           cmdHistoryIndex: itemId,
-          value: this.state.cmdHistory[this.state.cmdHistory.length - itemId],
+          value: item,
         });
       } else {
         this.setState({ value: "", cmdHistoryIndex: 0 });
@@ -220,15 +226,12 @@ class OkbarUI extends React.Component<Props, State> {
       e.preventDefault();
       e.stopPropagation();
 
-      if (this.state.selectionIndex !== 0) {
+      if (selectionIndex !== 0) {
         this.setState({
           value:
-            this.state.matches[this.state.selectionIndex - 1].description[0] +
-            (this.state.matches[this.state.selectionIndex - 1].description
-              .length > 1
-              ? " "
-              : ""),
-          autofill: { ...this.state.matches[this.state.selectionIndex - 1] },
+            matches[selectionIndex - 1].description[0] +
+            (matches[selectionIndex - 1].description.length > 1 ? " " : ""),
+          autofill: { ...matches[selectionIndex - 1] },
           selectionIndex: 0,
           autofillHighlight: true,
         });
@@ -247,7 +250,7 @@ class OkbarUI extends React.Component<Props, State> {
           ...(this.props.groupServers?.map((g) => g.server)?.flat() || []),
         ]);
 
-        this.setState({ cmdHistory: [...this.state.cmdHistory, elem.value] });
+        this.setState({ cmdHistory: [...cmdHistory, elem.value] });
         switch (result.command) {
           case Command.CONNECT:
             this.doConnect(result.data);
@@ -268,27 +271,27 @@ class OkbarUI extends React.Component<Props, State> {
         });
       }
     } else if (e.key === " ") {
-      if (!this.state.autofill) {
-        if (this.state.matches.length > 0)
+      if (!autofill) {
+        if (matches.length > 0)
           this.setState({
-            autofill: this.state.matches[0],
+            autofill: matches[0],
             value:
-              this.state.matches[0].description[0] +
-              (this.state.matches[0].description.length > 1 ? " " : ""),
+              matches[0].description[0] +
+              (matches[0].description.length > 1 ? " " : ""),
             autofillHighlight: true,
             autofillIndex: 0,
           });
       } else {
         this.setState({
-          autofillIndex: this.state.value.split(/ +/g).length - 2,
+          autofillIndex: value.split(/ +/g).length - 2,
           autofillHighlight: true,
         });
         return;
       }
     } else {
-      if (this.state.autofill) {
+      if (autofill) {
         if (e.key === "Backspace") {
-          if (this.state.value.length === 0) {
+          if (value.length === 0) {
             this.setState({
               autofill: null,
               autofillHighlight: false,
@@ -296,7 +299,7 @@ class OkbarUI extends React.Component<Props, State> {
             });
           } else {
             this.setState({
-              autofillIndex: this.state.value.split(/ +/g).length - 2,
+              autofillIndex: value.split(/ +/g).length - 2,
               autofillHighlight: true,
             });
           }
@@ -353,7 +356,14 @@ class OkbarUI extends React.Component<Props, State> {
 
   render() {
     const {
-      state: { value },
+      state: {
+        value,
+        matches,
+        autofill,
+        autofillIndex,
+        autofillHighlight,
+        selectionIndex,
+      },
       props: { okbar, setOkbar },
     } = this;
 
@@ -366,21 +376,17 @@ class OkbarUI extends React.Component<Props, State> {
         <div className="okbar">
           <div className="okbar-hint">
             <span>
-              {(this.state.matches[0]?.description[0][0] ===
-              value[0]?.toLowerCase()
-                ? this.state.matches[0]?.description[0]
+              {(matches[0]?.description[0][0] === value[0]?.toLowerCase()
+                ? matches[0]?.description[0]
                 : undefined) || (value.length === 0 ? "Enter Command" : "")}
             </span>
             <span className="okbar-hint-value">
               {" " + value.split(/ +/g).slice(1)}
             </span>
             <span>
-              {this.state.value.trim().split(/ +/g).length ==
-              this.state.autofillIndex + 1
-                ? this.state.autofill?.references[
-                    this.state.autofill.description.slice(1)[
-                      this.state.autofillIndex
-                    ]
+              {value.trim().split(/ +/g).length == autofillIndex + 1
+                ? autofill?.references[
+                    autofill.description.slice(1)[autofillIndex]
                   ]
                 : ""}
             </span>
@@ -395,17 +401,17 @@ class OkbarUI extends React.Component<Props, State> {
             onKeyUp={this.onKeyUp}
             onFocus={() => this.input.current.select()}
           />
-          {this.state.matches.length > 0 && (
+          {matches.length > 0 && (
             <div className="matches">
-              {this.state.matches.map((match) => (
+              {matches.map((match) => (
                 <Match
                   key={match.type}
-                  autofillIndex={this.state.autofillIndex}
-                  autofillHighlight={this.state.autofillHighlight}
+                  autofillIndex={autofillIndex}
+                  autofillHighlight={autofillHighlight}
                   match={match}
                   selected={
-                    this.state.matches.findIndex((m) => m.type == match.type) ==
-                    this.state.selectionIndex - 1
+                    matches.findIndex((m) => m.type == match.type) ==
+                    selectionIndex - 1
                   }
                 />
               ))}
