@@ -12,14 +12,25 @@ import Match from "./Match";
 import { push } from "connected-react-router";
 import { saveServer } from "@store/lists";
 
-const mapState = ({ appReducer: { okbar }, ftpReducer: { client }, listReducer: {saved, favourites, groups} }: RootState) => ({ okbar, client, savedServers: saved, favouriteServers: favourites, groupServers: groups });
+const mapState = ({
+  appReducer: { okbar },
+  ftpReducer: { client },
+  listReducer: { saved, favourites, groups },
+}: RootState) => ({
+  okbar,
+  client,
+  savedServers: saved,
+  favouriteServers: favourites,
+  groupServers: groups,
+});
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   setOkbar: (okbar: OkbarProps) => dispatch(setOkbar(okbar)),
   goToFTP: (client: BaseFTP) => dispatch(goToFTPClient(client)),
   push: (route: string) => dispatch(push(route)),
   saveServer: (req: SaveReq) => dispatch(saveServer(req)),
-  addBubble: (key: string, bubble: BubbleModel) => dispatch(addBubble(key, bubble)),
+  addBubble: (key: string, bubble: BubbleModel) =>
+    dispatch(addBubble(key, bubble)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -69,14 +80,26 @@ class OkbarUI extends React.Component<Props, State> {
     };
   }
 
+  componentWillUnmount() {
+    document.removeEventListener("keyup", this.keyUp);
+    document.removeEventListener("keydown", this.keyDown);
+  }
+
   keyUp = (e: KeyboardEvent): void => {
     if (e.ctrlKey && e.key === "k") {
       e?.preventDefault();
       e?.stopPropagation();
       this.props.setOkbar({ shown: true });
-      this.setState({ matches: [], selectionIndex: 0, autofill: null, autofillIndex: 0, autofillHighlight: false, cmdHistoryIndex: 0 })
+      this.setState({
+        matches: [],
+        selectionIndex: 0,
+        autofill: null,
+        autofillIndex: 0,
+        autofillHighlight: false,
+        cmdHistoryIndex: 0,
+      });
     }
-  }
+  };
 
   keyDown = (e: KeyboardEvent): void => {
     if (!this.props.okbar) return;
@@ -84,38 +107,61 @@ class OkbarUI extends React.Component<Props, State> {
     if (e.key === "Tab") {
       e.preventDefault();
       e.stopPropagation();
-      if(this.state.autofill) {
-        if(this.state.autofillIndex === 0 && this.state.value.trim().split(/ +/g).length == this.state.autofillIndex + 1) {
+      if (this.state.autofill) {
+        if (
+          this.state.autofillIndex === 0 &&
+          this.state.value.trim().split(/ +/g).length ==
+            this.state.autofillIndex + 1
+        ) {
           let matchIndex = -1;
-          if(!e.shiftKey)
-            matchIndex = this.state.selectionIndex < this.state.matches.length-1 ? this.state.selectionIndex+1 : this.state.matches.length-1;
+          if (!e.shiftKey)
+            matchIndex =
+              this.state.selectionIndex < this.state.matches.length - 1
+                ? this.state.selectionIndex + 1
+                : this.state.matches.length - 1;
           else
-            matchIndex = this.state.selectionIndex > 1 ? this.state.selectionIndex - 1 : 0;
+            matchIndex =
+              this.state.selectionIndex > 1 ? this.state.selectionIndex - 1 : 0;
 
-          this.setState({ value: this.state.matches[matchIndex].description[0] + (this.state.matches[matchIndex].description.length > 1 ? " " : ""),
-          autofill: { ...this.state.matches[matchIndex] }, selectionIndex: 0, autofillHighlight: true })
+          this.setState({
+            value:
+              this.state.matches[matchIndex].description[0] +
+              (this.state.matches[matchIndex].description.length > 1
+                ? " "
+                : ""),
+            autofill: { ...this.state.matches[matchIndex] },
+            selectionIndex: 0,
+            autofillHighlight: true,
+          });
         } else {
-          this.setState({ autofillIndex: this.state.value.trim().split(/ +/g).length - 1, autofillHighlight: true, value: (this.state.value + " ").replace(/ +$/, " ") })
+          this.setState({
+            autofillIndex: this.state.value.trim().split(/ +/g).length - 1,
+            autofillHighlight: true,
+            value: (this.state.value + " ").replace(/ +$/, " "),
+          });
         }
-      }
-      else if(this.state.matches.length > 0) {
+      } else if (this.state.matches.length > 0) {
         e.preventDefault();
         e.stopPropagation();
-        this.setState({ autofill: this.state.matches[0], autofillHighlight: true, value: this.state.matches[0].description[0]+(this.state.matches[0].description.length > 1 ? " ": ""), autofillIndex: 0})
+        this.setState({
+          autofill: this.state.matches[0],
+          autofillHighlight: true,
+          value:
+            this.state.matches[0].description[0] +
+            (this.state.matches[0].description.length > 1 ? " " : ""),
+          autofillIndex: 0,
+        });
       }
-        
     } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
       e.preventDefault();
       e.stopPropagation();
     }
-
-  }
+  };
 
   componentDidUpdate() {
     const { okbar } = this.props;
     okbar && this.input.current?.focus();
   }
-
 
   onChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const val = event.target.value.replace(/ +$/, " ");
@@ -136,41 +182,55 @@ class OkbarUI extends React.Component<Props, State> {
       e.stopPropagation();
 
       if (this.state.matches.length > 0) {
-        const selectId = this.state.selectionIndex > 1 ? this.state.selectionIndex - 1 : 0;
+        const selectId =
+          this.state.selectionIndex > 1 ? this.state.selectionIndex - 1 : 0;
         this.setState({ selectionIndex: selectId });
         return;
       }
 
       const itemId = this.state.cmdHistoryIndex + 1;
       if (this.state.cmdHistory[this.state.cmdHistory.length - itemId]) {
-        this.setState({ cmdHistoryIndex: itemId, value: this.state.cmdHistory[this.state.cmdHistory.length - itemId] });
+        this.setState({
+          cmdHistoryIndex: itemId,
+          value: this.state.cmdHistory[this.state.cmdHistory.length - itemId],
+        });
       }
-
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
 
       if (this.state.matches.length > 0) {
-        const selectId = this.state.selectionIndex < this.state.matches.length ? this.state.selectionIndex + 1 : this.state.matches.length;
+        const selectId =
+          this.state.selectionIndex < this.state.matches.length
+            ? this.state.selectionIndex + 1
+            : this.state.matches.length;
         this.setState({ selectionIndex: selectId });
         return;
       }
 
       const itemId = this.state.cmdHistoryIndex - 1;
       if (this.state.cmdHistory[this.state.cmdHistory.length - itemId]) {
-        this.setState({ cmdHistoryIndex: itemId, value: this.state.cmdHistory[this.state.cmdHistory.length - itemId]});
+        this.setState({
+          cmdHistoryIndex: itemId,
+          value: this.state.cmdHistory[this.state.cmdHistory.length - itemId],
+        });
       } else {
-        this.setState({value: "", cmdHistoryIndex: 0})
+        this.setState({ value: "", cmdHistoryIndex: 0 });
       }
-
     } else if (e.key === "Enter") {
       e.preventDefault();
       e.stopPropagation();
 
       if (this.state.selectionIndex !== 0) {
-
         this.setState({
-          value: this.state.matches[this.state.selectionIndex - 1].description[0] + (this.state.matches[this.state.selectionIndex - 1].description.length > 1 ? " " : ""),
-          autofill: { ...this.state.matches[this.state.selectionIndex - 1] }, selectionIndex: 0, autofillHighlight: true
+          value:
+            this.state.matches[this.state.selectionIndex - 1].description[0] +
+            (this.state.matches[this.state.selectionIndex - 1].description
+              .length > 1
+              ? " "
+              : ""),
+          autofill: { ...this.state.matches[this.state.selectionIndex - 1] },
+          selectionIndex: 0,
+          autofillHighlight: true,
         });
 
         return;
@@ -181,9 +241,11 @@ class OkbarUI extends React.Component<Props, State> {
       const args = elem.value.split(/ +/g).slice(1);
 
       try {
-        const result = parseCommand(cmd, args, [...(this.props.savedServers?.server || []), 
-                                                ...(this.props.favouriteServers?.server || []),
-                                                ...(this.props.groupServers?.map(g => g.server)?.flat() || [])]);
+        const result = parseCommand(cmd, args, [
+          ...(this.props.savedServers?.server || []),
+          ...(this.props.favouriteServers?.server || []),
+          ...(this.props.groupServers?.map((g) => g.server)?.flat() || []),
+        ]);
 
         this.setState({ cmdHistory: [...this.state.cmdHistory, elem.value] });
         switch (result.command) {
@@ -194,36 +256,49 @@ class OkbarUI extends React.Component<Props, State> {
             this.props.push("/main");
             break;
           case Command.SAVE:
-            this.props.saveServer(result.data)
+            this.props.saveServer(result.data);
             break;
         }
-
       } catch (e: any) {
         console.error(e);
         this.props.addBubble("command-error", {
           type: "ERROR",
           title: "Error executing Command",
           message: e,
-        })
+        });
       }
-    } else if(e.key === " ") {
-      
-      if(!this.state.autofill) {
-        if(this.state.matches.length > 0)
-          this.setState({autofill: this.state.matches[0], value: this.state.matches[0].description[0] + (this.state.matches[0].description.length > 1 ? " " : ""), autofillHighlight: true, autofillIndex: 0})
+    } else if (e.key === " ") {
+      if (!this.state.autofill) {
+        if (this.state.matches.length > 0)
+          this.setState({
+            autofill: this.state.matches[0],
+            value:
+              this.state.matches[0].description[0] +
+              (this.state.matches[0].description.length > 1 ? " " : ""),
+            autofillHighlight: true,
+            autofillIndex: 0,
+          });
       } else {
-        this.setState({ autofillIndex: this.state.value.split(/ +/g).length - 2, autofillHighlight: true })
+        this.setState({
+          autofillIndex: this.state.value.split(/ +/g).length - 2,
+          autofillHighlight: true,
+        });
         return;
       }
-
     } else {
-
       if (this.state.autofill) {
         if (e.key === "Backspace") {
           if (this.state.value.length === 0) {
-            this.setState({ autofill: null, autofillHighlight: false, autofillIndex: 0 })
+            this.setState({
+              autofill: null,
+              autofillHighlight: false,
+              autofillIndex: 0,
+            });
           } else {
-            this.setState({ autofillIndex: this.state.value.split(/ +/g).length - 2, autofillHighlight: true })
+            this.setState({
+              autofillIndex: this.state.value.split(/ +/g).length - 2,
+              autofillHighlight: true,
+            });
           }
         }
       }
@@ -239,7 +314,7 @@ class OkbarUI extends React.Component<Props, State> {
     const { username, ip, password, ftpPort, sshPort } = details;
     const { ftpType } = details;
 
-    this.props.push("/main")
+    this.props.push("/main");
 
     setTimeout(() => {
       if (ftpType === FTPConnectTypes.FTP) {
@@ -290,11 +365,23 @@ class OkbarUI extends React.Component<Props, State> {
         ></div>
         <div className="okbar">
           <div className="okbar-hint">
-            <span>{(this.state.matches[0]?.description[0][0] === value[0]?.toLowerCase() ? this.state.matches[0]?.description[0] : undefined) || (value.length === 0 ? "Enter Command" : "")}</span>
-            <span className="okbar-hint-value">{" "+value.split(/ +/g).slice(1)}</span>
             <span>
-              {this.state.value.trim().split(/ +/g).length == this.state.autofillIndex + 1 ?
-                this.state.autofill?.references[this.state.autofill.description.slice(1)[this.state.autofillIndex]]
+              {(this.state.matches[0]?.description[0][0] ===
+              value[0]?.toLowerCase()
+                ? this.state.matches[0]?.description[0]
+                : undefined) || (value.length === 0 ? "Enter Command" : "")}
+            </span>
+            <span className="okbar-hint-value">
+              {" " + value.split(/ +/g).slice(1)}
+            </span>
+            <span>
+              {this.state.value.trim().split(/ +/g).length ==
+              this.state.autofillIndex + 1
+                ? this.state.autofill?.references[
+                    this.state.autofill.description.slice(1)[
+                      this.state.autofillIndex
+                    ]
+                  ]
                 : ""}
             </span>
           </div>
@@ -308,11 +395,22 @@ class OkbarUI extends React.Component<Props, State> {
             onKeyUp={this.onKeyUp}
             onFocus={() => this.input.current.select()}
           />
-          {this.state.matches.length > 0 &&
+          {this.state.matches.length > 0 && (
             <div className="matches">
-              {this.state.matches.map((match) => (<Match key={match.type} autofillIndex={this.state.autofillIndex} autofillHighlight={this.state.autofillHighlight} match={match} selected={this.state.matches.findIndex(m => m.type == match.type) == (this.state.selectionIndex - 1)} />))}
+              {this.state.matches.map((match) => (
+                <Match
+                  key={match.type}
+                  autofillIndex={this.state.autofillIndex}
+                  autofillHighlight={this.state.autofillHighlight}
+                  match={match}
+                  selected={
+                    this.state.matches.findIndex((m) => m.type == match.type) ==
+                    this.state.selectionIndex - 1
+                  }
+                />
+              ))}
             </div>
-          }
+          )}
         </div>
       </div>
     );

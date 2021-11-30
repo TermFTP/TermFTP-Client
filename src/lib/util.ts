@@ -53,3 +53,5 @@ export function getProgressDir(cwd: string, dir: string): ProgressFileI[] {
 	})
 	return results;
 }
+
+export const checkTag = (el: HTMLElement, tag: string): boolean => el?.tagName.toLowerCase() === tag.toLowerCase()
