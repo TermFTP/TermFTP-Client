@@ -29,7 +29,7 @@ export class Endpoints implements IRawParams {
 	[k: string]: any;
 
 	// static baseURL = isDev ? "http://localhost:8080/api/v1" : "http://localhost:8080/api/v1"; // TODO get domain and server
-	private static _base = isDev ? "http://localhost:8080" : "http://localhost:8080";
+	private static _base = isDev ? window.process.env.API_BASE || "http://localhost:8080" : "http://localhost:8080";
 	private static _apiURL = "/api/v1";
 	headers: AuthHeaders = {};
 	private static _instance: Endpoints;
