@@ -6,7 +6,7 @@ import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Lists } from "@components";
 import { setPrompt, setSettings } from "@store/app";
-import { BaseFTP, FTP, SFTP, parseCommand } from "@lib";
+import { BaseFTP, FTP, SFTP } from "@lib";
 import {
   editServer,
   fetchGroups,
@@ -48,7 +48,6 @@ type PropsFromState = ConnectedProps<typeof connector>;
 type Props = PropsFromState;
 
 interface State {
-  mode: boolean;
   ip: string;
   ftpPort: number;
   sshPort: number;
@@ -56,7 +55,6 @@ interface State {
   password: string;
   canConnect: boolean;
   serverID: string;
-  cmdHistory: string[];
 }
 
 enum Change {
@@ -71,7 +69,6 @@ export class ConnectUI extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      mode: false,
       ip: "",
       ftpPort: 21,
       password: "",
@@ -79,7 +76,6 @@ export class ConnectUI extends Component<Props, State> {
       canConnect: false,
       sshPort: 22,
       serverID: undefined,
-      cmdHistory: [],
     };
   }
   componentDidMount(): void {
@@ -119,24 +115,16 @@ export class ConnectUI extends Component<Props, State> {
     this.setState(upd);
   };
 
-  changeMode = (): void => {
-    this.setState({ mode: !this.state.mode });
-  };
-
-  executeCommand = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const cmd = e.target.value.split(" ")[0];
-    const args = e.target.value.split(" ").slice(1);
-    if (parseCommand(cmd, args)) {
-      this.setState({ cmdHistory: [...this.state.cmdHistory, e.target.value] });
-    }
-  };
-
   onConnect = (
     e: React.MouseEvent<HTMLInputElement>,
     details: ConnectDetails = undefined
   ): void => {
     e.preventDefault();
     e.stopPropagation();
+    this.doConnect(details);
+  };
+
+  doConnect = (details: ConnectDetails = undefined): void => {
     const { username, ip, password, ftpPort, sshPort } = details || this.state;
     const { ftpType } = details || this.props;
     if (ftpType === FTPConnectTypes.FTP) {
@@ -170,7 +158,7 @@ export class ConnectUI extends Component<Props, State> {
         })
       );
     }
-  };
+  }
 
   onSave = (): void => {
     const { ip, username, ftpPort, password, sshPort } = this.state;
@@ -265,13 +253,12 @@ export class ConnectUI extends Component<Props, State> {
 
   render(): JSX.Element {
     const {
-      changeMode,
       handleChange,
       onConnect,
       onSave,
       onFavourite,
       props: { currentlyEdited },
-      state: { ip, canConnect, password, mode, ftpPort, sshPort, username },
+      state: { ip, canConnect, password, ftpPort, sshPort, username },
     } = this;
     const isEdited = Boolean(currentlyEdited);
     return (
@@ -280,13 +267,6 @@ export class ConnectUI extends Component<Props, State> {
 
         <div className="connect-settings">
           <button
-            className={`connect-switch ${mode ? "switched" : ""}`}
-            onClick={changeMode}
-          >
-            <span>GUI</span>
-            <span>CLI</span>
-          </button>
-          <button
             className="connect-settings-btn"
             onClick={() => this.props.push("/settings")}
           >
@@ -294,9 +274,7 @@ export class ConnectUI extends Component<Props, State> {
           </button>
         </div>
 
-        {/* GUI */}
-
-        {!this.state.mode && (
+        
           <div className="connect-gui">
             <div className="connect-list-wrapper">
               <Lists connect={onConnect}></Lists>
@@ -413,14 +391,6 @@ export class ConnectUI extends Component<Props, State> {
               </div>
             </form>
           </div>
-        )}
-
-        {/* CLI */}
-        {this.state.mode && (
-          <div className="connect-cli">
-            <input className="krasse-cli" onChange={this.executeCommand} />
-          </div>
-        )}
       </div>
     );
   }

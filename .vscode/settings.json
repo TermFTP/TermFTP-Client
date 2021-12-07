@@ -1,5 +1,6 @@
 {
   "editor.tabSize": 2,
   "xd.globalEditor": true,
-  "xd.lastPackage": "/c:/coding/coop/TermFTP-Client/assets/dsp"
+  "xd.lastPackage": "/c:/coding/coop/TermFTP-Client/assets/dsp",
+  "discord.enabled": true
 }

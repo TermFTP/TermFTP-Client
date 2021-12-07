@@ -25,7 +25,7 @@ import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { FileType, ProgressFileI } from "@shared";
 import { statSync } from "fs";
 import { basename } from "path";
-import { getProgressDir } from "@lib";
+import { checkTag, getProgressDir } from "@lib";
 import { focusFilesElement } from "@pages";
 
 const mapState = ({
@@ -175,21 +175,17 @@ const ContextMenuUI = ({
     }
   };
   const keyUp = (e: KeyboardEvent) => {
+    if (e?.target) {
+      const el = e.target as HTMLElement;
+      // check if element is either input, editable or a not a file
+      if (checkTag(el, "input") || el.isContentEditable) return;
+    }
     if (e.key === "Escape") {
       e.stopPropagation();
       e.preventDefault();
       setContextMenu({ isOpen: false });
       focusFilesElement();
       setCurItem(-1);
-    } else if (e.key === "Tab") {
-      e.stopPropagation();
-      e.preventDefault();
-      let change = 0;
-      if (e.shiftKey) change = -1;
-      else change = 1;
-      // wrap around
-      const item = curItem < 0 ? -1 : curItem;
-      setCurItem((item + items.length + change) % items.length);
     } else if (e.key.includes("Arrow")) {
       e.stopPropagation();
       e.preventDefault();
@@ -201,14 +197,34 @@ const ContextMenuUI = ({
       setCurItem((item + items.length + change) % items.length);
     }
   };
+  const keyDown = (e: KeyboardEvent) => {
+    if (e?.target) {
+      const el = e.target as HTMLElement;
+      // check if element is either input, editable or a not a file
+      if (checkTag(el, "input") || el.isContentEditable) return;
+    }
+
+    if (e.key === "Tab") {
+      e.stopPropagation();
+      e.preventDefault();
+      let change = 0;
+      if (e.shiftKey) change = -1;
+      else change = 1;
+      // wrap around
+      const item = curItem < 0 ? -1 : curItem;
+      setCurItem((item + items.length + change) % items.length);
+    }
+  };
   useEffect(() => {
     // remove any previous event listeners (you never know)
     document.removeEventListener("keyup", keyUp);
+    document.removeEventListener("keydown", keyDown);
     document.removeEventListener("click", click);
 
     // add the event listeners if it is open
     if (isOpen) {
       document.addEventListener("click", click);
+      document.addEventListener("keydown", keyDown);
       document.addEventListener("keyup", keyUp);
       !x && !y && curItem == -1 && setCurItem(0);
     }
@@ -216,6 +232,7 @@ const ContextMenuUI = ({
     // clean up (remove the event listeners)
     return () => {
       document.removeEventListener("click", click);
+      document.removeEventListener("keydown", keyDown);
       document.removeEventListener("keyup", keyUp);
       !isOpen && setCurItem(-1);
     };

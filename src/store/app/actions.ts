@@ -3,6 +3,7 @@ import { ThunkAction } from "redux-thunk";
 import { AppState, AppActionTypes } from "./types";
 import { BubbleModel, DefaultReturn } from "@models";
 import { PromptProps } from "@components";
+import { OkbarProps } from "@components/Okbar/Okbar";
 
 export type AppThunk<ReturnType = void> = ActionCreator<
   ThunkAction<ReturnType, AppState, unknown, Action<string>>
@@ -32,6 +33,13 @@ export const setPrompt = (prompt: PromptProps): Ret => {
     payload: prompt,
   };
 };
+
+export const setOkbar = (okbar: OkbarProps): Ret => {
+  return {
+    type: AppActionTypes.SET_OKBAR,
+    payload: okbar,
+  }
+}
 
 export const addBubble = (key: string, bubble: BubbleModel): Ret => {
   bubble.when = new Date();
