@@ -9,12 +9,14 @@ export interface TabData {
 export enum TabsActionTypes {
 	ADD = "tabs/add",
 	REMOVE = "tabs/remove",
-	CHANGE_POS = "tabs/change-pos"
+	CHANGE_POS = "tabs/change-pos",
+	SWITCH_TAB = "tabs/switch-tab"
 }
 
 export interface TabsState {
 	tabIndices: Record<string, number>;
 	tabs: TabData[];
+	currentTab?: string;
 }
 
 const A = TabsActionTypes;
@@ -37,4 +39,9 @@ export interface TabsChangePosition {
 	};
 }
 
-export type TabsActions = TabsAddTab | TabsRemoveTab | TabsChangePosition;
+export interface TabsSwitchTab {
+	type: typeof A.SWITCH_TAB,
+	payload: string;
+}
+
+export type TabsActions = TabsAddTab | TabsRemoveTab | TabsChangePosition | TabsSwitchTab;

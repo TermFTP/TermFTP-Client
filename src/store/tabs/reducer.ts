@@ -48,6 +48,11 @@ export const tabsReducer: Reducer<TabsState, TabsActions> = (state = initialStat
 				tabs
 			}
 		}
+		case A.SWITCH_TAB:
+			return {
+				...state,
+				currentTab: action.payload
+			}
 		default:
 			return state;
 	}
