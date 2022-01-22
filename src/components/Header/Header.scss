@@ -1,12 +1,15 @@
 /************************************************
 * Header                                         *
 *************************************************/
-$headerSize: 30px;
+$headerSize: 36px;
 $resizeSize: 2px;
+$btnSize: $headerSize;
 
 /*Header Bar*/
 #headerBar {
+  --btn-size: #{$btnSize};
   // position: relative;
+  height: $headerSize;
   z-index: 100;
   display: flex;
   flex-direction: column;
@@ -16,6 +19,7 @@ $resizeSize: 2px;
   color: white;
   // position: fixed;
   width: 100%;
+  position: relative;
 
   .navBtn {
     cursor: pointer;
@@ -34,7 +38,7 @@ $resizeSize: 2px;
 /*Header Main*/
 #headerMain {
   display: flex;
-  height: $headerSize;
+  height: $btnSize;
   justify-content: center;
   align-items: center;
 }
@@ -43,6 +47,16 @@ $resizeSize: 2px;
 .headerResizableVert {
   width: $resizeSize;
   -webkit-app-region: no-drag;
+  position: absolute;
+  top: 0;
+
+  &:first-child {
+    left: 0;
+  }
+
+  &:last-child {
+    right: 0;
+  }
 }
 /* Undraggable region on the top of the header. --> so that you can resize window */
 #headerResizableTop {
@@ -56,14 +70,15 @@ $resizeSize: 2px;
   justify-content: space-between;
   width: 100%;
   -webkit-app-region: drag;
-  height: $headerSize - $resizeSize;
+  height: $btnSize;
 
   #headerTitle {
-    padding: 0px 5px;
-    -webkit-app-region: no-drag;
+    padding-right: 5px;
+    -webkit-app-region: drag;
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-grow: 1;
   }
 
   #headerTitleText {
@@ -76,9 +91,9 @@ $resizeSize: 2px;
   .headerDock {
     -webkit-app-region: no-drag;
     position: relative;
-    height: $headerSize - $resizeSize;
-    top: -$resizeSize;
-    right: -$resizeSize;
+    height: $btnSize;
+    // top: -$resizeSize;
+    // right: -$resizeSize;
   }
 
   /*Header button styles*/
@@ -86,7 +101,7 @@ $resizeSize: 2px;
     background: none;
     border: none;
     height: $headerSize;
-    width: $headerSize * 1.5;
+    width: $headerSize;
     cursor: pointer;
     transition: background-color 200ms ease-in-out;
     color: white;
@@ -122,8 +137,8 @@ $resizeSize: 2px;
   flex-direction: row-reverse;
 
   .headerDock {
-    top: -1px;
-    right: -1px;
+    // top: -1px;
+    // right: -1px;
     // width: 100%;
 
     & > .headerButton:not(:first-child) {

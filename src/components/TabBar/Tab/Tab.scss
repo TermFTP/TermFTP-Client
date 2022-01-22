@@ -1,0 +1,19 @@
+.tab {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: var(--btn-size);
+  height: var(--btn-size);
+  transition: var(--dur) background-color ease;
+  -webkit-app-region: no-drag;
+
+  &:hover {
+    background-color: var(--dark-bg-1);
+  }
+}
+
+.tab-active {
+  background: var(--background);
+}
