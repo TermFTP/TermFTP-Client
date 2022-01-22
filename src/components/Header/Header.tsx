@@ -12,6 +12,7 @@ import { DefaultDispatch, RootState } from "@store";
 import { connect, ConnectedProps } from "react-redux";
 import { push } from "connected-react-router";
 import { Endpoints } from "@lib/Endpoints";
+import { TabBar } from "@components";
 
 const mapState = ({ router }: RootState) => ({
   router,
@@ -29,8 +30,11 @@ type Props = PropsFromState;
 function HeaderUI({ push, router }: Props) {
   const [prevPath, setPrevPath] = useState("");
 
-  if (router.location.pathname !== prevPath)
-    setPrevPath(router.location.pathname);
+  const {
+    location: { pathname },
+  } = router;
+
+  if (pathname !== prevPath) setPrevPath(pathname);
 
   const id = process.platform === "darwin" ? "darwin" : "";
 
@@ -42,7 +46,7 @@ function HeaderUI({ push, router }: Props) {
 
         <div className="headerContent" id={id}>
           <div id="headerTitle">
-            <button
+            {/* <button
               onClick={() => {
                 if (Endpoints.getInstance().headers["Access-Token"])
                   push("/main");
@@ -51,8 +55,10 @@ function HeaderUI({ push, router }: Props) {
               className="navBtn"
             >
               <FontAwesomeIcon icon={faHome}></FontAwesomeIcon>
-            </button>
-            {id === "" && <span id="headerTitleText">TermFTP</span>}
+            </button> */}
+            {!(pathname.includes("login") || pathname.includes("register")) && (
+              <TabBar></TabBar>
+            )}
           </div>
           <div className="headerDock">
             <GetWindowControls id={id}></GetWindowControls>

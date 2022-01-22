@@ -1,9 +1,8 @@
-import { BaseFTP, FTPConfig } from "@lib";
+import { BaseFTP } from "@lib";
 
 export interface TabData {
-	id: string;
-	client: BaseFTP;
-	ftpConfig: FTPConfig;
+	id?: string;
+	client?: BaseFTP;
 }
 
 export enum TabsActionTypes {

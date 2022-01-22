@@ -30,3 +30,8 @@ export const switchToTab = (id: string): TabsSwitchTab => ({
 	payload: id,
 	type: A.SWITCH_TAB
 })
+
+export const switchToHome = (): TabsSwitchTab => ({
+	payload: undefined,
+	type: A.SWITCH_TAB
+})
