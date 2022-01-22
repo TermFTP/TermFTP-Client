@@ -1,8 +1,11 @@
-import { BaseFTP } from "@lib";
+import { FMState } from "@store/filemanager";
+import { FTPState } from "@store/ftp";
 
 export interface TabData {
 	id?: string;
-	client?: BaseFTP;
+	ftpReducer?: FTPState;
+	fmReducer?: FMState;
+	path?: string;
 }
 
 export enum TabsActionTypes {
@@ -40,7 +43,12 @@ export interface TabsChangePosition {
 
 export interface TabsSwitchTab {
 	type: typeof A.SWITCH_TAB,
-	payload: string;
+	payload: {
+		id: string;
+		currentFtp: FTPState;
+		currentFm: FMState;
+		currentPath: string;
+	}
 }
 
 export type TabsActions = TabsAddTab | TabsRemoveTab | TabsChangePosition | TabsSwitchTab;

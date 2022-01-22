@@ -48,11 +48,24 @@ export const tabsReducer: Reducer<TabsState, TabsActions> = (state = initialStat
 				tabs
 			}
 		}
-		case A.SWITCH_TAB:
+		case A.SWITCH_TAB: {
+			const { id, currentFm, currentFtp, currentPath } = action.payload;
+			const { currentTab } = state;
+			const newTabs = [...state.tabs];
+			if (currentTab) {
+				const index = state.tabIndices[currentTab];
+				const tab = { ...state.tabs[index] };
+				tab.fmReducer = currentFm;
+				tab.ftpReducer = currentFtp;
+				tab.path = currentPath;
+				newTabs[index] = tab;
+			}
 			return {
 				...state,
-				currentTab: action.payload
+				currentTab: id,
+				tabs: newTabs,
 			}
+		}
 		default:
 			return state;
 	}
