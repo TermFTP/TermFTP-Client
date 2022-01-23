@@ -139,11 +139,11 @@ export class FileManagerUI extends Component<Props, State> {
   }
 
   componentWillUnmount(): void {
-    this.props.client?.disconnect();
+    // this.props.client?.disconnect();
     // this.props.client?.removeAllListeners();
-    this.props.setFiles([]);
+    // this.props.setFiles([]);
     this.props.doSearch({ searching: false });
-    this.props.clearProgressFiles();
+    // this.props.clearProgressFiles();
   }
 
   // eslint-disable-next-line

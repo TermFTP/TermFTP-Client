@@ -3,7 +3,7 @@ import { Reducer } from "redux";
 import { ProgressFileI } from "@shared";
 import { basename } from "path";
 
-export const initialState: FMState = {
+export const createFMState = (): FMState => ({
 	menu: {
 		isOpen: false,
 	},
@@ -18,7 +18,9 @@ export const initialState: FMState = {
 		pwd: "",
 		focused: false
 	}
-};
+})
+
+export const initialState: FMState = createFMState();
 
 export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
 	switch (action.type) {

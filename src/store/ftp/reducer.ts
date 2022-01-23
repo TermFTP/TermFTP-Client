@@ -2,7 +2,8 @@ import { FTPState, FTPActionTypes } from "./types";
 import { Reducer } from "redux";
 import { FileI, FTPConnectTypes } from "@shared";
 
-export const initialState: FTPState = {
+export const createFTPState = (): FTPState => ({
+
 	client: undefined,
 	files: [],
 	selection: {
@@ -10,7 +11,8 @@ export const initialState: FTPState = {
 		selected: new Set<FileI>()
 	},
 	ftpType: FTPConnectTypes.SFTP
-};
+})
+export const initialState: FTPState = createFTPState();
 
 export const ftpReducer: Reducer<FTPState> = (state = initialState, action) => {
 	switch (action.type) {

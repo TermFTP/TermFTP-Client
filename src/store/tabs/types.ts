@@ -25,7 +25,7 @@ export enum TabsActionTypes {
 export interface TabsState {
 	tabIndices: Record<string, number>;
 	tabs: TabData[];
-	currentTab?: string;
+	currentTab: string | undefined;
 }
 
 const A = TabsActionTypes;

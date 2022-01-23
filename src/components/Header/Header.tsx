@@ -1,17 +1,12 @@
 import React, { useState } from "react";
 import "./Header.scss";
 import { getCurrentWindow } from "@electron/remote";
-import {
-  faHome,
-  faTimes,
-  faWindowMinimize,
-} from "@fortawesome/free-solid-svg-icons";
+import { faTimes, faWindowMinimize } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWindowMaximize } from "@fortawesome/free-regular-svg-icons";
 import { DefaultDispatch, RootState } from "@store";
 import { connect, ConnectedProps } from "react-redux";
 import { push } from "connected-react-router";
-import { Endpoints } from "@lib/Endpoints";
 import { TabBar } from "@components";
 
 const mapState = ({ router }: RootState) => ({
@@ -27,7 +22,7 @@ const connector = connect(mapState, mapDispatch);
 type PropsFromState = ConnectedProps<typeof connector>;
 type Props = PropsFromState;
 
-function HeaderUI({ push, router }: Props) {
+function HeaderUI({ router }: Props) {
   const [prevPath, setPrevPath] = useState("");
 
   const {
@@ -56,9 +51,11 @@ function HeaderUI({ push, router }: Props) {
             >
               <FontAwesomeIcon icon={faHome}></FontAwesomeIcon>
             </button> */}
-            {!(pathname.includes("login") || pathname.includes("register")) && (
-              <TabBar></TabBar>
-            )}
+            {!(
+              pathname.includes("login") ||
+              pathname.includes("register") ||
+              pathname === "/"
+            ) && <TabBar></TabBar>}
           </div>
           <div className="headerDock">
             <GetWindowControls id={id}></GetWindowControls>

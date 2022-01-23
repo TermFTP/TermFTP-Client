@@ -6,7 +6,8 @@ const A = TabsActionTypes;
 
 export const initialState: TabsState = {
 	tabs: [],
-	tabIndices: {}
+	tabIndices: {},
+	currentTab: undefined
 };
 
 export const tabsReducer: Reducer<TabsState, TabsActions> = (state = initialState, action: TabsActions) => {
@@ -19,7 +20,8 @@ export const tabsReducer: Reducer<TabsState, TabsActions> = (state = initialStat
 			return {
 				...state,
 				tabs,
-				tabIndices
+				tabIndices,
+				currentTab: tab.id
 			}
 		}
 		case A.REMOVE: {
@@ -52,6 +54,7 @@ export const tabsReducer: Reducer<TabsState, TabsActions> = (state = initialStat
 			const { id, currentFm, currentFtp, currentPath } = action.payload;
 			const { currentTab } = state;
 			const newTabs = [...state.tabs];
+			// if this is false/undefined it is the home tab
 			if (currentTab) {
 				const index = state.tabIndices[currentTab];
 				const tab = { ...state.tabs[index] };
@@ -60,6 +63,7 @@ export const tabsReducer: Reducer<TabsState, TabsActions> = (state = initialStat
 				tab.path = currentPath;
 				newTabs[index] = tab;
 			}
+			console.log("new", id)
 			return {
 				...state,
 				currentTab: id,
