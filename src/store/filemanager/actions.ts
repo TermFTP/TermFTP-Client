@@ -71,4 +71,9 @@ export const setPasteBuffer = (buffer: PasteBuffer): Ret => ({
 	payload: buffer
 })
 
+export const updateFMReducer = (fm: FMState): Ret => ({
+	type: FMActions.UPDATE_FM_REDUCER,
+	payload: fm
+})
+
 export const clearPasteBuffer = (): Ret => setPasteBuffer(undefined)
