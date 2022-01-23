@@ -5,13 +5,11 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { Endpoints } from "@lib";
 import { Provider } from "react-redux";
-import configureStore from "./configureStore";
+import { store } from "@store";
 
 // create an endpoints instance
 Endpoints.getInstance();
 
-const initialState: any = {};
-export const store = configureStore(initialState);
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>

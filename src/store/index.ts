@@ -1,8 +1,8 @@
-import { combineReducers, AnyAction } from "redux";
+import { combineReducers, AnyAction, createStore, applyMiddleware, Action } from "redux";
 import { appReducer } from "./app";
-import { ThunkDispatch } from "redux-thunk";
-import { connectRouter } from "connected-react-router";
-import { History } from "history";
+import thunk, { ThunkDispatch } from "redux-thunk";
+import { connectRouter, routerMiddleware } from "connected-react-router";
+import { createBrowserHistory, History } from "history";
 import { userReducer } from "./user";
 import { listReducer } from "./lists";
 import { ftpReducer } from "./ftp";
@@ -21,6 +21,15 @@ export const createRootReducer = (history: History) =>
 		tabsReducer
 	});
 
-export type RootState = ReturnType<ReturnType<typeof createRootReducer>>;
+export const history = createBrowserHistory();
 
-export type DefaultDispatch = ThunkDispatch<any, any, AnyAction | TabsActions>;
+export const store = createStore(
+	createRootReducer(history),
+	applyMiddleware(routerMiddleware(history), thunk)
+);
+
+export type RootState = ReturnType<typeof store.getState>;
+
+export type RootActions = TabsActions | Action<any> | AnyAction;
+
+export type DefaultDispatch = ThunkDispatch<any, any, RootActions | AnyAction>;

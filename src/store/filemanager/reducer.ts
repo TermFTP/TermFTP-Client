@@ -130,6 +130,10 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
 				...state,
 				pasteBuffer: action.payload
 			}
+		case FMActions.UPDATE_FM_REDUCER:
+			return {
+				...action.payload
+			}
 		default:
 			return state;
 	}

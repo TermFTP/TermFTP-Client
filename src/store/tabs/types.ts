@@ -1,5 +1,12 @@
+import { RootActions } from "@store";
 import { FMState } from "@store/filemanager";
 import { FTPState } from "@store/ftp";
+import { ActionCreator } from "redux";
+import { ThunkAction } from "redux-thunk";
+
+export type TabsThunk<ReturnType = void> = ActionCreator<
+	ThunkAction<ReturnType, TabsState, unknown, RootActions>
+>;
 
 export interface TabData {
 	id?: string;

@@ -1,13 +1,9 @@
-import { Action, ActionCreator } from "redux";
-import { ThunkAction } from "redux-thunk";
-import { TabData, TabsAddTab, TabsChangePosition, TabsRemoveTab, TabsSwitchTab } from ".";
-import { TabsState, TabsActionTypes } from "./types";
+import { FMState, updateFMReducer } from "@store/filemanager";
+import { FTPState, updateFTPReducer } from "@store/ftp";
+import { TabData, TabsAddTab, TabsChangePosition, TabsRemoveTab, TabsSwitchTab, TabsThunk } from ".";
+import { TabsActionTypes } from "./types";
 
 const A = TabsActionTypes;
-
-export type TabsThunk<ReturnType = void> = ActionCreator<
-	ThunkAction<ReturnType, TabsState, unknown, Action<string>>
->;
 
 export const addTab = (tab: TabData): TabsAddTab => ({
 	payload: tab,
@@ -26,10 +22,19 @@ export const changeTabPosition = (id: string, index: number): TabsChangePosition
 	type: A.CHANGE_POS
 })
 
-export const switchToTab = (id: string): TabsSwitchTab => ({
-	payload: id,
-	type: A.SWITCH_TAB
-})
+export const switchToTab: TabsThunk = (tab: TabData, currentFm: FMState, currentPath: string, currentFtp: FTPState) => (dispatch) => {
+	dispatch(updateFTPReducer(tab.ftpReducer));
+	dispatch(updateFMReducer(tab.fmReducer))
+	return dispatch({
+		type: A.SWITCH_TAB,
+		payload: {
+			currentFm,
+			currentFtp,
+			currentPath,
+			id: tab.id
+		}
+	})
+}
 
 export const switchToHome = (): TabsSwitchTab => ({
 	payload: undefined,

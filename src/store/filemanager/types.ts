@@ -37,6 +37,7 @@ export enum FMActions {
 	CHANGE_PATH_BOX = "fm/change-path-box",
 	TOGGLE_CONTEXT_MENU = "fm/toggle-context-menu",
 	SET_PASTE_BUFFER = "fm/create-paste-buffer",
+	UPDATE_FM_REDUCER = "fm/update-fm-reducer"
 }
 
 
