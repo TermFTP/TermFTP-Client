@@ -5,15 +5,50 @@
   justify-content: center;
   gap: 2px;
   min-width: var(--btn-size);
+  max-width: calc(var(--btn-size) * 10);
   height: var(--btn-size);
   transition: var(--dur) background-color ease;
   -webkit-app-region: no-drag;
+  padding: 0 0.4em;
+  user-select: none;
+
+  &[id] {
+    font-size: 0.9rem;
+  }
 
   &:hover {
     background-color: var(--dark-bg-1);
   }
 }
 
+.tab-content {
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
 .tab-active {
   background: var(--background);
+}
+
+.tab-close {
+  background: inherit;
+  height: calc(var(--btn-size) * 0.5);
+  width: calc(var(--btn-size) * 0.5);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 5px;
+
+  > * {
+    font-size: 0.9em;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &:hover {
+    background: transparentize($color: #dadada, $amount: 0.5);
+  }
 }

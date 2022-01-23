@@ -10,8 +10,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch } from "react-router";
 import "./App.scss";
-import { history } from "./configureStore";
-import { RootState } from "./store";
+import { history, RootState } from "./store";
 import "./variables.scss";
 
 // const mapDispatch = (dispatch: DefaultDispatch) => ({});
