@@ -3,22 +3,24 @@ import { createFMState, FMState, updateFMReducer } from "@store/filemanager";
 import { createFTPState, FTPState, updateFTPReducer } from "@store/ftp";
 import { push } from "connected-react-router";
 import { randomUUID } from "crypto";
-import { TabData, TabsAddTab, TabsChangePosition, TabsRemoveTab, TabsSwitchTab, TabsThunk } from ".";
+import { TabData, TabsChangePosition, TabsRemoveTab, TabsThunk } from ".";
 import { TabsActionTypes } from "./types";
 
 const A = TabsActionTypes;
 
-export const addTab: TabsThunk<TabsAddTab> = () => (dispatch) => {
-	dispatch(push("/main"));
-	return dispatch({
-		payload: {
-			fmReducer: createFMState(),
-			ftpReducer: createFTPState(),
-			path: "",
-			id: randomUUID()
-		},
+export const addTab: TabsThunk<TabData> = () => (dispatch) => {
+	const payload = {
+		fmReducer: createFMState(),
+		ftpReducer: createFTPState(),
+		path: "",
+		id: randomUUID()
+	}
+
+	dispatch({
+		payload,
 		type: A.ADD
 	})
+	return payload
 };
 
 export const removeTab = (id: string): TabsRemoveTab => ({
@@ -33,19 +35,12 @@ export const changeTabPosition = (id: string, index: number): TabsChangePosition
 	type: A.CHANGE_POS
 })
 
-export const switchToTab: TabsThunk<TabsSwitchTab> = (tab: TabData, currentFm: FMState, currentFtp: FTPState) => (dispatch) => {
+export const switchToTab: TabsThunk = (tab: TabData, currentFm: FMState, currentFtp: FTPState) => (dispatch) => {
 	const url = normalizeURL(
 		window.location.pathname.replace(/^\/([^/]+)\/?/, "/")
 	);
 	const pathname = window.location.pathname;
-	if (pathname === "/main")
-		dispatch(updateFTPReducer(tab.ftpReducer));
-	dispatch(updateFMReducer(tab.fmReducer));
-
-	if (tab.path === "") dispatch(push("/main"))
-	else dispatch(push(`/file-manager${tab.path}`));
-
-	return dispatch({
+	dispatch({
 		type: A.SWITCH_TAB,
 		payload: {
 			currentFm,
@@ -54,4 +49,19 @@ export const switchToTab: TabsThunk<TabsSwitchTab> = (tab: TabData, currentFm: F
 			id: tab.id
 		}
 	});
+	// if (pathname === "/main")
+	dispatch(updateFTPReducer(tab.ftpReducer));
+	dispatch(updateFMReducer(tab.fmReducer));
+
+	if (tab.path === "") dispatch(push("/main"))
+	else {
+		// TODO reload if same path
+		dispatch(push(`/file-manager${tab.path}`));
+	}
+}
+
+export const switchAndAddTab: TabsThunk<TabData> = (currentFm: FMState, currentFtp: FTPState) => (dispatch) => {
+	const tab = dispatch(addTab());
+	dispatch(switchToTab(tab, currentFm, currentFtp))
+	return tab;
 }

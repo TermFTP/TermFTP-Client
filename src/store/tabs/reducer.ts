@@ -21,7 +21,6 @@ export const tabsReducer: Reducer<TabsState, TabsActions> = (state = initialStat
 				...state,
 				tabs,
 				tabIndices,
-				currentTab: tab.id
 			}
 		}
 		case A.REMOVE: {
@@ -63,7 +62,6 @@ export const tabsReducer: Reducer<TabsState, TabsActions> = (state = initialStat
 				tab.path = currentPath;
 				newTabs[index] = tab;
 			}
-			console.log("new", id)
 			return {
 				...state,
 				currentTab: id,

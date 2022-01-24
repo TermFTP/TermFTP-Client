@@ -11,9 +11,11 @@
   -webkit-app-region: no-drag;
   padding: 0 0.4em;
   user-select: none;
+  flex-shrink: 0;
 
   &[id] {
     font-size: 0.9rem;
+    min-width: max-content;
   }
 
   &:hover {

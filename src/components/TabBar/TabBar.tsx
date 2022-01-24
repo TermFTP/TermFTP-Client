@@ -5,7 +5,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Tab } from "./Tab/Tab";
 import "./TabBar.scss";
-import { TabData, switchToTab, addTab } from "@store/tabs";
+import { TabData, switchToTab, switchAndAddTab } from "@store/tabs";
 import { initialState as fmInitState } from "@store/filemanager";
 import { initialState as ftpInitState } from "@store/ftp";
 
@@ -37,7 +37,10 @@ export const TabBar = (): JSX.Element => {
       {tabs.map((t) => (
         <Tab tab={t} key={t.id} onClicked={onTabClicked}></Tab>
       ))}
-      <button className="tab-new" onClick={() => dispatch(addTab())}>
+      <button
+        className="tab-new"
+        onClick={() => dispatch(switchAndAddTab(fmReducer, ftpReducer))}
+      >
         <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
       </button>
     </div>
