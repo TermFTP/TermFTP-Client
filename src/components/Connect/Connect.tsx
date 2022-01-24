@@ -16,21 +16,24 @@ import {
 import { EditReq, SaveReq, Server } from "@models";
 import { ConnectDetails } from "./Lists/ServerItem/ServerItem";
 import { PromptProps } from "@components/Prompt/Prompt";
-import { goToFTPClient, setFTPType } from "@store/ftp";
+import { FTPState, goToFTPClient, setFTPType } from "@store/ftp";
 import { FTPConnectTypes } from "@shared";
 import { push } from "connected-react-router";
-import { addTab } from "@store/tabs";
+import { switchAndAddTab } from "@store/tabs";
+import { FMState } from "@store/filemanager";
 
 type CKey = keyof typeof FTPConnectTypes;
 
 const mapState = ({
   listReducer: { currentlyEdited },
-  ftpReducer: { ftpType },
+  ftpReducer,
+  fmReducer,
   tabsReducer: { currentTab },
 }: RootState) => ({
   currentlyEdited,
-  ftpType,
   currentTab,
+  ftpReducer,
+  fmReducer,
 });
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
@@ -43,7 +46,8 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   changeEditServer: (server: Server) => dispatch(changeEditServer(server)),
   setFTPType: (type: FTPConnectTypes) => dispatch(setFTPType(type)),
   push: (route: string) => dispatch(push(route)),
-  addTab: () => dispatch(addTab()),
+  switchAndAddTab: (fmReducer: FMState, ftpReducer: FTPState) =>
+    dispatch(switchAndAddTab(fmReducer, ftpReducer)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -130,9 +134,12 @@ export class ConnectUI extends Component<Props, State> {
 
   doConnect = (details: ConnectDetails = undefined): void => {
     const { username, ip, password, ftpPort, sshPort } = details || this.state;
-    const { ftpType } = details || this.props;
+    const { ftpType } = details || this.props.ftpReducer;
+    const { fmReducer, ftpReducer } = this.props;
 
-    if (!this.props.currentTab) this.props.addTab();
+    if (!this.props.currentTab)
+      this.props.switchAndAddTab(fmReducer, ftpReducer);
+
     if (ftpType === FTPConnectTypes.FTP) {
       this.props.goToFTP(
         new FTP({
@@ -168,7 +175,9 @@ export class ConnectUI extends Component<Props, State> {
 
   onSave = (): void => {
     const { ip, username, ftpPort, password, sshPort } = this.state;
-    const { ftpType } = this.props;
+    const {
+      ftpReducer: { ftpType },
+    } = this.props;
     this.props.setPrompt({
       fieldName: "Server Name",
       callback: (value: string) => {
@@ -188,7 +197,9 @@ export class ConnectUI extends Component<Props, State> {
 
   onFavourite = (): void => {
     const { ip, username, ftpPort, password, sshPort } = this.state;
-    const { ftpType } = this.props;
+    const {
+      ftpReducer: { ftpType },
+    } = this.props;
     this.props.setPrompt({
       fieldName: "Server Name",
       callback: (value: string) => {
@@ -263,7 +274,10 @@ export class ConnectUI extends Component<Props, State> {
       onConnect,
       onSave,
       onFavourite,
-      props: { currentlyEdited },
+      props: {
+        currentlyEdited,
+        ftpReducer: { ftpType },
+      },
       state: { ip, canConnect, password, ftpPort, sshPort, username },
     } = this;
     const isEdited = Boolean(currentlyEdited);
@@ -286,9 +300,7 @@ export class ConnectUI extends Component<Props, State> {
           </div>
           <form
             className={`connect-form ${
-              this.props.ftpType === FTPConnectTypes.SFTP
-                ? "connect-form-sftp"
-                : ""
+              ftpType === FTPConnectTypes.SFTP ? "connect-form-sftp" : ""
             }`}
             onSubmit={(e) => e.preventDefault()}
           >
@@ -301,7 +313,7 @@ export class ConnectUI extends Component<Props, State> {
                     htmlFor={`t${key}`}
                     data-txt={key}
                     className={
-                      key == (this.props.ftpType as unknown as CKey)
+                      key == (ftpType as unknown as CKey)
                         ? "connect-type-chosen"
                         : ""
                     }
@@ -328,7 +340,7 @@ export class ConnectUI extends Component<Props, State> {
                 placeholder="FTP Port"
                 value={ftpPort}
                 onChange={(e) => handleChange(e, Change.FTPPORT)}
-                disabled={this.props.ftpType === FTPConnectTypes.SFTP}
+                disabled={ftpType === FTPConnectTypes.SFTP}
               />
             </div>
             <div className="connect-ssh-port" data-info="SSH Port">

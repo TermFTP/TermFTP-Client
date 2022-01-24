@@ -5,7 +5,6 @@ import { DefaultDispatch, RootState } from "@store";
 import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHome, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { normalizeURL } from "@lib";
 import { removeTab } from "@store/tabs";
 
 interface Props {
@@ -26,15 +25,14 @@ export const Tab = ({ tab, onClicked }: Props): JSX.Element => {
   );
   const { id, ftpReducer, path } = tab;
   const active = (id && currentTab == id) || (!id && !currentTab);
-  const config = active ? client?.config : ftpReducer?.client?.config;
+  const usedClient = active ? client : ftpReducer?.client;
+  const config = usedClient?.config;
   let content: JSX.Element = <></>;
-  console.log(currentTab, path, "conf", config);
   if (id) {
     if (
       active &&
       pathname.startsWith("/file-manager") &&
-      normalizeURL(pathname).replace("/file-manager", "") &&
-      config
+      usedClient?.connected
     ) {
       content = (
         <>
@@ -58,7 +56,6 @@ export const Tab = ({ tab, onClicked }: Props): JSX.Element => {
   const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log(e);
     if (e.button === 0 && !active) {
       // left-click
       onClicked(tab);

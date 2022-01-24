@@ -78,7 +78,7 @@ $btnSize: $headerSize;
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-grow: 1;
+    width: calc(100% - #{$headerSize * 3});
   }
 
   #headerTitleText {
@@ -92,8 +92,8 @@ $btnSize: $headerSize;
     -webkit-app-region: no-drag;
     position: relative;
     height: $btnSize;
-    // top: -$resizeSize;
-    // right: -$resizeSize;
+    flex-shrink: 0;
+    width: $headerSize * 3;
   }
 
   /*Header button styles*/
@@ -137,10 +137,6 @@ $btnSize: $headerSize;
   flex-direction: row-reverse;
 
   .headerDock {
-    // top: -1px;
-    // right: -1px;
-    // width: 100%;
-
     & > .headerButton:not(:first-child) {
       margin-left: 0;
     }
