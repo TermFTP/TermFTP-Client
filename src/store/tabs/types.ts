@@ -19,7 +19,9 @@ export enum TabsActionTypes {
 	ADD = "tabs/add",
 	REMOVE = "tabs/remove",
 	CHANGE_POS = "tabs/change-pos",
-	SWITCH_TAB = "tabs/switch-tab"
+	SWITCH_TAB = "tabs/switch-tab",
+	NEXT_TAB = "tabs/switch-tab",
+	PREV_TAB = "tabs/prev-tab"
 }
 
 export interface TabsState {
@@ -56,6 +58,10 @@ export interface TabsSwitchTab {
 		currentFm: FMState;
 		currentPath: string;
 	}
+}
+
+export interface TabsNextTab {
+	type: typeof A.NEXT_TAB,
 }
 
 export type TabsActions = TabsAddTab | TabsRemoveTab | TabsChangePosition | TabsSwitchTab;

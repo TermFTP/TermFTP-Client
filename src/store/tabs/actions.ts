@@ -28,6 +28,13 @@ export const removeTab = (id: string): TabsRemoveTab => ({
 	type: A.REMOVE
 });
 
+export const closeTab: TabsThunk = (tab: TabData) => (dispatch) => {
+	tab.ftpReducer?.client?.disconnect();
+	dispatch(removeTab(tab.id));
+	dispatch(switchToTab({ id: undefined }, undefined, undefined))
+	// TODO move to next tab (or home tab when it was the only tab)
+};
+
 export const changeTabPosition = (id: string, index: number): TabsChangePosition => ({
 	payload: {
 		id, index
@@ -53,9 +60,8 @@ export const switchToTab: TabsThunk = (tab: TabData, currentFm: FMState, current
 	dispatch(updateFTPReducer(tab.ftpReducer));
 	dispatch(updateFMReducer(tab.fmReducer));
 
-	if (tab.path === "") dispatch(push("/main"))
+	if (tab.path === "" || !tab.id) dispatch(push("/main"))
 	else {
-		// TODO reload if same path
 		dispatch(push(`/file-manager${tab.path}`));
 	}
 }
