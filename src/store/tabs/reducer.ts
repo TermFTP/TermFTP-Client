@@ -28,7 +28,8 @@ export const tabsReducer: Reducer<TabsState, TabsActions> = (state = initialStat
 			const tabIndices = { ...state.tabIndices };
 			delete tabIndices[action.payload];
 			for (const key in tabIndices) {
-				tabIndices[key]--; // decrement position
+				// get index of tab in array
+				tabIndices[key] = state.tabs.findIndex((t => t.id === key))
 			}
 			return {
 				...state,

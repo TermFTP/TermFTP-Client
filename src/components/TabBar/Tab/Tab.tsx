@@ -5,7 +5,7 @@ import { DefaultDispatch, RootState } from "@store";
 import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHome, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { removeTab } from "@store/tabs";
+import { closeTab } from "@store/tabs";
 
 interface Props {
   tab: TabData;
@@ -61,7 +61,7 @@ export const Tab = ({ tab, onClicked }: Props): JSX.Element => {
       onClicked(tab);
     } else if (e.button === 1) {
       // middle-click
-      dispatch(removeTab(tab.id));
+      dispatch(closeTab(tab));
     }
   };
   return (
@@ -72,7 +72,7 @@ export const Tab = ({ tab, onClicked }: Props): JSX.Element => {
     >
       <span className="tab-content">{content}</span>
       {id && (
-        <button className="tab-close">
+        <button className="tab-close" onClick={() => dispatch(closeTab(tab))}>
           <FontAwesomeIcon icon={faTimes}></FontAwesomeIcon>
         </button>
       )}
