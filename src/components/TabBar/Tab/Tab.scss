@@ -18,6 +18,17 @@
     min-width: max-content;
   }
 
+  &:not([id]) {
+    position: sticky;
+    left: 0;
+    top: 0;
+    background-color: var(--dark-bg-2);
+  }
+
+  &.tab-active {
+    background: var(--background);
+  }
+
   &:hover {
     background-color: var(--dark-bg-1);
   }
@@ -26,10 +37,6 @@
 .tab-content {
   text-overflow: ellipsis;
   overflow: hidden;
-}
-
-.tab-active {
-  background: var(--background);
 }
 
 .tab-close {
@@ -41,6 +48,7 @@
   justify-content: center;
   align-items: center;
   margin-left: 5px;
+  cursor: default;
 
   > * {
     font-size: 0.9em;
@@ -53,4 +61,12 @@
   &:hover {
     background: transparentize($color: #dadada, $amount: 0.5);
   }
+}
+
+.tab-new {
+  position: sticky;
+  right: 0;
+  top: 0;
+  background-color: var(--dark-bg-2);
+  flex-shrink: 0;
 }

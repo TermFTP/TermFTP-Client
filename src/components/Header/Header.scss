@@ -102,7 +102,6 @@ $btnSize: $headerSize;
     border: none;
     height: $headerSize;
     width: $headerSize;
-    cursor: pointer;
     transition: background-color 200ms ease-in-out;
     color: white;
     display: inline-flex;
@@ -110,6 +109,7 @@ $btnSize: $headerSize;
     align-items: center;
     border-radius: 0;
     outline: none;
+    cursor: default;
 
     &:hover,
     &:focus {
