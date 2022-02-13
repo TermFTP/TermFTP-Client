@@ -119,6 +119,8 @@
     margin: auto;
 
     &.connect-form-sftp {
+      grid-template: "t t t t" "ip ip ftp ssh" "user user pw pw" "key key key key" "btn btn btn btn" / 2fr 0.6fr 0.6fr 0.6fr;
+
       .connect-ftp-port {
         opacity: 0;
       }
@@ -173,6 +175,28 @@
 
     .connect-pw {
       grid-area: pw;
+    }
+
+    .connect-key {
+      grid-area: key;
+
+      label {
+        display: block;
+				margin-bottom: 5px;
+      }
+
+      .connect-file-picker {
+        display: flex;
+        flex-direction: row;
+        gap: 0.5em;
+        justify-content: start;
+        align-items: center;
+
+        span {
+          flex-grow: 1;
+          text-align: left;
+        }
+      }
     }
 
     .connect-form-btn {

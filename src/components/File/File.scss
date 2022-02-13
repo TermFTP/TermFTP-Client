@@ -5,6 +5,10 @@
   width: 100%;
   user-select: none;
 
+  &.file-header {
+    user-select: none;
+  }
+
   // header
   &:first-child {
     position: sticky;

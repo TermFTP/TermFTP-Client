@@ -28,6 +28,7 @@ export interface ConnectDetails {
   password: string;
   sshPort: number;
   ftpType: FTPConnectTypes;
+  key?: string;
 }
 
 export function ServerItemUI({

@@ -21,6 +21,10 @@ import { FTPConnectTypes } from "@shared";
 import { push } from "connected-react-router";
 import { switchAndAddTab } from "@store/tabs";
 import { FMState } from "@store/filemanager";
+import { dialog } from "@electron/remote";
+import { existsSync, lstatSync, readFileSync } from "fs";
+import { homedir } from "os";
+import { basename, join } from "path";
 
 type CKey = keyof typeof FTPConnectTypes;
 
@@ -63,6 +67,8 @@ interface State {
   password: string;
   canConnect: boolean;
   serverID: string;
+  usingKey: boolean;
+  key: string;
 }
 
 enum Change {
@@ -71,6 +77,7 @@ enum Change {
   USERNAME,
   PASSWORD,
   SSHPORT,
+  KEY,
 }
 
 export class ConnectUI extends Component<Props, State> {
@@ -84,6 +91,8 @@ export class ConnectUI extends Component<Props, State> {
       canConnect: false,
       sshPort: 22,
       serverID: undefined,
+      usingKey: false,
+      key: "",
     };
   }
   componentDidMount(): void {
@@ -111,6 +120,9 @@ export class ConnectUI extends Component<Props, State> {
       case Change.SSHPORT:
         upd = { ...upd, sshPort: Number(event.target.value) };
         break;
+      case Change.KEY:
+        upd = { ...upd, key: event.target.value };
+        break;
       default:
         break;
     }
@@ -133,7 +145,8 @@ export class ConnectUI extends Component<Props, State> {
   };
 
   doConnect = (details: ConnectDetails = undefined): void => {
-    const { username, ip, password, ftpPort, sshPort } = details || this.state;
+    const { username, ip, password, ftpPort, sshPort, key } =
+      details || this.state;
     const { ftpType } = details || this.props.ftpReducer;
     const { fmReducer, ftpReducer } = this.props;
 
@@ -168,6 +181,7 @@ export class ConnectUI extends Component<Props, State> {
           password,
           host: ip,
           port: sshPort || 22,
+          privateKey: key ? readFileSync(key) : undefined,
         })
       );
     }
@@ -189,7 +203,7 @@ export class ConnectUI extends Component<Props, State> {
           ftpPort,
           sshPort,
           name: value,
-          ftpType,
+          ftpType, // TODO handle saving a server with private key file
         });
       },
     });
@@ -268,6 +282,25 @@ export class ConnectUI extends Component<Props, State> {
     this.props.setFTPType(type);
   };
 
+  changeKeyFile = async (): Promise<void> => {
+    const home = join(homedir(), ".ssh");
+    let res;
+    if (existsSync(home) && lstatSync(home).isDirectory()) {
+      res = dialog.showOpenDialogSync({
+        defaultPath: home,
+        properties: ["openFile", "showHiddenFiles"],
+      });
+    } else {
+      res = dialog.showOpenDialogSync({
+        defaultPath: undefined,
+        properties: ["openFile", "showHiddenFiles"],
+      });
+    }
+
+    if (!res || res.length == 0) return;
+    this.setState({ key: res[0] });
+  };
+
   render(): JSX.Element {
     const {
       handleChange,
@@ -278,7 +311,16 @@ export class ConnectUI extends Component<Props, State> {
         currentlyEdited,
         ftpReducer: { ftpType },
       },
-      state: { ip, canConnect, password, ftpPort, sshPort, username },
+      state: {
+        ip,
+        canConnect,
+        password,
+        ftpPort,
+        sshPort,
+        username,
+        usingKey,
+        key,
+      },
     } = this;
     const isEdited = Boolean(currentlyEdited);
     return (
@@ -362,11 +404,33 @@ export class ConnectUI extends Component<Props, State> {
             <div className="connect-pw" data-info="Password">
               <input
                 type="password"
-                placeholder="anonymous"
+                placeholder={
+                  usingKey ? "password for the private key" : "anonymous"
+                }
                 value={password}
                 onChange={(e) => handleChange(e, Change.PASSWORD)}
               />
             </div>
+            {ftpType === FTPConnectTypes.SFTP && (
+              <div className="connect-key" data-info="Key (optional)">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={usingKey}
+                    onChange={(e) =>
+                      this.setState({ usingKey: e.target.checked })
+                    }
+                  />{" "}
+                  Use a private key
+                </label>
+                {usingKey && (
+                  <div className="connect-file-picker">
+                    <button onClick={this.changeKeyFile}>Choose key</button>
+                    <span>{basename(key)}</span>
+                  </div>
+                )}
+              </div>
+            )}
             <div className="connect-form-btn">
               {!isEdited && (
                 <>

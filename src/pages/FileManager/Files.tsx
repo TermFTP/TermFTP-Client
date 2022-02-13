@@ -155,7 +155,7 @@ export const Files = (): JSX.Element => {
 
   return (
     <>
-      <div className="file-wrapper">
+      <div className="file-wrapper file-header">
         <div className="file">
           <div className="file-icon"></div>
           <div className="file-name">Name</div>
