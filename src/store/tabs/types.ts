@@ -15,19 +15,26 @@ export interface TabData {
 	path?: string;
 }
 
+export interface TabToMove {
+	tab: string;
+	x: number;
+}
+
 export enum TabsActionTypes {
 	ADD = "tabs/add",
 	REMOVE = "tabs/remove",
 	CHANGE_POS = "tabs/change-pos",
 	SWITCH_TAB = "tabs/switch-tab",
-	NEXT_TAB = "tabs/switch-tab",
-	PREV_TAB = "tabs/prev-tab"
+	NEXT_TAB = "tabs/next-tab",
+	PREV_TAB = "tabs/prev-tab",
+	START_MOVE_TAB = "tabs/start-move-tab"
 }
 
 export interface TabsState {
 	tabIndices: Record<string, number>;
 	tabs: TabData[];
 	currentTab: string | undefined;
+	tabToMove?: TabToMove;
 }
 
 const A = TabsActionTypes;
@@ -43,7 +50,7 @@ export interface TabsRemoveTab {
 }
 
 export interface TabsChangePosition {
-	type: typeof A.CHANGE_POS,
+	type: typeof A.CHANGE_POS;
 	payload: {
 		id: string;
 		index: number;
@@ -51,17 +58,26 @@ export interface TabsChangePosition {
 }
 
 export interface TabsSwitchTab {
-	type: typeof A.SWITCH_TAB,
+	type: typeof A.SWITCH_TAB;
 	payload: {
 		id: string;
+		currentFtp: FTPState;
+		currentFm: FMState;
+		currentPath: string;
+	};
+}
+export interface TabsPrevNextTab {
+	type: typeof A.NEXT_TAB | typeof A.PREV_TAB;
+	payload: {
 		currentFtp: FTPState;
 		currentFm: FMState;
 		currentPath: string;
 	}
 }
 
-export interface TabsNextTab {
-	type: typeof A.NEXT_TAB,
+export interface TabsDoMoveTab {
+	type: typeof A.START_MOVE_TAB;
+	payload?: TabToMove;
 }
 
-export type TabsActions = TabsAddTab | TabsRemoveTab | TabsChangePosition | TabsSwitchTab;
+export type TabsActions = TabsAddTab | TabsRemoveTab | TabsChangePosition | TabsSwitchTab | TabsPrevNextTab | TabsDoMoveTab;

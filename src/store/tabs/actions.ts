@@ -3,7 +3,7 @@ import { createFMState, FMState, updateFMReducer } from "@store/filemanager";
 import { createFTPState, FTPState, updateFTPReducer } from "@store/ftp";
 import { push } from "connected-react-router";
 import { randomUUID } from "crypto";
-import { TabData, TabsChangePosition, TabsRemoveTab, TabsThunk } from ".";
+import { TabData, TabsChangePosition, TabsRemoveTab, TabsDoMoveTab, TabsThunk, TabToMove } from ".";
 import { TabsActionTypes } from "./types";
 
 const A = TabsActionTypes;
@@ -71,3 +71,8 @@ export const switchAndAddTab: TabsThunk<TabData> = (currentFm: FMState, currentF
 	dispatch(switchToTab(tab, currentFm, currentFtp))
 	return tab;
 }
+
+export const startToMoveTab = (payload: TabToMove): TabsDoMoveTab => ({
+	type: A.START_MOVE_TAB,
+	payload: payload,
+});

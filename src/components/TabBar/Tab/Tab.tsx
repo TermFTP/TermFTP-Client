@@ -1,6 +1,6 @@
 import React from "react";
 import "./Tab.scss";
-import { TabData } from "@store/tabs";
+import { startToMoveTab, TabData } from "@store/tabs";
 import { DefaultDispatch, RootState } from "@store";
 import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -10,9 +10,10 @@ import { closeTab } from "@store/tabs";
 interface Props {
   tab: TabData;
   onClicked: (tab: TabData) => void;
+  onTabDropped?: () => void;
 }
 
-export const Tab = ({ tab, onClicked }: Props): JSX.Element => {
+export const Tab = ({ tab, onClicked, onTabDropped }: Props): JSX.Element => {
   const dispatch = useDispatch<DefaultDispatch>();
   const { currentTab, pathname, client } = useSelector(
     ({
@@ -54,21 +55,49 @@ export const Tab = ({ tab, onClicked }: Props): JSX.Element => {
     content = <FontAwesomeIcon icon={faHome}></FontAwesomeIcon>;
   }
   const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.button === 0 && !active) {
-      // left-click
-      onClicked(tab);
-    } else if (e.button === 1) {
+    if (e.button === 1) {
+      e.preventDefault();
+      e.stopPropagation();
       // middle-click
       dispatch(closeTab(tab));
     }
   };
+
+  const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button === 0 && !active) {
+      // left-click
+      onClicked(tab);
+    }
+  };
+
+  function onDragStart(e: React.DragEvent<HTMLDivElement>) {
+    // e.stopPropagation();
+    // e.preventDefault();
+    e.dataTransfer.setData("text/html", null);
+    if (!id) return;
+    dispatch(
+      startToMoveTab({
+        tab: tab.id,
+        x: e.clientX,
+      })
+    );
+  }
+
+  function onDragEnd() {
+    if (!id) return;
+    onTabDropped();
+  }
+
   return (
     <div
       className={`tab ${active ? "tab-active" : ""}`}
       id={id}
       onMouseDown={onMouseDown}
+      draggable={true}
+      onDragStart={onDragStart}
+      onDrag={onDragStart}
+      onDragEnd={onDragEnd}
+      onClick={onClick}
     >
       <span className="tab-content">{content}</span>
       {id && (

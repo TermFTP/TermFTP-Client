@@ -38,7 +38,10 @@ export const tabsReducer: Reducer<TabsState, TabsActions> = (state = initialStat
 			}
 		}
 		case A.CHANGE_POS: {
-			const tabs = [...state.tabs]
+			if (state.tabIndices[action.payload.id] == 0) {
+				return;
+			}
+			const tabs = [...state.tabs];
 			const tab = { ...tabs[state.tabIndices[action.payload.id]] };
 			tabs.splice(state.tabIndices[action.payload.id], 1); // remove tab at current position
 			tabs.splice(action.payload.index, 0, tab); //insert
@@ -69,6 +72,11 @@ export const tabsReducer: Reducer<TabsState, TabsActions> = (state = initialStat
 				tabs: newTabs,
 			}
 		}
+		case A.START_MOVE_TAB:
+			return {
+				...state,
+				tabToMove: action.payload
+			}
 		default:
 			return state;
 	}

@@ -25,3 +25,29 @@
   align-items: center;
   cursor: default;
 }
+
+.tab-hint {
+  width: 0;
+  height: 100%;
+  position: relative;
+  z-index: 5;
+
+  &::before {
+    content: "";
+    background: rgba(white, 0.5);
+    height: 100%;
+    position: absolute;
+    left: -2px;
+    top: 0;
+    width: 4px;
+    z-index: 5;
+    transform: scaleX(0);
+    transition: var(--dur) transform ease;
+    // width: 4px;
+  }
+
+  &.tab-hint-active::before {
+    // width: 4px;
+    transform: scaleX(1);
+  }
+}
