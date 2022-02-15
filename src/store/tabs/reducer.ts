@@ -38,19 +38,33 @@ export const tabsReducer: Reducer<TabsState, TabsActions> = (state = initialStat
 			}
 		}
 		case A.CHANGE_POS: {
-			if (state.tabIndices[action.payload.id] == 0) {
-				return;
+			const { id, index } = action.payload;
+			const curIndex = state.tabIndices[id];
+			// if (curIndex === 0 && (index === 0 || index === 1)) {
+			// 	// don't try to move if the first tab is getting placed at the first two indices
+			// 	return state;
+			// }
+			if (curIndex === state.tabs.length - 1 && index >= state.tabs.length - 1) {
+				// don't try to move if the last tab is getting placed at the last index (or right to the last)
+				return state;
 			}
 			const tabs = [...state.tabs];
-			const tab = { ...tabs[state.tabIndices[action.payload.id]] };
-			tabs.splice(state.tabIndices[action.payload.id], 1); // remove tab at current position
-			tabs.splice(action.payload.index, 0, tab); //insert
+			const tab = { ...tabs[curIndex] };
+			if (tabs.length === index) {
+				tabs.splice(index, 0, tab); //insert
+				tabs.splice(curIndex, 1); // remove tab at current position
+			} else {
+				tabs.splice(curIndex, 1); // remove tab at current position
+				tabs.splice(index, 0, tab); //insert
+			}
 			// generate new indices
-			const tabIndices = tabs.map((t, i) => ({ [t.id]: i })) as unknown as Record<string, number>
+			const tabIndices: Record<string, number> = {};
+			tabs.forEach((t, i) => tabIndices[t.id] = i);
 			return {
 				...state,
 				tabIndices,
-				tabs
+				tabs,
+				tabToMove: undefined
 			}
 		}
 		case A.SWITCH_TAB: {

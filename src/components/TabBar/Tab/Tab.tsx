@@ -10,7 +10,7 @@ import { closeTab } from "@store/tabs";
 interface Props {
   tab: TabData;
   onClicked: (tab: TabData) => void;
-  onTabDropped?: () => void;
+  onTabDropped?: (clientX: number) => void;
 }
 
 export const Tab = ({ tab, onClicked, onTabDropped }: Props): JSX.Element => {
@@ -83,9 +83,15 @@ export const Tab = ({ tab, onClicked, onTabDropped }: Props): JSX.Element => {
     );
   }
 
-  function onDragEnd() {
+  function onDragEnd(e: React.DragEvent) {
     if (!id) return;
-    onTabDropped();
+    dispatch(
+      startToMoveTab({
+        tab: tab.id,
+        x: e.clientX,
+      })
+    );
+    onTabDropped(e.clientX);
   }
 
   return (

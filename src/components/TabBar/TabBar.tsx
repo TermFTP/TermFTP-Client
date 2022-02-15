@@ -47,13 +47,9 @@ export const TabBar = (): JSX.Element => {
     hintsRef.current = hintsRef.current.slice(0, tabs.length);
   }, [tabs.length]);
 
-  useEffect(() => {
-    console.log("effect-2");
-    if (!tabToMove || !(hintsRef.current?.length > 0)) {
-      setHightlighted(-1);
-      return;
-    }
-    const { x } = tabToMove;
+  const findCurrHighlight = (overrideX?: number): number => {
+    let { x } = tabToMove;
+    x = overrideX || x;
     let currentMinDistI = -1;
     let currentMinDist = -1;
     hintsRef.current.forEach((e, i) => {
@@ -62,17 +58,23 @@ export const TabBar = (): JSX.Element => {
       if (minDist < currentMinDist || currentMinDistI === -1) {
         currentMinDist = minDist;
         currentMinDistI = i;
-        console.log(left, x, currentMinDistI);
       }
     });
     setHightlighted(currentMinDistI);
+    return currentMinDistI;
+  };
+
+  useEffect(() => {
+    if (!tabToMove || !(hintsRef.current?.length > 0)) {
+      setHightlighted(-1);
+      return;
+    }
+    findCurrHighlight();
   }, [tabToMove, hintsRef.current.length]);
 
-  const onTabDropped = () => {
-    console.log("dropped");
+  const onTabDropped = (clientX: number) => {
     if (highlighted == -1) return;
-    // onTabClicked(tabs[highlighted]);
-    dispatch(changeTabPosition(tabToMove.tab, highlighted));
+    dispatch(changeTabPosition(tabToMove.tab, findCurrHighlight(clientX)));
     setHightlighted(-1);
   };
 
@@ -92,6 +94,15 @@ export const TabBar = (): JSX.Element => {
             onClicked={onTabClicked}
             onTabDropped={onTabDropped}
           ></Tab>
+          {i === tabs.length - 1 && (
+            <div
+              className={`tab-hint ${
+                i + 1 === highlighted ? "tab-hint-active" : ""
+              }`}
+              ref={(r) => (hintsRef.current[i + 1] = r)}
+              key={`hint-${t.id + 1}`}
+            ></div>
+          )}
         </>
       ))}
       <button

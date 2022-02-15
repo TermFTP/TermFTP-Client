@@ -1,8 +1,11 @@
 import { FileI, FTPResponse } from "../shared";
 import { AccessOptions } from "basic-ftp";
 import { Socket } from "socket.io-client";
+import { ConnectConfig } from "ssh2";
 
-export interface FTPConfig extends AccessOptions {
+export type d = AccessOptions & ConnectConfig;
+
+export interface FTPConfig extends d {
 	sshPort: number;
 }
 
