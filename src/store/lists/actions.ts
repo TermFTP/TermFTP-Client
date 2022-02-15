@@ -12,16 +12,12 @@ import {
 	RemoveServerReq,
 	DefaultResponse,
 } from "@models";
+import { DefaultDispatch } from "@store";
 import { addBubble, setLoading, setPrompt } from "@store/app";
-import { Action, ActionCreator } from "redux";
-import { ThunkAction, ThunkDispatch } from "redux-thunk";
-import { ListState, ListActionTypes } from "./types";
+import { ListsThunk } from ".";
+import { ListActionTypes } from "./types";
 
-export type ListsThunk<ReturnType = void> = ActionCreator<
-	ThunkAction<ReturnType, ListState, unknown, Action<string>>
->;
 
-type TDispatch = ThunkDispatch<ListState, unknown, Action<string>>;
 
 interface Ret extends DefaultReturn {
 	type: ListActionTypes;
@@ -42,7 +38,7 @@ const basic: ListsThunk = (
 	errorTitle: string,
 	type: ListActionTypes,
 	success: string = undefined,
-	extra: (dispatch: TDispatch, json: any) => any = undefined
+	extra: (dispatch: DefaultDispatch, json: any) => any = undefined
 ) => {
 	return async (dispatch) => {
 		dispatch(setLoading(true));
@@ -70,6 +66,9 @@ const basic: ListsThunk = (
 					})
 				);
 			}
+
+			if (!type) return;
+
 			let more;
 			if (extra) {
 				more = extra(dispatch, json);
@@ -108,7 +107,7 @@ export const fetchGroups: ListsThunk = () => {
 		"Could not fetch groups/favourites",
 		ListActionTypes.FETCH_GROUPS,
 		undefined,
-		(dispatch: TDispatch, json: GroupsRes) => {
+		(_: DefaultDispatch, json: GroupsRes) => {
 			const favI = json.data.findIndex((g) => {
 				return g.name === "favourites"; // get the list of favourites
 			}),
@@ -143,7 +142,7 @@ export const saveServer: ListsThunk = (req: SaveReq) => {
 		"Could not save server",
 		ListActionTypes.SAVE_SERVER,
 		"Saved server successfully",
-		(dispatch: TDispatch) => {
+		(dispatch: DefaultDispatch) => {
 			dispatch(setPrompt(undefined));
 			return;
 		}
@@ -175,7 +174,7 @@ export const addGroup: ListsThunk = (req: GroupReq) => {
 		"Could not create group",
 		ListActionTypes.ADD_GROUP,
 		"Created group successfully",
-		(dispatch: TDispatch) => {
+		(dispatch: DefaultDispatch) => {
 			dispatch(fetchGroups());
 			dispatch(setPrompt(undefined));
 		}
@@ -188,16 +187,16 @@ export const changeGroup: ListsThunk = (req: GroupReq) => {
 			req,
 			"group",
 			"Could not change name of group",
-			ListActionTypes.CHANGE_GROUP
+			undefined
 		);
 	}
 	return basic(
 		req,
 		"group",
 		"Could not add server to group",
-		ListActionTypes.ADD_TO_GROUP,
 		undefined,
-		(dispatch: TDispatch) => {
+		undefined,
+		(dispatch: DefaultDispatch) => {
 			dispatch(fetchGroups());
 		}
 		// "Added servers to group"
@@ -209,9 +208,9 @@ export const removeServerFromGroup: ListsThunk = (req: RemoveFromGroupReq) => {
 		req,
 		"removeServerFromGroup",
 		"Could not remove server from group",
-		ListActionTypes.REMOVE_SERVER_FROM_GROUP,
 		undefined,
-		(dispatch: TDispatch) => {
+		undefined,
+		(dispatch: DefaultDispatch) => {
 			dispatch(fetchGroups());
 		}
 	);
@@ -222,9 +221,9 @@ export const removeGroup: ListsThunk = (req: RemoveGroupReq) => {
 		req,
 		"removeGroup",
 		"Could not remove group",
-		ListActionTypes.REMOVE_GROUP,
+		undefined,
 		"Removed group",
-		(dispatch: TDispatch) => {
+		(dispatch: DefaultDispatch) => {
 			dispatch(fetchGroups());
 		}
 	);
@@ -235,9 +234,9 @@ export const removeServer: ListsThunk = (req: RemoveServerReq) => {
 		req,
 		"removeServer",
 		"Could not remove server",
-		ListActionTypes.REMOVE_SERVER,
+		undefined,
 		"Removed Server",
-		(dispatch: TDispatch) => {
+		(dispatch: DefaultDispatch) => {
 			dispatch(fetchGroups());
 		}
 	);
