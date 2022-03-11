@@ -75,8 +75,8 @@ export const tabsReducer: Reducer<TabsState, TabsActions> = (state = initialStat
 			if (currentTab) {
 				const index = state.tabIndices[currentTab];
 				const tab = { ...state.tabs[index] };
-				tab.fmReducer = currentFm;
-				tab.ftpReducer = currentFtp;
+				tab.fmReducer = currentFm || tab.fmReducer;
+				tab.ftpReducer = currentFtp || tab.ftpReducer;
 				tab.path = currentPath;
 				newTabs[index] = tab;
 			}

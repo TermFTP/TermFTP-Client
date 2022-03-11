@@ -19,6 +19,7 @@ import {
   clearProgressFiles,
   ContextMenuProps,
   doSearch,
+  FMState,
   PathBoxData,
   SearchProps,
   setContextMenu,
@@ -36,16 +37,19 @@ import { HotKeys } from "react-hotkeys";
 import { SearchBox, ProgressTracker } from "@components";
 import { goBack, replace } from "connected-react-router";
 import { Files } from "./Files";
-import { clearSelection, setFiles } from "@store/ftp";
+import { clearSelection, FTPState, setFiles } from "@store/ftp";
 import { statSync } from "fs";
 import { basename } from "path";
 import PathBox from "./PathBox";
 import { PasteBufferTracker } from "@components/PasteBufferTracker/PasteBufferTracker";
+import { switchAndAddTab } from "@store/tabs";
 
 const mapState = ({
   ftpReducer: { client },
   fmReducer: { menu, loading, terminalOpen, terminalHeight, pathBox },
   router: { location },
+  fmReducer,
+  ftpReducer,
 }: RootState) => ({
   client,
   menu,
@@ -54,6 +58,8 @@ const mapState = ({
   terminalOpen,
   terminalHeight,
   pathBox,
+  ftpReducer,
+  fmReducer,
 });
 
 const mapDispatch = (d: DefaultDispatch) => ({
@@ -72,6 +78,7 @@ const mapDispatch = (d: DefaultDispatch) => ({
   goBack: () => d(goBack()),
   clearProgressFiles: () => d(clearProgressFiles()),
   changePathBox: (pathBox: PathBoxData) => d(changePathBox(pathBox)),
+  switchAndAddTab: (fm: FMState, ftp: FTPState) => d(switchAndAddTab(fm, ftp)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -98,6 +105,7 @@ export class FileManagerUI extends Component<Props, State> {
       SEARCH: "ctrl+f",
       RELOAD: "F5",
       PATH: "ctrl+l",
+      NEWTAB: "ctrl+t",
     };
 
     this.handlers = {
@@ -108,8 +116,9 @@ export class FileManagerUI extends Component<Props, State> {
         this.props.setFMLoading(true);
         this.props.client.list();
       },
-      PATH: () => {
-        this.props.changePathBox({ focused: true });
+      PATH: () => this.props.changePathBox({ focused: true }),
+      NEWTAB: () => {
+        this.props.switchAndAddTab(this.props.fmReducer, this.props.ftpReducer);
       },
     };
   }
