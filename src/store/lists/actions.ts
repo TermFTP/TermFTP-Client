@@ -4,7 +4,6 @@ import {
 	HistoryReq,
 	SaveReq,
 	EditReq,
-	DefaultReturn,
 	Server,
 	GroupReq,
 	RemoveFromGroupReq,
@@ -14,14 +13,8 @@ import {
 } from "@models";
 import { DefaultDispatch } from "@store";
 import { addBubble, setLoading, setPrompt } from "@store/app";
-import { ListsThunk } from ".";
+import { ListStartEdit, ListsThunk } from ".";
 import { ListActionTypes } from "./types";
-
-
-
-interface Ret extends DefaultReturn {
-	type: ListActionTypes;
-}
 
 /**
  *
@@ -149,7 +142,7 @@ export const saveServer: ListsThunk = (req: SaveReq) => {
 	);
 };
 
-export const changeEditServer = (server: Server): Ret => {
+export const changeEditServer = (server: Server): ListStartEdit => {
 	return {
 		type: ListActionTypes.START_EDIT_SERVER,
 		payload: server,

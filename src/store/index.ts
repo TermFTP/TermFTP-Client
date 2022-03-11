@@ -5,7 +5,7 @@ import { connectRouter, routerMiddleware } from "connected-react-router";
 import { createBrowserHistory, History } from "history";
 import { userReducer } from "./user";
 import { ListActions, listReducer } from "./lists";
-import { ftpReducer } from "./ftp";
+import { FTPActions, ftpReducer } from "./ftp";
 import { fmReducer } from "./filemanager";
 import { TabsActions, tabsReducer } from "./tabs";
 
@@ -30,6 +30,6 @@ export const store = createStore(
 
 export type RootState = ReturnType<typeof store.getState>;
 
-export type RootActions = TabsActions | ListActions | Action<any> | AnyAction;
+export type RootActions = TabsActions | ListActions | FTPActions | Action<any> | AnyAction;
 
-export type DefaultDispatch = ThunkDispatch<any, any, RootActions>;
+export type DefaultDispatch = ThunkDispatch<RootState, any, any>;

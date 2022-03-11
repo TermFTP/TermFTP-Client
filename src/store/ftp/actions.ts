@@ -1,21 +1,19 @@
 import { BaseFTP } from "@lib";
-import { DefaultReturn } from "@models";
 import { FileI, FTPConnectTypes } from "@shared";
 import { push } from "connected-react-router";
 import { Action, ActionCreator } from "redux";
 import { ThunkAction } from "redux-thunk";
+import { FTPAddSelection, FTPClearSelection, FTPRemoveSelection, FTPSelectFile, FTPSetClient, FTPSetFiles, FTPSetType, FTPShiftSelection, FTPUpdateReducer } from ".";
 import { FTPState, FTPActionTypes } from "./types";
 
 export type FTPThunk<ReturnType = void> = ActionCreator<
 	ThunkAction<ReturnType, FTPState, unknown, Action<string>>
 >;
 
-interface Ret extends DefaultReturn {
-	type: FTPActionTypes;
-}
+const A = FTPActionTypes;
 
-export const setFTPClient = (client: BaseFTP): Ret => ({
-	type: FTPActionTypes.SET_FTP_CLIENT,
+export const setFTPClient = (client: BaseFTP): FTPSetClient => ({
+	type: A.SET_FTP_CLIENT,
 	payload: client,
 });
 
@@ -26,41 +24,41 @@ export const goToFTPClient: FTPThunk = (client: BaseFTP) => {
 	};
 };
 
-export const setFiles = (files: FileI[]): Ret => ({
-	type: FTPActionTypes.SET_FILES,
+export const setFiles = (files: FileI[]): FTPSetFiles => ({
+	type: A.SET_FILES,
 	payload: files
 })
 
-export const addSelection = (file: FileI): Ret => ({
-	type: FTPActionTypes.ADD_SELECTION,
+export const addSelection = (file: FileI): FTPAddSelection => ({
+	type: A.ADD_SELECTION,
 	payload: file
 })
 
-export const selectFile = (file: FileI): Ret => ({
-	type: FTPActionTypes.SELECT_FILE,
+export const selectFile = (file: FileI): FTPSelectFile => ({
+	type: A.SELECT_FILE,
 	payload: file
 })
 
-export const shiftSelection = (file: FileI): Ret => ({
-	type: FTPActionTypes.SHIFT_SELECTION,
+export const shiftSelection = (file: FileI): FTPShiftSelection => ({
+	type: A.SHIFT_SELECTION,
 	payload: file
 })
 
-export const clearSelection = (): Ret => ({
-	type: FTPActionTypes.CLEAR_SELECTION,
+export const clearSelection = (): FTPClearSelection => ({
+	type: A.CLEAR_SELECTION,
 })
 
-export const removeSelection = (file: FileI): Ret => ({
-	type: FTPActionTypes.REMOVE_SELECTION,
+export const removeSelection = (file: FileI): FTPRemoveSelection => ({
+	type: A.REMOVE_SELECTION,
 	payload: file
 })
 
-export const setFTPType = (ftpType: FTPConnectTypes): Ret => ({
-	type: FTPActionTypes.SET_FTP_TYPE,
+export const setFTPType = (ftpType: FTPConnectTypes): FTPSetType => ({
+	type: A.SET_FTP_TYPE,
 	payload: ftpType
 })
 
-export const updateFTPReducer = (ftp: FTPState): Ret => ({
-	type: FTPActionTypes.UPDATE_FTP_REDUCER,
+export const updateFTPReducer = (ftp: FTPState): FTPUpdateReducer => ({
+	type: A.UPDATE_FTP_REDUCER,
 	payload: ftp
 })

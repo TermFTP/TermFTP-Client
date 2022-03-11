@@ -1,9 +1,9 @@
 import { FTPState, FTPActionTypes } from "./types";
 import { Reducer } from "redux";
 import { FileI, FTPConnectTypes } from "@shared";
+import { FTPActions } from ".";
 
 export const createFTPState = (): FTPState => ({
-
 	client: undefined,
 	files: [],
 	selection: {
@@ -12,9 +12,10 @@ export const createFTPState = (): FTPState => ({
 	},
 	ftpType: FTPConnectTypes.SFTP
 })
+
 export const initialState: FTPState = createFTPState();
 
-export const ftpReducer: Reducer<FTPState> = (state = initialState, action) => {
+export const ftpReducer: Reducer<FTPState, FTPActions> = (state = initialState, action) => {
 	switch (action.type) {
 		case FTPActionTypes.SET_FTP_CLIENT:
 			return { ...state, client: action.payload };
