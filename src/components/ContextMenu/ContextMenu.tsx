@@ -25,7 +25,7 @@ import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { FileType, ProgressFileI } from "@shared";
 import { statSync } from "fs";
 import { basename } from "path";
-import { checkTag, getProgressDir } from "@lib";
+import { checkIfInInput, getProgressDir } from "@lib";
 import { focusFilesElement } from "@pages";
 
 const mapState = ({
@@ -178,7 +178,7 @@ const ContextMenuUI = ({
     if (e?.target) {
       const el = e.target as HTMLElement;
       // check if element is either input, editable or a not a file
-      if (checkTag(el, "input") || el.isContentEditable) return;
+      if (checkIfInInput(el)) return;
     }
     if (e.key === "Escape") {
       e.stopPropagation();
@@ -201,7 +201,7 @@ const ContextMenuUI = ({
     if (e?.target) {
       const el = e.target as HTMLElement;
       // check if element is either input, editable or a not a file
-      if (checkTag(el, "input") || el.isContentEditable) return;
+      if (checkIfInInput(el)) return;
     }
 
     if (e.key === "Tab") {

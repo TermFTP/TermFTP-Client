@@ -1,3 +1,4 @@
+import { TERMINAL_CLASS_NAME } from "@components";
 import { Group } from "@models";
 import { ProgressFileI } from "@shared";
 import { readdirSync, statSync } from "fs";
@@ -55,3 +56,13 @@ export function getProgressDir(cwd: string, dir: string): ProgressFileI[] {
 }
 
 export const checkTag = (el: HTMLElement, tag: string): boolean => el?.tagName.toLowerCase() === tag.toLowerCase()
+
+/**
+ * checks if an element is an input-like element. Example:
+ * 	`input` element
+ * 	`contentEditable` attribute is set to true
+ * 	it's a child of the terminal element
+ * @param el the element to be checked
+ * @returns true if the element is an input (or similiar)
+ */
+export const checkIfInInput = (el: HTMLElement): boolean => checkTag(el, "input") || el.isContentEditable || Boolean(el.closest(`.${TERMINAL_CLASS_NAME}`));

@@ -15,6 +15,8 @@ import { WebLinksAddon } from "xterm-addon-web-links";
 import { SSH } from "@lib";
 import { ResizableBox, ResizeCallbackData } from "react-resizable";
 
+export const TERMINAL_CLASS_NAME = "terminal-c";
+
 const mapState = ({
   ftpReducer: { client },
   fmReducer: { terminalOpen, terminalHeight },
@@ -130,7 +132,7 @@ class TerminalUI extends React.Component<Props> {
         handle={<span className="custom-handle custom-handle-n" />}
         resizeHandles={["n"]}
         handleSize={[Infinity, 8]}
-        className={`terminal-c ${
+        className={`${TERMINAL_CLASS_NAME} ${
           this.props.terminalOpen ? "terminal-open" : ""
         }`}
         onResizeStop={this.onResizeStop}

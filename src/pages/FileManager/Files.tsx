@@ -1,5 +1,5 @@
 import File from "@components/File/File";
-import { checkTag, normalizeURL } from "@lib";
+import { checkIfInInput, normalizeURL } from "@lib";
 import { FileType } from "@shared";
 import { RootState } from "@store";
 import { addBubble, setPrompt } from "@store/app";
@@ -40,7 +40,7 @@ export const Files = (): JSX.Element => {
     if (e?.target) {
       const el = e.target as HTMLElement;
       // check if element is either input, editable or a not a file
-      if (checkTag(el, "input") || el.isContentEditable) return;
+      if (checkIfInInput(el)) return;
     }
     if (e.ctrlKey) {
       const k = e.key.toLowerCase();
