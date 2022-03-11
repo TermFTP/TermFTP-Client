@@ -4,11 +4,7 @@ import "./Loading.scss";
 import { RootState } from "@store";
 import { connect, ConnectedProps } from "react-redux";
 
-const mapState = ({
-  appReducer: {
-    data: { isLoading },
-  },
-}: RootState) => ({
+const mapState = ({ appReducer: { isLoading } }: RootState) => ({
   isLoading,
 });
 

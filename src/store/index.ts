@@ -1,5 +1,5 @@
 import { combineReducers, AnyAction, createStore, applyMiddleware, Action } from "redux";
-import { appReducer } from "./app";
+import { AppActions, appReducer } from "./app";
 import thunk, { ThunkDispatch } from "redux-thunk";
 import { connectRouter, routerMiddleware } from "connected-react-router";
 import { createBrowserHistory, History } from "history";
@@ -30,6 +30,6 @@ export const store = createStore(
 
 export type RootState = ReturnType<typeof store.getState>;
 
-export type RootActions = TabsActions | ListActions | FTPActions | Action<any> | AnyAction;
+export type RootActions = TabsActions | ListActions | FTPActions | AppActions | Action<any> | AnyAction;
 
 export type DefaultDispatch = ThunkDispatch<RootState, any, any>;

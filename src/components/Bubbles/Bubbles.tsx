@@ -4,11 +4,7 @@ import { connect, ConnectedProps } from "react-redux";
 import Bubble from "./Bubble/Bubble";
 import "./Bubbles.scss";
 
-const mapState = ({
-  appReducer: {
-    data: { bubbles },
-  },
-}: RootState) => ({
+const mapState = ({ appReducer: { bubbles } }: RootState) => ({
   bubbles,
 });
 
