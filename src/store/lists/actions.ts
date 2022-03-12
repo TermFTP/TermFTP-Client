@@ -64,7 +64,7 @@ const basic: ListsThunk = (
 
 			let more;
 			if (extra) {
-				more = extra(dispatch, json);
+				more = extra(dispatch as unknown as DefaultDispatch, json);
 			}
 
 			if (more) {

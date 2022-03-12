@@ -1,14 +1,8 @@
 import { BaseFTP } from "@lib";
 import { FileI, FTPConnectTypes } from "@shared";
 import { push } from "connected-react-router";
-import { Action, ActionCreator } from "redux";
-import { ThunkAction } from "redux-thunk";
 import { FTPAddSelection, FTPClearSelection, FTPRemoveSelection, FTPSelectFile, FTPSetClient, FTPSetFiles, FTPSetType, FTPShiftSelection, FTPUpdateReducer } from ".";
-import { FTPState, FTPActionTypes } from "./types";
-
-export type FTPThunk<ReturnType = void> = ActionCreator<
-	ThunkAction<ReturnType, FTPState, unknown, Action<string>>
->;
+import { FTPState, FTPActionTypes, FTPThunk } from "./types";
 
 const A = FTPActionTypes;
 

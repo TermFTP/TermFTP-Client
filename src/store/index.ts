@@ -6,7 +6,7 @@ import { createBrowserHistory, History } from "history";
 import { userReducer } from "./user";
 import { ListActions, listReducer } from "./lists";
 import { FTPActions, ftpReducer } from "./ftp";
-import { fmReducer } from "./filemanager";
+import { FMActions, fmReducer } from "./filemanager";
 import { TabsActions, tabsReducer } from "./tabs";
 
 // eslint-disable-next-line
@@ -30,6 +30,6 @@ export const store = createStore(
 
 export type RootState = ReturnType<typeof store.getState>;
 
-export type RootActions = TabsActions | ListActions | FTPActions | AppActions | Action<any> | AnyAction;
+export type RootActions = TabsActions | ListActions | FTPActions | AppActions | FMActions | Action<any> | AnyAction;
 
 export type DefaultDispatch = ThunkDispatch<RootState, any, any>;

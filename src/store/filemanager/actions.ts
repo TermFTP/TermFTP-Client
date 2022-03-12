@@ -1,79 +1,70 @@
-import { DefaultReturn } from "@models";
 import { ProgressFileI } from "@shared";
-import { Action, ActionCreator } from "redux";
-import { ThunkAction } from "redux-thunk";
 import { PasteBuffer, PathBoxData } from ".";
-import { ContextMenuProps, FMState, FMActions, TerminalActions, SearchProps } from "./types";
+import { ContextMenuProps, FMState, FMActionTypes, TerminalActions, SearchProps, FMSetMenu, FMToggleContextMenu, FMSetLoading, FMSetTerminal, FMSetTerminalHeight, FMSearch, FMAddProgressFiles, FMUpdateProgressFile, FMRemoveProgressFiles, FMClearProgressFiles, FMChangePathBox, FMSetPasteBuffer, FMUpdateReducer } from "./types";
 
-export type FTPThunk<ReturnType = void> = ActionCreator<
-	ThunkAction<ReturnType, FMState, unknown, Action<string>>
->;
+const A = FMActionTypes;
 
-interface Ret extends DefaultReturn {
-	type: FMActions;
-}
-
-export const setContextMenu = (menu: ContextMenuProps): Ret => ({
-	type: FMActions.SET_CONTEXT_MENU,
+export const setContextMenu = (menu: ContextMenuProps): FMSetMenu => ({
+	type: A.SET_CONTEXT_MENU,
 	payload: menu,
 });
 
-export const toggleContextMenu = (): Ret => ({
-	type: FMActions.TOGGLE_CONTEXT_MENU,
+export const toggleContextMenu = (): FMToggleContextMenu => ({
+	type: A.TOGGLE_CONTEXT_MENU,
 })
 
-export const setFMLoading = (loading: boolean): Ret => ({
-	type: FMActions.SET_FM_LOADING,
+export const setFMLoading = (loading: boolean): FMSetLoading => ({
+	type: A.SET_FM_LOADING,
 	payload: loading
 })
 
-export const setTerminal = (action: TerminalActions): Ret => ({
-	type: FMActions.SET_TERMINAL,
+export const setTerminal = (action: TerminalActions): FMSetTerminal => ({
+	type: A.SET_TERMINAL,
 	payload: action
 })
 
-export const setTerminalHeight = (height: number): Ret => ({
-	type: FMActions.SET_TERMINAL_HEIGHT,
+export const setTerminalHeight = (height: number): FMSetTerminalHeight => ({
+	type: A.SET_TERMINAL_HEIGHT,
 	payload: height
 })
 
-export const doSearch = (search: SearchProps): Ret => ({
-	type: FMActions.SEARCH,
+export const doSearch = (search: SearchProps): FMSearch => ({
+	type: A.SEARCH,
 	payload: search,
 })
 
-export const addProgressFiles = (files: ProgressFileI[]): Ret => ({
-	type: FMActions.ADD_PROGRESS_FILES,
+export const addProgressFiles = (files: ProgressFileI[]): FMAddProgressFiles => ({
+	type: A.ADD_PROGRESS_FILES,
 	payload: files,
 });
 
-export const updateProgressFile = (file: ProgressFileI): Ret => ({
-	type: FMActions.UPDATE_PROGRESS_FILE,
+export const updateProgressFile = (file: ProgressFileI): FMUpdateProgressFile => ({
+	type: A.UPDATE_PROGRESS_FILE,
 	payload: file
 })
 
-export const removeProgressFiles = (files: ProgressFileI[]): Ret => ({
-	type: FMActions.REMOVE_PROGRESS_FILES,
+export const removeProgressFiles = (files: ProgressFileI[]): FMRemoveProgressFiles => ({
+	type: A.REMOVE_PROGRESS_FILES,
 	payload: files
 })
 
-export const clearProgressFiles = (): Ret => ({
-	type: FMActions.CLEAR_PROGRESS_FILES,
+export const clearProgressFiles = (): FMClearProgressFiles => ({
+	type: A.CLEAR_PROGRESS_FILES,
 })
 
-export const changePathBox = (pathBox: PathBoxData): Ret => ({
-	type: FMActions.CHANGE_PATH_BOX,
+export const changePathBox = (pathBox: PathBoxData): FMChangePathBox => ({
+	type: A.CHANGE_PATH_BOX,
 	payload: pathBox
 })
 
-export const setPasteBuffer = (buffer: PasteBuffer): Ret => ({
-	type: FMActions.SET_PASTE_BUFFER,
+export const setPasteBuffer = (buffer: PasteBuffer): FMSetPasteBuffer => ({
+	type: A.SET_PASTE_BUFFER,
 	payload: buffer
 })
 
-export const updateFMReducer = (fm: FMState): Ret => ({
-	type: FMActions.UPDATE_FM_REDUCER,
+export const updateFMReducer = (fm: FMState): FMUpdateReducer => ({
+	type: A.UPDATE_FM_REDUCER,
 	payload: fm
 })
 
-export const clearPasteBuffer = (): Ret => setPasteBuffer(undefined)
+export const clearPasteBuffer = (): FMSetPasteBuffer => setPasteBuffer(undefined);

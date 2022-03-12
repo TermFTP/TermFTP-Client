@@ -1,5 +1,12 @@
 import { BaseFTP } from "@lib";
 import { FileI, FTPConnectTypes } from "@shared";
+import { RootActions } from "@store";
+import { ActionCreator } from "redux";
+import { ThunkAction } from "redux-thunk";
+
+export type FTPThunk<ReturnType = void> = ActionCreator<
+	ThunkAction<ReturnType, FTPState, unknown, RootActions>
+>;
 
 export enum FTPActionTypes {
 	SET_FTP_CLIENT = "ftp/set-ftp-client",

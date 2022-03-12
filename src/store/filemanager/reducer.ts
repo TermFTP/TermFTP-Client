@@ -1,7 +1,9 @@
-import { FMState, FMActions } from "./types";
+import { FMState, FMActionTypes, FMActions } from "./types";
 import { Reducer } from "redux";
 import { ProgressFileI } from "@shared";
 import { basename } from "path";
+
+const A = FMActionTypes;
 
 export const createFMState = (): FMState => ({
 	menu: {
@@ -22,9 +24,9 @@ export const createFMState = (): FMState => ({
 
 export const initialState: FMState = createFMState();
 
-export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
+export const fmReducer: Reducer<FMState, FMActions> = (state = initialState, action) => {
 	switch (action.type) {
-		case FMActions.SET_CONTEXT_MENU:
+		case A.SET_CONTEXT_MENU:
 			return {
 				...state,
 				menu: {
@@ -32,7 +34,7 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
 					...action.payload,
 				},
 			};
-		case FMActions.TOGGLE_CONTEXT_MENU:
+		case A.TOGGLE_CONTEXT_MENU:
 			return {
 				...state,
 				menu: {
@@ -42,12 +44,12 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
 					y: undefined
 				}
 			}
-		case FMActions.SET_FM_LOADING:
+		case A.SET_FM_LOADING:
 			return {
 				...state,
 				loading: action.payload
 			}
-		case FMActions.SET_TERMINAL:
+		case A.SET_TERMINAL:
 			switch (action.payload) {
 				case "OPEN":
 					return {
@@ -66,17 +68,17 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
 					}
 				default: return state;
 			}
-		case FMActions.SET_TERMINAL_HEIGHT:
+		case A.SET_TERMINAL_HEIGHT:
 			return {
 				...state,
 				terminalHeight: action.payload
 			}
-		case FMActions.SEARCH:
+		case A.SEARCH:
 			return {
 				...state,
 				search: action.payload
 			}
-		case FMActions.ADD_PROGRESS_FILES: {
+		case A.ADD_PROGRESS_FILES: {
 			const copy = new Map(state.progressFiles);
 			for (const file of action.payload) {
 				copy.set(file.cwd + file.name + file.progressType, file);
@@ -86,7 +88,7 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
 				progressFiles: copy
 			}
 		}
-		case FMActions.UPDATE_PROGRESS_FILE: {
+		case A.UPDATE_PROGRESS_FILE: {
 			const copy = new Map(state.progressFiles);
 			let f = copy.get(action.payload.cwd + action.payload.name + action.payload.progressType);
 			if (!f) {
@@ -102,7 +104,7 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
 				progressFiles: copy
 			}
 		}
-		case FMActions.REMOVE_PROGRESS_FILES: {
+		case A.REMOVE_PROGRESS_FILES: {
 			const copy = new Map(state.progressFiles);
 
 			for (const p of action.payload) {
@@ -114,12 +116,12 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
 				progressFiles: copy
 			}
 		}
-		case FMActions.CLEAR_PROGRESS_FILES:
+		case A.CLEAR_PROGRESS_FILES:
 			return {
 				...state,
 				progressFiles: new Map()
 			}
-		case FMActions.CHANGE_PATH_BOX:
+		case A.CHANGE_PATH_BOX:
 			return {
 				...state,
 				pathBox: {
@@ -127,12 +129,12 @@ export const fmReducer: Reducer<FMState> = (state = initialState, action) => {
 					...action.payload
 				}
 			}
-		case FMActions.SET_PASTE_BUFFER:
+		case A.SET_PASTE_BUFFER:
 			return {
 				...state,
 				pasteBuffer: action.payload
 			}
-		case FMActions.UPDATE_FM_REDUCER:
+		case A.UPDATE_FM_REDUCER:
 			return {
 				...action.payload
 			}
