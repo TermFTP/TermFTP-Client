@@ -22,14 +22,12 @@ const publicUrlOrPath = getPublicUrlOrPath(
 );
 
 const moduleFileExtensions = [
-  "web.mjs",
-  "mjs",
+  "ts",
+  "tsx",
   "web.js",
   "js",
   "web.ts",
-  "ts",
   "web.tsx",
-  "tsx",
   "json",
   "web.jsx",
   "jsx",
