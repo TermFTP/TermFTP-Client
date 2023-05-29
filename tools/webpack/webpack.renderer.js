@@ -1,5 +1,5 @@
-const rules = require('./webpack.rules');
-const plugins = require('./webpack.plugins');
+const rules = require("./webpack.rules");
+const plugins = require("./webpack.plugins");
 
 module.exports = {
   module: {
@@ -7,17 +7,17 @@ module.exports = {
   },
   plugins: plugins,
   resolve: {
-    extensions: ['.js', '.ts', '.jsx', '.tsx', '.css'],
+    extensions: [".js", ".ts", ".jsx", ".tsx", ".css"],
     alias: {
       // Custom Aliases
-      ...require('./webpack.aliases'),
+      ...require("./webpack.aliases"),
     },
     fallback: {
       fs: false,
-      path: require.resolve('path-browserify'),
+      path: require.resolve("path-browserify"),
       module: false,
       dgram: false,
-      dns: require.resolve('dns'),
+      dns: require.resolve("dns"),
       http2: false,
       net: false,
       tls: false,
@@ -26,11 +26,11 @@ module.exports = {
       crypto: false,
     },
   },
-  stats: 'minimal',
+  stats: "minimal",
   /**
    * Fix: Enable inline-source-map to fix following:
    * Dev tools: unable to load source maps over custom protocol
    */
-  devtool: 'inline-source-map',
-  target: 'electron-renderer',
+  devtool: "inline-source-map",
+  target: "electron-renderer",
 };

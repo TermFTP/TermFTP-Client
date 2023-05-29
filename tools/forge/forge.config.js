@@ -50,7 +50,7 @@ module.exports = {
       config: {
         // Fix content-security-policy error when image or video src isn't same origin
         // Remove 'unsafe-eval' to get rid of console warning in development mode.
-        devContentSecurityPolicy: `default-src 'self' localhost:* ws: ; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:`,
+        devContentSecurityPolicy: `default-src 'self' localhost:* ws: file: ; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:`,
         // Ports
         port: 3000, // Webpack Dev Server port
         loggerPort: 9000, // Logger port
