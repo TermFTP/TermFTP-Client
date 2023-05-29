@@ -1,13 +1,9 @@
 import React, { useState } from "react";
 import "./Header.scss";
-import { faTimes, faWindowMinimize } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faWindowMaximize } from "@fortawesome/free-regular-svg-icons";
 import { DefaultDispatch, RootState } from "@store";
 import { connect, ConnectedProps } from "react-redux";
 import { push } from "connected-react-router";
 import { TabBar } from "@components";
-import context from "@misc/window/titlebarContextApi";
 
 const mapState = ({ router }: RootState) => ({
   router,
@@ -26,7 +22,7 @@ function HeaderUI({ router }: Props) {
   const [prevPath, setPrevPath] = useState("");
 
   const { location } = router;
-  const pathname = (location as any)?.pathname || "";
+  const pathname = location.pathname || "";
 
   if (pathname !== prevPath) setPrevPath(pathname);
 
@@ -56,9 +52,9 @@ function HeaderUI({ router }: Props) {
               pathname === "/"
             ) && <TabBar></TabBar>}
           </div>
-          <div className='headerDock'>
+          {/* <div className='headerDock'>
             <GetWindowControls id={id}></GetWindowControls>
-          </div>
+          </div> */}
         </div>
 
         <div className='headerResizableVert headerDragPadder'></div>
@@ -67,81 +63,81 @@ function HeaderUI({ router }: Props) {
   );
 }
 
-const GetWindowControls = ({ id }: { id: "darwin" | "" }) => {
-  function closeWindow() {
-    // const window = getCurrentWindow();
-    // window.close();
-    context.exit();
-  }
+// const GetWindowControls = ({ id }: { id: "darwin" | "" }) => {
+//   function closeWindow() {
+//     // const window = getCurrentWindow();
+//     // window.close();
+//     context.exit();
+//   }
 
-  function resizeWindow() {
-    // const window = getCurrentWindow();
-    // if (window.isMaximized()) {
-    //   window.unmaximize();
-    // } else {
-    //   window.maximize();
-    // }
-    context.toggle_maximize();
-  }
+//   function resizeWindow() {
+//     // const window = getCurrentWindow();
+//     // if (window.isMaximized()) {
+//     //   window.unmaximize();
+//     // } else {
+//     //   window.maximize();
+//     // }
+//     context.toggle_maximize();
+//   }
 
-  function minimizeWindow() {
-    // const window = getCurrentWindow();
-    context.minimize();
-  }
-  if (id === "darwin") {
-    return (
-      <>
-        <button
-          className='headerButton'
-          id='close'
-          tabIndex={-1}
-          onClick={closeWindow}
-        ></button>
-        <button
-          className='headerButton'
-          id='minimize'
-          tabIndex={-1}
-          onClick={minimizeWindow}
-        ></button>
-        <button
-          className='headerButton'
-          id='resize'
-          tabIndex={-1}
-          onClick={resizeWindow}
-        ></button>
-      </>
-    );
-  }
+//   function minimizeWindow() {
+//     // const window = getCurrentWindow();
+//     context.minimize();
+//   }
+//   if (id === "darwin") {
+//     return (
+//       <>
+//         <button
+//           className='headerButton'
+//           id='close'
+//           tabIndex={-1}
+//           onClick={closeWindow}
+//         ></button>
+//         <button
+//           className='headerButton'
+//           id='minimize'
+//           tabIndex={-1}
+//           onClick={minimizeWindow}
+//         ></button>
+//         <button
+//           className='headerButton'
+//           id='resize'
+//           tabIndex={-1}
+//           onClick={resizeWindow}
+//         ></button>
+//       </>
+//     );
+//   }
 
-  return (
-    <>
-      <button
-        className='headerButton btM'
-        id='fb_minimize'
-        tabIndex={-1}
-        onClick={minimizeWindow}
-      >
-        <FontAwesomeIcon icon={faWindowMinimize} />
-      </button>
-      <button
-        className='headerButton btR'
-        id='fb_resize'
-        tabIndex={-1}
-        onClick={resizeWindow}
-      >
-        <FontAwesomeIcon icon={faWindowMaximize} />
-      </button>
-      <button
-        className='headerButton btC'
-        id='fb_close'
-        tabIndex={-1}
-        onClick={closeWindow}
-      >
-        <FontAwesomeIcon icon={faTimes} />
-      </button>
-    </>
-  );
-};
+//   return (
+//     <>
+//       <button
+//         className='headerButton btM'
+//         id='fb_minimize'
+//         tabIndex={-1}
+//         onClick={minimizeWindow}
+//       >
+//         <FontAwesomeIcon icon={faWindowMinimize} />
+//       </button>
+//       <button
+//         className='headerButton btR'
+//         id='fb_resize'
+//         tabIndex={-1}
+//         onClick={resizeWindow}
+//       >
+//         <FontAwesomeIcon icon={faWindowMaximize} />
+//       </button>
+//       <button
+//         className='headerButton btC'
+//         id='fb_close'
+//         tabIndex={-1}
+//         onClick={closeWindow}
+//       >
+//         <FontAwesomeIcon icon={faTimes} />
+//       </button>
+//     </>
+//   );
+// };
 
 export const Header = connector(HeaderUI);
 
