@@ -1,6 +1,6 @@
 // import Client from "ftp";
 import { FileI, FTPRequest, FTPRequestType, FTPResponse, FTPResponseType } from "@models";
-import { BaseFTP, FTPConfig } from "./BaseFTP";
+import { BaseFTP, buildSocketURL, FTPConfig } from "./BaseFTP";
 import { connect } from "socket.io-client";
 
 export interface FTPEventDetails {
@@ -26,7 +26,7 @@ export class FTP extends BaseFTP {
 	}
 
 	connect(callback: (data: FTPResponse) => void, config?: FTPConfig): void {
-		const socket = connect('localhost:15000');
+		const socket = connect(buildSocketURL());
 		this.socket = socket;
 		this._config = config || this._config;
 
@@ -35,7 +35,7 @@ export class FTP extends BaseFTP {
 
 			socket.on('ftp:data', (res: FTPResponse) => {
 				if (res.type === FTPResponseType.LIST) {
-					res.data.files = res.data.files.map((f: any) => ({ ...f, date: new Date(f.date) }))
+					res.data.files = res.data.files.map((f) => ({ ...f, date: new Date(f.date) }))
 				}
 				callback(res)
 			});

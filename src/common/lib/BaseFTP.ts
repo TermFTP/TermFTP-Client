@@ -9,6 +9,10 @@ export interface FTPConfig extends d {
 	sshPort: number;
 }
 
+export function buildSocketURL(): string {
+	return `http://127.0.0.1:${window.electron_window.port}`;
+}
+
 export abstract class BaseFTP {
 	protected socket?: Socket;
 	// private  s: Error = new Error("implement a superclass");

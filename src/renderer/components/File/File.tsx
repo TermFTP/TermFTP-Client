@@ -22,7 +22,10 @@ const mapState = ({
     client,
   },
   fmReducer: { search },
-}: RootState) => ({ selected, search, client });
+  router: {
+    location: { pathname },
+  },
+}: RootState) => ({ selected, search, client, pathname });
 const mapDispatch = (dispatch: DefaultDispatch) => ({
   setContextMenu: (contextMenu: ContextMenuProps) =>
     dispatch(setContextMenu(contextMenu)),
@@ -53,6 +56,7 @@ function FileUI({
   search,
   client,
   clearSelection,
+  pathname,
 }: Props): JSX.Element {
   if (
     search.searching &&
@@ -181,7 +185,7 @@ function FileUI({
       data-name={file.name.toLowerCase()}
       onDoubleClick={async () => {
         if (file.type === FileType.DIR) {
-          push(`${normalizeURL(window.location.pathname)}/${file.name}`);
+          push(`${normalizeURL(pathname)}/${file.name}`);
           clearSelection();
         }
       }}

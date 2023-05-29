@@ -25,21 +25,25 @@ export const TabBar = (): JSX.Element => {
   const [highlighted, setHightlighted] = useState(-1);
   const hintsRef = useRef<Array<HTMLDivElement | null>>([]);
   const dispatch = useDispatch<DefaultDispatch>();
-  const { tabs, fmReducer, ftpReducer, tabToMove } = useSelector(
+  const { tabs, fmReducer, ftpReducer, tabToMove, pathname } = useSelector(
     ({
       tabsReducer: { tabs, tabToMove },
       fmReducer,
       ftpReducer,
+      router: {
+        location: { pathname },
+      },
     }: RootState) => ({
       tabs,
       fmReducer,
       ftpReducer,
       tabToMove,
+      pathname,
     }),
   );
 
   const onTabClicked = (tab: TabData) => {
-    if (tab.id) dispatch(switchToTab(tab, fmReducer, ftpReducer));
+    if (tab.id) dispatch(switchToTab(tab, fmReducer, ftpReducer, pathname));
     else dispatch(switchToTab(homeTab, fmReducer, ftpReducer, ""));
   };
 
@@ -107,7 +111,9 @@ export const TabBar = (): JSX.Element => {
       ))}
       <button
         className='tab-new'
-        onClick={() => dispatch(switchAndAddTab(fmReducer, ftpReducer))}
+        onClick={() =>
+          dispatch(switchAndAddTab(fmReducer, ftpReducer, pathname))
+        }
       >
         <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
       </button>

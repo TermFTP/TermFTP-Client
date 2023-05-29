@@ -13,7 +13,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export const Files = (): JSX.Element => {
-  const { files, selected, client, pasteBuffer } = useSelector(
+  const { files, selected, client, pasteBuffer, pathname } = useSelector(
     ({
       ftpReducer: {
         files,
@@ -21,16 +21,18 @@ export const Files = (): JSX.Element => {
         client,
       },
       fmReducer: { pasteBuffer },
+      router: {
+        location: { pathname },
+      },
     }: RootState) => ({
       files,
       selected,
       client,
       pasteBuffer,
+      pathname,
     }),
   );
-  const pwd = normalizeURL(
-    window.location.pathname.replace("/file-manager", ""),
-  );
+  const pwd = normalizeURL(pathname.replace("/file-manager", ""));
   const dotdotExists = files.filter((f) => f.name == "..").length > 0;
 
   const filtered = files.filter((f) => !(f.name == ".." || f.name == "."));

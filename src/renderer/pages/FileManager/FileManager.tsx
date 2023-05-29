@@ -46,14 +46,16 @@ import { switchAndAddTab } from "@store/tabs";
 const mapState = ({
   ftpReducer: { client },
   fmReducer: { menu, loading, terminalOpen, terminalHeight, pathBox },
-  router: { location },
+  router: {
+    location: { pathname },
+  },
   fmReducer,
   ftpReducer,
 }: RootState) => ({
   client,
   menu,
   loading,
-  location,
+  pathname,
   terminalOpen,
   terminalHeight,
   pathBox,
@@ -77,7 +79,8 @@ const mapDispatch = (d: DefaultDispatch) => ({
   goBack: () => d(goBack()),
   clearProgressFiles: () => d(clearProgressFiles()),
   changePathBox: (pathBox: PathBoxData) => d(changePathBox(pathBox)),
-  switchAndAddTab: (fm: FMState, ftp: FTPState) => d(switchAndAddTab(fm, ftp)),
+  switchAndAddTab: (fm: FMState, ftp: FTPState, path: string) =>
+    d(switchAndAddTab(fm, ftp, path)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -117,7 +120,12 @@ export class FileManagerUI extends Component<Props, State> {
       },
       PATH: () => this.props.changePathBox({ focused: true }),
       NEWTAB: () => {
-        this.props.switchAndAddTab(this.props.fmReducer, this.props.ftpReducer);
+        // TODO check if this needs to be updated when pathname changes
+        this.props.switchAndAddTab(
+          this.props.fmReducer,
+          this.props.ftpReducer,
+          this.props.pathname,
+        );
       },
     };
   }
@@ -128,9 +136,7 @@ export class FileManagerUI extends Component<Props, State> {
   }
 
   async componentDidUpdate(): Promise<void> {
-    const url = normalizeURL(
-      window.location.pathname.replace("/file-manager", ""),
-    );
+    const url = normalizeURL(this.props.pathname.replace("/file-manager", ""));
     if (!this.props.client) {
       this.props.replace("/main");
       return;

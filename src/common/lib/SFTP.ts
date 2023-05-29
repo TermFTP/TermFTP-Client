@@ -1,7 +1,7 @@
 import { connect } from 'socket.io-client';
 import { ConnectConfig } from 'ssh2';
 import { FTPResponse, FTPResponseType, FTPRequestType, FileI, FTPRequest } from '@models';
-import { BaseFTP, FTPConfig } from './BaseFTP';
+import { BaseFTP, FTPConfig, buildSocketURL } from './BaseFTP';
 
 const ReqT = FTPRequestType;
 
@@ -27,7 +27,7 @@ export class SFTP extends BaseFTP {
 	}
 
 	connect(callback: (data: FTPResponse) => void, config?: ConnectConfig): void {
-		const socket = connect('localhost:15000');
+		const socket = connect(buildSocketURL());
 		this.socket = socket;
 		this._config = config || this._config;
 

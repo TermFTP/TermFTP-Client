@@ -8,7 +8,9 @@ import { ClientEvents, ServerEvents } from "@models";
 import { SSHHandler } from "./socket/sshHandler";
 import { SFTPHandler } from "./socket/sftpHandler";
 import { FTPHandler } from "./socket/ftpHandler";
+import { AddressInfo } from "net";
 
+let port: number = undefined;
 const oneSecond = 1000;
 
 const app = express();
@@ -31,4 +33,14 @@ io.on('connection', function (socket) {
 	socket.on('ftp', FTPHandler(socket))
 });
 
-server.listen(15000, "localhost");
+export function startServer(): Promise<number> {
+	if (port) {
+		return Promise.resolve(port);
+	}
+	return new Promise((resolve) => {
+		server.listen(0, "127.0.0.1", () => {
+			port = (server.address() as AddressInfo).port;
+			resolve(port);
+		});
+	});
+}

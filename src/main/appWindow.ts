@@ -2,6 +2,9 @@ import { app, BrowserWindow, session } from 'electron';
 import path from 'path';
 import { registerTitlebarIpc } from '@misc/window/titlebarIPC';
 import { registerWindowIpc } from '@misc/window/windowIPC';
+import { startServer } from './server';
+import { inDev } from '@common/helpers';
+import { csp } from '@tools/forge/forge.config';
 
 // Electron Forge automatically creates these entry points
 declare const APP_WINDOW_WEBPACK_ENTRY: string;
@@ -13,7 +16,7 @@ let appWindow: BrowserWindow;
  * Create Application Window
  * @returns {BrowserWindow} Application Window Instance
  */
-export function createAppWindow(): BrowserWindow {
+export async function createAppWindow(): Promise<BrowserWindow> {
 	// Create new window instance
 	appWindow = new BrowserWindow({
 		width: 1280,
@@ -43,7 +46,10 @@ export function createAppWindow(): BrowserWindow {
 	appWindow.loadURL(APP_WINDOW_WEBPACK_ENTRY);
 
 	// Show window when its ready to
-	appWindow.on('ready-to-show', () => appWindow.show());
+	appWindow.on('ready-to-show', () => {
+		appWindow.show()
+		appWindow.webContents.send('server-port', port)
+	});
 
 	// Register Inter Process Communication for main process
 	registerMainIPC();
@@ -54,15 +60,17 @@ export function createAppWindow(): BrowserWindow {
 		app.quit();
 	});
 
-	session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-		callback({
-			responseHeaders: {
-				...details.responseHeaders,
-				'Content-Security-Policy':
-					['default-src \'self\' localhost:* ws: ; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data:; font-src \'self\' data:']
-			}
+	const port = await startServer();
+	if (!inDev()) {
+		session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+			callback({
+				responseHeaders: {
+					...details.responseHeaders,
+					'Content-Security-Policy': [csp(port.toString())]
+				}
+			})
 		})
-	})
+	}
 
 	return appWindow;
 }
