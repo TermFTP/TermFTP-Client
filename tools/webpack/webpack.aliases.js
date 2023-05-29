@@ -14,4 +14,5 @@ module.exports = createWebpackAliases({
   "@store": "src/renderer/store",
   "@pages": "src/renderer/pages",
   "@images": "assets/images",
+  "@tools": "tools",
 });

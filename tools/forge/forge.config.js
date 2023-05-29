@@ -1,8 +1,11 @@
 // Forge Configuration
 const path = require("path");
 const rootDir = process.cwd();
+const csp = (port = "0", apiBase = "") =>
+  `default-src 'self' http://127.0.0.1:${port} ws: file: ${apiBase}; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:`;
 
 module.exports = {
+  csp,
   // Packager Config
   packagerConfig: {
     // Create asar archive for main, renderer process files
@@ -50,7 +53,7 @@ module.exports = {
       config: {
         // Fix content-security-policy error when image or video src isn't same origin
         // Remove 'unsafe-eval' to get rid of console warning in development mode.
-        devContentSecurityPolicy: `default-src 'self' localhost:* ws: file: ; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:`,
+        devContentSecurityPolicy: csp("*"),
         // Ports
         port: 3000, // Webpack Dev Server port
         loggerPort: 9000, // Logger port

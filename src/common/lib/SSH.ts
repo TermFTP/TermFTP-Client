@@ -3,6 +3,7 @@ import { Terminal } from 'xterm';
 import { connect, Socket } from "socket.io-client";
 import { ResizeData } from '@models';
 import { FitAddon } from 'xterm-addon-fit';
+import { buildSocketURL } from '.';
 
 export class SSH {
 
@@ -33,7 +34,7 @@ export class SSH {
 		this.term = term;
 		this.elem = elem;
 
-		const socket = connect("localhost:15000");
+		const socket = connect(buildSocketURL());
 		this.socket = socket;
 		socket.once("connect", () => {
 			socket.emit("ssh", config)

@@ -31,7 +31,8 @@
       "@store/*": ["./src/renderer/store/*"],
       "@pages": ["./src/renderer/pages"],
       "@images": ["./assets/images"],
-      "@images/*": ["./assets/images/*"]
+      "@images/*": ["./assets/images/*"],
+      "@tools/*": ["./tools/*"]
     }
   },
   "include": ["src/**/*", "tools/**/*"]

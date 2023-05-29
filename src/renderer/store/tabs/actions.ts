@@ -31,7 +31,7 @@ export const removeTab = (id: string): TabsRemoveTab => ({
 export const closeTab: TabsThunk = (tab: TabData) => (dispatch) => {
 	tab.ftpReducer?.client?.disconnect();
 	dispatch(removeTab(tab.id));
-	dispatch(switchToTab({ id: undefined }, undefined, undefined))
+	dispatch(switchToTab({ id: undefined }, undefined, undefined, undefined))
 	// TODO move to next tab (or home tab when it was the only tab)
 };
 
@@ -42,11 +42,11 @@ export const changeTabPosition = (id: string, index: number): TabsChangePosition
 	type: A.CHANGE_POS
 })
 
-export const switchToTab: TabsThunk = (tab: TabData, currentFm: FMState, currentFtp: FTPState) => (dispatch) => {
+export const switchToTab: TabsThunk = (tab: TabData, currentFm: FMState, currentFtp: FTPState, path = "") => (dispatch) => {
 	const url = normalizeURL(
-		window.location.pathname.replace(/^\/([^/]+)\/?/, "/")
+		path.replace(/^\/([^/]+)\/?/, "/")
 	);
-	const pathname = window.location.pathname;
+	const pathname = path;
 	dispatch({
 		type: A.SWITCH_TAB,
 		payload: {
@@ -66,9 +66,9 @@ export const switchToTab: TabsThunk = (tab: TabData, currentFm: FMState, current
 	}
 }
 
-export const switchAndAddTab: TabsThunk<TabData> = (currentFm: FMState, currentFtp: FTPState) => (dispatch) => {
+export const switchAndAddTab: TabsThunk<TabData> = (currentFm: FMState, currentFtp: FTPState, path: string) => (dispatch) => {
 	const tab = dispatch(addTab());
-	dispatch(switchToTab(tab, currentFm, currentFtp))
+	dispatch(switchToTab(tab, currentFm, currentFtp, path))
 	return tab;
 }
 

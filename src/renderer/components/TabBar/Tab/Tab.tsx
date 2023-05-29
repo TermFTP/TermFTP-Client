@@ -30,8 +30,6 @@ export const Tab = ({ tab, onClicked, onTabDropped }: Props): JSX.Element => {
   const usedClient = active ? client : ftpReducer?.client;
   const config = usedClient?.config;
   let content: JSX.Element = <></>;
-  // const pathname = '';
-  console.log(pathname);
   if (id) {
     if (
       active &&

@@ -13,11 +13,10 @@ import {
   saveServer,
   changeEditServer,
 } from "@store/lists";
-import { EditReq, SaveReq, Server } from "@models";
+import { EditReq, SaveReq, Server, FTPConnectTypes } from "@models";
 import { ConnectDetails } from "./Lists/ServerItem/ServerItem";
 import { PromptProps } from "@components/Prompt/Prompt";
 import { FTPState, goToFTPClient, setFTPType } from "@store/ftp";
-import { FTPConnectTypes } from "@models";
 import { push } from "connected-react-router";
 import { switchAndAddTab } from "@store/tabs";
 import { FMState } from "@store/filemanager";
@@ -33,11 +32,15 @@ const mapState = ({
   ftpReducer,
   fmReducer,
   tabsReducer: { currentTab },
+  router: {
+    location: { pathname },
+  },
 }: RootState) => ({
   currentlyEdited,
   currentTab,
   ftpReducer,
   fmReducer,
+  pathname,
 });
 
 const mapDispatch = (dispatch: DefaultDispatch) => ({
@@ -50,8 +53,8 @@ const mapDispatch = (dispatch: DefaultDispatch) => ({
   changeEditServer: (server: Server) => dispatch(changeEditServer(server)),
   setFTPType: (type: FTPConnectTypes) => dispatch(setFTPType(type)),
   push: (route: string) => dispatch(push(route)),
-  switchAndAddTab: (fmReducer: FMState, ftpReducer: FTPState) =>
-    dispatch(switchAndAddTab(fmReducer, ftpReducer)),
+  switchAndAddTab: (fmReducer: FMState, ftpReducer: FTPState, path: string) =>
+    dispatch(switchAndAddTab(fmReducer, ftpReducer, path)),
 });
 
 const connector = connect(mapState, mapDispatch);
@@ -148,10 +151,10 @@ export class ConnectUI extends Component<Props, State> {
     const { username, ip, password, ftpPort, sshPort, key } =
       details || this.state;
     const { ftpType } = details || this.props.ftpReducer;
-    const { fmReducer, ftpReducer } = this.props;
+    const { fmReducer, ftpReducer, pathname } = this.props;
 
     if (!this.props.currentTab)
-      this.props.switchAndAddTab(fmReducer, ftpReducer);
+      this.props.switchAndAddTab(fmReducer, ftpReducer, pathname);
 
     if (ftpType === FTPConnectTypes.FTP) {
       this.props.goToFTP(
