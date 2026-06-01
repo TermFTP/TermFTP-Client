@@ -289,7 +289,7 @@ export class FileManagerUI extends Component<Props, State> {
     const files = [];
     const folders = [];
     for (const file of e.dataTransfer.files) {
-      const p = file.path;
+      const p = (file as File & { path: string }).path;
 
       if (fs.statSync(p).isDirectory()) {
         folders.push(p);

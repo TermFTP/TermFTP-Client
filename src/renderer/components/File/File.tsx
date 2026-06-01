@@ -155,7 +155,7 @@ function FileUI({
       const files = [];
       const folders = [];
       for (const file of e.dataTransfer.files) {
-        const p = file.path;
+        const p = (file as File & { path: string }).path;
 
         if (statSync(p).isDirectory()) {
           folders.push(p);
